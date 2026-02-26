@@ -64,8 +64,8 @@ const INITIAL_DB: DB = {
   templates: [
     { id: 't1', type: 'STUDENT_CARD', name: 'Modern Blue Style', config_json: '{"primary": "#2E50B8"}', is_active: true, preview_color: 'bg-blue-600' },
     { id: 't2', type: 'EXAM_CARD', name: 'Professional Exam Card', config_json: '{"primary": "#F97316"}', is_active: true, preview_color: 'bg-orange-500' },
-    { id: 't3', type: 'ID_CARD', name: 'Minimalist ID Card', config_json: '{"primary": "#0F172A"}', is_active: true, preview_color: 'bg-slate-900' },
-    { id: 't4', type: 'ID_CARD', name: 'Corporate Green', config_json: '{"primary": "#059669"}', is_active: false, preview_color: 'bg-emerald-600' }
+    { id: 't3', type: 'ID_CARD', name: 'Modern Green Batik', config_json: '{"primary": "#1B3C33"}', is_active: true, preview_color: 'bg-emerald-800' },
+    { id: 't4', type: 'ID_CARD', name: 'Corporate Dark', config_json: '{"primary": "#0F172A"}', is_active: false, preview_color: 'bg-slate-900' }
   ]
 };
 
@@ -77,7 +77,13 @@ export function getDB(): DB {
     return INITIAL_DB;
   }
   try {
-    return JSON.parse(stored);
+    const parsed = JSON.parse(stored);
+    // Pastikan data templates tidak kosong jika local storage sudah ada data lama
+    if (!parsed.templates || parsed.templates.length === 0) {
+      parsed.templates = INITIAL_DB.templates;
+      saveDB(parsed);
+    }
+    return parsed;
   } catch (e) {
     return INITIAL_DB;
   }

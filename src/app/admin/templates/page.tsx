@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -87,6 +86,11 @@ export default function TemplatesPage() {
     toast({ title: "Tersimpan", description: `Konfigurasi ${editingTemplate.name} telah diperbarui.` });
   };
 
+  const handleResetData = () => {
+    localStorage.removeItem('educard_sync_db');
+    window.location.reload();
+  };
+
   const handleAddNew = () => {
     toast({ title: "Segera Hadir", description: "Fitur pembuatan template kustom sedang dikembangkan." });
   };
@@ -99,8 +103,8 @@ export default function TemplatesPage() {
           <p className="text-muted-foreground">Pilih, aktifkan, dan kustomisasi gaya visual kartu sekolah Anda.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={() => window.location.reload()}>
-            <RefreshCw className="h-4 w-4" /> Reset View
+          <Button variant="outline" className="gap-2" onClick={handleResetData}>
+            <RefreshCw className="h-4 w-4" /> Reset Database
           </Button>
           <Button className="gap-2" onClick={handleAddNew}>
             <Plus className="h-4 w-4" /> Template Baru
@@ -113,7 +117,7 @@ export default function TemplatesPage() {
           <Card key={template.id} className={`overflow-hidden border-2 transition-all flex flex-col ${template.is_active ? 'border-primary shadow-lg bg-primary/5' : 'border-transparent'}`}>
             <CardHeader className="pb-4">
               <div className="flex justify-between items-start">
-                <div className={`p-2 rounded-lg border shadow-sm ${template.preview_color} text-white`}>
+                <div className={`p-2 rounded-lg border shadow-sm ${template.preview_color || 'bg-slate-400'} text-white`}>
                   <Layout className="h-5 w-5" />
                 </div>
                 <div className="flex gap-2">
@@ -136,13 +140,13 @@ export default function TemplatesPage() {
             </CardHeader>
             <CardContent className="flex-1 flex flex-col pt-2 space-y-6">
               <div className="aspect-[4/5] bg-white rounded-xl flex items-center justify-center border-2 border-dashed relative group overflow-hidden shadow-inner">
-                <div className={`${template.type === 'ID_CARD' ? 'scale-[0.5]' : 'scale-[0.6]'} origin-center transform transition-transform group-hover:scale-[1.1] duration-500`}>
+                <div className={`${template.type === 'ID_CARD' ? 'scale-[0.4]' : 'scale-[0.5]'} origin-center transform transition-transform group-hover:scale-[0.6] duration-500`}>
                   {template.type === 'STUDENT_CARD' && previewStudent && settings ? (
                     <StudentCardVisual student={previewStudent} settings={settings} />
                   ) : template.type === 'EXAM_CARD' && previewStudent && settings ? (
                     <ExamCardVisual student={previewStudent} settings={settings} />
                   ) : template.type === 'ID_CARD' && previewStudent && settings ? (
-                    <IdCardVisual student={previewStudent} settings={settings} />
+                    <IdCardVisual student={previewStudent} settings={settings} side="front" template={template} />
                   ) : (
                     <div className="w-[340px] h-[215px] bg-white border rounded-xl flex flex-col items-center justify-center p-4 text-center">
                       <div className={`w-full h-10 ${template.preview_color} rounded-t-lg mb-4 opacity-50`}></div>
