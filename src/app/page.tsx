@@ -10,21 +10,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { 
-  CreditCard, 
-  QrCode, 
-  BarChart3, 
-  ShieldCheck, 
   Search, 
-  CheckCircle2,
-  LogIn,
-  UserCheck,
-  Info,
-  Camera,
-  XCircle,
-  Loader2,
-  Zap,
+  LogIn, 
+  UserCheck, 
+  Info, 
+  Camera, 
+  XCircle, 
+  Loader2, 
+  Zap, 
   Navigation,
-  ArrowRight
+  ShieldCheck,
+  QrCode
 } from 'lucide-react';
 import {
   Dialog,
@@ -65,7 +61,7 @@ export default function LandingPage() {
     setIsSearching(true);
     setHasSearched(false);
     
-    // Simulasi pencarian database
+    // Simulasi pencarian database lokal
     setTimeout(() => {
       const db = getDB();
       const found = db.students.find(s => 
@@ -129,11 +125,6 @@ export default function LandingPage() {
             </div>
           </div>
           
-          <div className="hidden md:flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-            <Link href="#tracking" className="hover:text-primary transition-colors">Tracer System</Link>
-            <Link href="#features" className="hover:text-primary transition-colors">Fitur Utama</Link>
-          </div>
-
           <div className="flex items-center gap-4">
             <Dialog>
               <DialogTrigger asChild>
@@ -199,24 +190,23 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-32 lg:pt-32 lg:pb-48 bg-white overflow-hidden">
+      <section className="relative pt-24 pb-32 lg:pt-32 lg:pb-40 bg-white overflow-hidden border-b">
         <div className="container mx-auto px-4 relative z-10 text-center space-y-10">
            <Badge className="bg-primary/10 text-primary border-none px-6 py-2 text-[10px] font-black tracking-[0.3em] uppercase rounded-full">
               Identity Management SMKN 2 Tana Toraja
            </Badge>
-           <h1 className="text-6xl md:text-9xl font-black text-slate-900 leading-[0.9] tracking-tighter">
-             Verifikasi & <br/><span className="text-primary italic">Lacak Identitas.</span>
+           <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter">
+             Digital Card <br/><span className="text-primary italic">& Tracer System.</span>
            </h1>
-           <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
-             Platform digital terpadu untuk pencetakan kartu, absensi cerdas berbasis QR Code, dan pelacakan data siswa secara real-time.
+           <p className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto">
+             Verifikasi identitas siswa secara instan melalui sistem pelacakan berbasis database terpadu.
            </p>
         </div>
         <div className="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-secondary/10 rounded-full blur-3xl"></div>
       </section>
 
-      {/* Tracer Section (The Core Feature) */}
-      <section id="tracking" className="py-24 bg-slate-50 border-y relative">
+      {/* Tracer Section */}
+      <section className="py-24 bg-slate-50 relative">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <Card className="shadow-2xl border-none rounded-[3rem] overflow-hidden bg-white">
@@ -228,8 +218,8 @@ export default function LandingPage() {
                          <Navigation className="h-5 w-5 fill-primary" />
                          <span className="text-[10px] font-black uppercase tracking-[0.3em]">Identity Tracer Tool</span>
                       </div>
-                      <h3 className="text-4xl font-black text-slate-900 tracking-tight leading-none">Cek Validitas Kartu.</h3>
-                      <p className="text-muted-foreground font-medium">Masukkan parameter untuk mengidentifikasi data dari database admin.</p>
+                      <h3 className="text-4xl font-black text-slate-900 tracking-tight leading-none">Lacak Identitas.</h3>
+                      <p className="text-muted-foreground font-medium">Gunakan NIS, NISN, atau Kode Kartu untuk memverifikasi data.</p>
                     </div>
 
                     <form onSubmit={handleSearch} className="relative group">
@@ -237,8 +227,8 @@ export default function LandingPage() {
                         <Search />
                       </div>
                       <Input 
-                        placeholder="NIS / NISN / KODE KARTU..." 
-                        className="pl-14 h-16 text-xl border-2 border-slate-100 bg-slate-50/50 focus-visible:bg-white focus-visible:ring-primary focus-visible:border-primary rounded-2xl transition-all font-bold"
+                        placeholder="Masukkan NIS / NISN / KODE..." 
+                        className="pl-14 h-16 text-xl border-2 border-slate-100 bg-slate-50/50 focus-visible:bg-white rounded-2xl font-bold"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
@@ -252,22 +242,22 @@ export default function LandingPage() {
                     </form>
 
                     <div className="grid grid-cols-3 gap-4">
-                      <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                      <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
                          <UserCheck className="h-6 w-6 text-primary" />
                          <span className="text-[8px] font-black uppercase tracking-widest opacity-50">NIS/NISN</span>
                       </div>
-                      <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                      <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
                          <QrCode className="h-6 w-6 text-primary" />
-                         <span className="text-[8px] font-black uppercase tracking-widest opacity-50">ID Barcode</span>
+                         <span className="text-[8px] font-black uppercase tracking-widest opacity-50">QR-Code</span>
                       </div>
-                      <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                      <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
                          <Camera className="h-6 w-6 text-primary" />
-                         <span className="text-[8px] font-black uppercase tracking-widest opacity-50">Photo Scan</span>
+                         <span className="text-[8px] font-black uppercase tracking-widest opacity-50">ID Card</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="md:col-span-2 bg-slate-900 p-10 lg:p-16 text-white flex flex-col justify-center relative overflow-hidden">
+                  <div className="md:col-span-2 bg-slate-900 p-10 lg:p-16 text-white flex flex-col justify-center relative">
                     <div className="relative z-10 space-y-8">
                       {hasSearched && searchResult ? (
                         <div className="animate-in fade-in zoom-in-95 duration-500 space-y-8 text-center">
@@ -277,39 +267,24 @@ export default function LandingPage() {
                               alt="Foto" fill className="object-cover" unoptimized 
                             />
                           </div>
-                          <div className="space-y-2">
+                          <div className="space-y-1">
                             <h4 className="text-2xl font-black uppercase tracking-tight">{searchResult.name}</h4>
-                            <p className="text-xs text-primary font-black tracking-widest uppercase">{searchResult.class} • {searchResult.major}</p>
+                            <p className="text-[10px] text-primary font-black tracking-widest uppercase">{searchResult.class} • {searchResult.major}</p>
                           </div>
                           <div className="space-y-2">
                              <div className="bg-white/5 p-4 rounded-xl flex justify-between items-center border border-white/5">
-                                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Status</span>
-                                <Badge className="bg-emerald-500 text-emerald-950 border-none text-[10px] font-black uppercase">{searchResult.status}</Badge>
-                             </div>
-                             <div className="bg-white/5 p-4 rounded-xl flex justify-between items-center border border-white/5">
-                                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Berlaku</span>
-                                <span className="text-xs font-black">{searchResult.valid_until}</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Status</span>
+                                <Badge className="bg-emerald-500 text-emerald-950 border-none text-[9px] font-black uppercase">{searchResult.status}</Badge>
                              </div>
                           </div>
-                          <Button variant="secondary" className="w-full font-black h-12 rounded-xl text-[10px] tracking-[0.2em] uppercase" asChild>
-                            <Link href={`/verify/${searchResult.card_code}`}>DETAIL VERIFIKASI</Link>
+                          <Button variant="secondary" className="w-full font-black h-12 rounded-xl text-[10px] tracking-widest uppercase" asChild>
+                            <Link href={`/verify/${searchResult.card_code}`}>VERIFIKASI PENUH</Link>
                           </Button>
-                        </div>
-                      ) : hasSearched ? (
-                        <div className="text-center space-y-6 animate-in fade-in duration-500">
-                          <XCircle className="h-16 w-16 text-red-500 mx-auto opacity-50" />
-                          <div className="space-y-2">
-                            <h4 className="text-xl font-black tracking-tight uppercase">Data Tidak Ditemukan</h4>
-                            <p className="text-xs opacity-60 font-medium italic">Data tidak terdaftar di log database admin.</p>
-                          </div>
                         </div>
                       ) : (
                         <div className="text-center space-y-8 opacity-40 flex flex-col items-center py-10">
-                          <Zap className="h-24 w-24 text-white" fill="white" />
-                          <div className="space-y-2">
-                            <h4 className="text-xl font-black tracking-tight uppercase">Ready to Trace</h4>
-                            <p className="text-xs font-medium">Input parameter untuk memuat identitas.</p>
-                          </div>
+                          <Zap className="h-20 w-20 text-white" fill="white" />
+                          <p className="text-[10px] font-black uppercase tracking-widest">Siap Melacak Database</p>
                         </div>
                       )}
                     </div>
@@ -321,32 +296,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
-           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-center">
-              <div>
-                <div className="text-4xl font-black text-primary mb-2">1.500+</div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Siswa Terdata</div>
-              </div>
-              <div>
-                <div className="text-4xl font-black text-primary mb-2">24/7</div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">System Uptime</div>
-              </div>
-              <div>
-                <div className="text-4xl font-black text-primary mb-2">100%</div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Verifikasi Akurat</div>
-              </div>
-              <div>
-                <div className="text-4xl font-black text-primary mb-2">Real-Time</div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sinkronisasi Log</div>
-              </div>
-           </div>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="bg-slate-50 border-t py-12">
+      <footer className="bg-white border-t py-12">
         <div className="container mx-auto px-4 text-center">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
              &copy; {new Date().getFullYear()} EDU-SYNC SYSTEM. SMKN 2 TANA TORAJA.

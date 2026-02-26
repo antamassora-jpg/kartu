@@ -10,16 +10,12 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Layout, 
   Palette, 
-  CheckCircle2, 
   Save, 
   RotateCcw, 
-  Upload, 
-  Image as ImageIcon, 
-  ChevronRight, 
-  Type, 
   Plus, 
   Trash2,
-  Loader2
+  Loader2,
+  Type
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { StudentCardVisual } from '@/components/student-card-visual';
@@ -31,7 +27,6 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogFooter, 
-  DialogDescription,
   DialogTrigger
 } from '@/components/ui/dialog';
 import {
@@ -93,10 +88,10 @@ export default function TemplatesPage() {
     if (db.students && db.students.length > 0) {
       setPreviewStudent(db.students[0]);
     } else {
-      // Data dummy fallback jika siswa benar-benar kosong
+      // Data dummy fallback
       setPreviewStudent({
         id: 'demo-1',
-        name: 'SIMULASI NAMA SISWA LENGKAP',
+        name: 'SIMULASI NAMA SISWA',
         nis: '20210001',
         nisn: '0059876543',
         class: 'XII',
@@ -161,7 +156,7 @@ export default function TemplatesPage() {
     });
     saveDB(db);
     setTemplates(db.templates);
-    toast({ title: "Template Aktif", description: `Template ${template.name} kini digunakan sebagai desain utama.` });
+    toast({ title: "Template Aktif", description: `Template ${template.name} kini digunakan.` });
   };
 
   const handleDeleteConfirm = () => {
@@ -171,7 +166,7 @@ export default function TemplatesPage() {
     saveDB(db);
     setTemplates(db.templates);
     setTemplateToDelete(null);
-    toast({ title: "Dihapus", description: "Template telah dihapus dari sistem." });
+    toast({ title: "Dihapus", description: "Template telah dihapus." });
   };
 
   const openConfig = (template: CardTemplate) => {
@@ -188,7 +183,7 @@ export default function TemplatesPage() {
     saveDB(db);
     setTemplates(db.templates);
     setIsConfigOpen(false);
-    toast({ title: "Konfigurasi Disimpan", description: "Perubahan visual telah diperbarui secara global." });
+    toast({ title: "Konfigurasi Disimpan", description: "Perubahan visual telah diperbarui." });
   };
 
   if (!isMounted || !settings) return (
@@ -199,14 +194,14 @@ export default function TemplatesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+      <div className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-black font-headline text-primary tracking-tighter uppercase">Template Desain</h1>
-          <p className="text-muted-foreground font-medium">Data di bawah adalah sinkronisasi otomatis dari Halaman Siswa & Settings.</p>
+          <p className="text-muted-foreground font-medium">Kustomisasi desain kartu berbasis data riil.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={refreshData} className="gap-2 h-10 px-6 rounded-xl font-bold uppercase text-[10px]">
-            <RotateCcw className="h-4 w-4" /> Refresh Data
+            <RotateCcw className="h-4 w-4" /> Refresh
           </Button>
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
@@ -224,7 +219,7 @@ export default function TemplatesPage() {
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tipe Kartu</Label>
                   <Select value={newTemplateType} onValueChange={(v: any) => setNewTemplateType(v)}>
-                    <SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-12 rounded-xl border-2"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="STUDENT_CARD">Kartu Pelajar</SelectItem>
                       <SelectItem value="EXAM_CARD">Kartu Ujian</SelectItem>
@@ -294,7 +289,7 @@ export default function TemplatesPage() {
         <AlertDialogContent className="rounded-[2rem]">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl font-black uppercase tracking-tight">Hapus Desain?</AlertDialogTitle>
-            <AlertDialogDescription className="font-medium">Tindakan ini permanen. Seluruh kustomisasi warna dan font pada template ini akan hilang.</AlertDialogDescription>
+            <AlertDialogDescription className="font-medium">Seluruh kustomisasi warna dan font pada template ini akan hilang secara permanen.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="rounded-xl font-bold uppercase text-[10px]">Batal</AlertDialogCancel>
@@ -308,10 +303,10 @@ export default function TemplatesPage() {
           <div className="bg-slate-900 p-8 text-white flex justify-between items-center">
                <div>
                   <h2 className="text-2xl font-black uppercase tracking-tighter">Editor Visual: {editingTemplate?.name}</h2>
-                  <p className="text-xs text-white/50 font-bold uppercase tracking-widest">Kustomisasi Warna & Font (Sisi Depan & Belakang)</p>
+                  <p className="text-xs text-white/50 font-bold uppercase tracking-widest">Kustomisasi Warna & Font Berdasarkan Data Riil</p>
                </div>
                <Button variant="ghost" size="sm" onClick={() => setLocalConfig(DEFAULT_CONFIG)} className="gap-2 text-white/40 hover:text-white hover:bg-white/10 h-10 px-6 rounded-full font-black text-[10px] uppercase tracking-widest">
-                 <RotateCcw className="h-4 w-4" /> Reset ke Default
+                 <RotateCcw className="h-4 w-4" /> Reset
                </Button>
           </div>
           
@@ -319,11 +314,11 @@ export default function TemplatesPage() {
             <div className="p-10 space-y-8 bg-white border-r max-h-[70vh] overflow-y-auto scrollbar-thin">
               <Tabs defaultValue="front">
                 <TabsList className="grid w-full grid-cols-2 h-14 bg-slate-100 p-1 rounded-2xl">
-                  <TabsTrigger value="front" className="rounded-xl font-black text-[10px] tracking-widest uppercase data-[state=active]:shadow-md">Sisi Depan</TabsTrigger>
-                  <TabsTrigger value="back" className="rounded-xl font-black text-[10px] tracking-widest uppercase data-[state=active]:shadow-md">Sisi Belakang</TabsTrigger>
+                  <TabsTrigger value="front" className="rounded-xl font-black text-[10px] uppercase">Sisi Depan</TabsTrigger>
+                  <TabsTrigger value="back" className="rounded-xl font-black text-[10px] uppercase">Sisi Belakang</TabsTrigger>
                 </TabsList>
                 {['front', 'back'].map(side => (
-                  <TabsContent key={side} value={side} className="space-y-6 pt-6 animate-in fade-in-50">
+                  <TabsContent key={side} value={side} className="space-y-6 pt-6">
                     <div className="space-y-4">
                       <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
                          <Type className="h-3 w-3" /> Tipografi Utama
@@ -355,14 +350,8 @@ export default function TemplatesPage() {
               <div className="flex flex-col gap-10 scale-[0.8] origin-center">
                  {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && settings && (
                    <>
-                     <div className="space-y-2 flex flex-col items-center">
-                        <span className="text-[9px] font-black uppercase text-slate-300">Front Side</span>
-                        <StudentCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                     </div>
-                     <div className="space-y-2 flex flex-col items-center">
-                        <span className="text-[9px] font-black uppercase text-slate-300">Back Side</span>
-                        <StudentCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                     </div>
+                     <StudentCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                     <StudentCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
                    </>
                  )}
                  {editingTemplate?.type === 'EXAM_CARD' && previewStudent && settings && (
