@@ -12,7 +12,6 @@ import {
   CheckCircle2, 
   Trash2, 
   Plus, 
-  Eye, 
   Settings2,
   Save,
   RefreshCw,
@@ -34,14 +33,50 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-const PRESET_COLORS = [
-  { name: 'Emerald Batik', hex: '#1B3C33', tailwind: 'bg-emerald-900' },
-  { name: 'Navy Corporate', hex: '#0F172A', tailwind: 'bg-slate-900' },
-  { name: 'Royal Blue', hex: '#1E3A8A', tailwind: 'bg-blue-900' },
-  { name: 'Deep Maroon', hex: '#450A0A', tailwind: 'bg-red-950' },
-  { name: 'Charcoal', hex: '#1F2937', tailwind: 'bg-gray-800' },
-  { name: 'Deep Purple', hex: '#3B0764', tailwind: 'bg-purple-950' },
-  { name: 'Forest Green', hex: '#064E3B', tailwind: 'bg-green-950' },
+// Definisi Komposisi Tema (Primary & Accent)
+const COLOR_SCHEMES = [
+  { 
+    name: 'Emerald Batik', 
+    primary: '#1B3C33', 
+    accent: '#10B981', 
+    preview: 'bg-emerald-900',
+    description: 'Hijau botol dengan aksen emerald cerah'
+  },
+  { 
+    name: 'Navy Corporate', 
+    primary: '#0F172A', 
+    accent: '#3B82F6', 
+    preview: 'bg-slate-900',
+    description: 'Biru navy dengan aksen biru elektrik'
+  },
+  { 
+    name: 'Royal Purple', 
+    primary: '#3B0764', 
+    accent: '#A855F7', 
+    preview: 'bg-purple-950',
+    description: 'Ungu tua dengan aksen lavender cerah'
+  },
+  { 
+    name: 'Deep Maroon', 
+    primary: '#450A0A', 
+    accent: '#F87171', 
+    preview: 'bg-red-950',
+    description: 'Merah marun dengan aksen merah muda'
+  },
+  { 
+    name: 'Charcoal Gold', 
+    primary: '#1F2937', 
+    accent: '#F59E0B', 
+    preview: 'bg-gray-800',
+    description: 'Abu-abu gelap dengan aksen emas'
+  },
+  { 
+    name: 'Ocean Teal', 
+    primary: '#134E4A', 
+    accent: '#2DD4BF', 
+    preview: 'bg-teal-900',
+    description: 'Teal pekat dengan aksen toska'
+  },
 ];
 
 export default function TemplatesPage() {
@@ -81,19 +116,23 @@ export default function TemplatesPage() {
     setIsConfigOpen(true);
   };
 
-  const handleSelectColor = (hex: string, tailwind: string) => {
+  const handleSelectScheme = (scheme: typeof COLOR_SCHEMES[0]) => {
     if (!editingTemplate) return;
     setEditingTemplate({
       ...editingTemplate,
-      preview_color: tailwind,
-      config_json: JSON.stringify({ primary: hex })
+      preview_color: scheme.preview,
+      config_json: JSON.stringify({ 
+        primary: scheme.primary, 
+        accent: scheme.accent 
+      })
     });
   };
 
-  const getCurrentColorHex = () => {
+  const getActiveScheme = () => {
     try {
       if (editingTemplate?.config_json) {
-        return JSON.parse(editingTemplate.config_json).primary;
+        const config = JSON.parse(editingTemplate.config_json);
+        return COLOR_SCHEMES.find(s => s.primary === config.primary);
       }
     } catch (e) {}
     return null;
@@ -124,7 +163,7 @@ export default function TemplatesPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Template Desain</h1>
-          <p className="text-muted-foreground">Pilih, aktifkan, dan kustomisasi gaya visual kartu sekolah Anda.</p>
+          <p className="text-muted-foreground">Pilih komposisi warna dan gaya visual kartu sekolah Anda.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="gap-2" onClick={handleResetData}>
@@ -198,9 +237,6 @@ export default function TemplatesPage() {
                 <Button variant="outline" size="icon" onClick={() => openConfig(template)}>
                   <Palette className="h-4 w-4 text-primary" />
                 </Button>
-                <Button variant="outline" size="icon" className="text-destructive">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -210,9 +246,9 @@ export default function TemplatesPage() {
       <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Kustomisasi Visual</DialogTitle>
+            <DialogTitle>Kustomisasi Tema Kartu</DialogTitle>
             <DialogDescription>
-              Pilih identitas warna untuk template <strong>{editingTemplate?.name}</strong>.
+              Pilih komposisi warna yang telah disesuaikan untuk template <strong>{editingTemplate?.name}</strong>.
             </DialogDescription>
           </DialogHeader>
           {editingTemplate && (
@@ -227,26 +263,33 @@ export default function TemplatesPage() {
               </div>
               
               <div className="space-y-3">
-                <Label>Pilih Warna Tema Utama</Label>
-                <div className="grid grid-cols-4 gap-3">
-                  {PRESET_COLORS.map((color) => (
-                    <button
-                      key={color.hex}
-                      className={cn(
-                        "group relative aspect-square rounded-full border-2 transition-all flex items-center justify-center",
-                        color.tailwind,
-                        getCurrentColorHex() === color.hex ? "border-primary scale-110 shadow-md" : "border-transparent hover:scale-105"
-                      )}
-                      onClick={() => handleSelectColor(color.hex, color.tailwind)}
-                      title={color.name}
-                    >
-                      {getCurrentColorHex() === color.hex && (
-                        <Check className="h-5 w-5 text-white" />
-                      )}
-                    </button>
-                  ))}
+                <Label>Pilih Komposisi Warna</Label>
+                <div className="grid grid-cols-1 gap-3">
+                  {COLOR_SCHEMES.map((scheme) => {
+                    const isActive = getActiveScheme()?.name === scheme.name;
+                    return (
+                      <button
+                        key={scheme.name}
+                        className={cn(
+                          "w-full flex items-center gap-4 p-3 rounded-xl border-2 transition-all hover:bg-muted/50 text-left",
+                          isActive ? "border-primary bg-primary/5" : "border-transparent"
+                        )}
+                        onClick={() => handleSelectScheme(scheme)}
+                      >
+                        <div className="flex-shrink-0 flex items-center">
+                           <div className={cn("w-8 h-8 rounded-full border shadow-sm", scheme.preview)} style={{ backgroundColor: scheme.primary }}></div>
+                           <div className="w-8 h-8 rounded-full border shadow-sm -ml-4" style={{ backgroundColor: scheme.accent }}></div>
+                        </div>
+                        <div className="flex-1">
+                           <div className="text-sm font-bold">{scheme.name}</div>
+                           <div className="text-[10px] text-muted-foreground">{scheme.description}</div>
+                        </div>
+                        {isActive && <Check className="h-5 w-5 text-primary" />}
+                      </button>
+                    );
+                  })}
                 </div>
-                <p className="text-[10px] text-muted-foreground italic mt-2">Warna ini akan digunakan sebagai latar belakang dan aksen utama pada kartu.</p>
+                <p className="text-[10px] text-muted-foreground italic mt-2">Setiap tema menyertakan warna utama dan warna aksen yang serasi.</p>
               </div>
             </div>
           )}

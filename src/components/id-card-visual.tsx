@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Student, SchoolSettings, CardTemplate } from '@/app/lib/types';
@@ -16,22 +15,26 @@ export function IdCardVisual({
   template?: CardTemplate | null
 }) {
   // Parsing config dari template jika ada
-  let config: any = {};
+  let config: any = {
+    primary: '#1B3C33', // Default Hijau Gelap
+    accent: '#10B981'   // Default Emerald
+  };
+
   try {
     if (template?.config_json) {
-      config = JSON.parse(template.config_json);
+      const parsed = JSON.parse(template.config_json);
+      if (parsed.primary) config.primary = parsed.primary;
+      if (parsed.accent) config.accent = parsed.accent;
     }
   } catch (e) {
     console.error("Failed to parse template config", e);
   }
 
-  const primaryColor = config.primary || '#1B3C33'; // Default Hijau Gelap jika tidak ada config
-
   // Ukuran 7.3cm x 11.1cm (276px x 420px pada 96 DPI)
   const cardStyle = {
     width: '276px',
     height: '420px',
-    backgroundColor: primaryColor
+    backgroundColor: config.primary
   };
 
   if (side === 'front') {
@@ -57,7 +60,7 @@ export function IdCardVisual({
             </div>
             <div className="flex flex-col">
               <h2 className="font-black text-[11px] uppercase leading-none tracking-tight">Madrasah Aliyah</h2>
-              <h2 className="font-black text-[11px] uppercase leading-none tracking-tight text-emerald-400">Negeri 2 Tana Toraja</h2>
+              <h2 className="font-black text-[11px] uppercase leading-none tracking-tight" style={{ color: config.accent }}>Negeri 2 Tana Toraja</h2>
             </div>
           </div>
         </div>
@@ -83,7 +86,7 @@ export function IdCardVisual({
                 />
                 <div 
                   className="absolute inset-0 bg-gradient-to-t via-transparent to-transparent"
-                  style={{ backgroundImage: `linear-gradient(to top, ${primaryColor}, transparent, transparent)` }}
+                  style={{ backgroundImage: `linear-gradient(to top, ${config.primary}, transparent, transparent)` }}
                 ></div>
               </div>
             ) : (
@@ -96,7 +99,10 @@ export function IdCardVisual({
         <div className="relative z-20 mt-auto p-6 space-y-2">
           <div className="space-y-0.5">
             <h1 className="text-xl font-black uppercase tracking-tight leading-none drop-shadow-md">{student.name}</h1>
-            <div className="inline-block px-2 py-0.5 bg-emerald-500 rounded text-[8px] font-bold uppercase tracking-widest">
+            <div 
+              className="inline-block px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest text-white shadow-sm"
+              style={{ backgroundColor: config.accent }}
+            >
                {student.major}
             </div>
           </div>
@@ -115,7 +121,7 @@ export function IdCardVisual({
         </div>
 
         {/* Bottom Bar Accent */}
-        <div className="h-1.5 w-full bg-emerald-500 relative z-20"></div>
+        <div className="h-1.5 w-full relative z-20" style={{ backgroundColor: config.accent }}></div>
       </div>
     );
   }
@@ -152,7 +158,12 @@ export function IdCardVisual({
         </div>
 
         <div className="flex-1 w-full space-y-4 text-center">
-           <h4 className="text-[9px] font-black uppercase tracking-widest text-emerald-400 border-b border-white/10 pb-2">Terms and Conditions</h4>
+           <h4 
+             className="text-[9px] font-black uppercase tracking-widest border-b border-white/10 pb-2"
+             style={{ color: config.accent }}
+           >
+             Terms and Conditions
+           </h4>
            <div className="space-y-3 text-[8px] text-white/70 leading-relaxed italic">
               <p>1. Kartu ini merupakan identitas resmi siswa di lingkungan sekolah.</p>
               <p>2. Wajib dibawa dan dikenakan selama jam operasional sekolah.</p>
