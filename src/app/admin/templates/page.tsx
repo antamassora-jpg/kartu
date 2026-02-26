@@ -6,7 +6,7 @@ import { CardTemplate, SchoolSettings, Student } from '@/app/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Layout, Palette, CheckCircle2, Save, RefreshCw, Upload, Image as ImageIcon, ChevronRight } from 'lucide-react';
+import { Layout, Palette, CheckCircle2, Save, RefreshCw, Upload, Image as ImageIcon, ChevronRight, Type } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { StudentCardVisual } from '@/components/student-card-visual';
 import { ExamCardVisual } from '@/components/exam-card-visual';
@@ -15,10 +15,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const FONT_OPTIONS = [
+  { name: 'Inter (Default)', value: 'Inter, sans-serif' },
+  { name: 'Oswald (Bold Display)', value: 'Oswald, sans-serif' },
+  { name: 'Montserrat (Modern)', value: 'Montserrat, sans-serif' },
+  { name: 'Playfair Display (Elegant)', value: 'Playfair Display, serif' },
+  { name: 'Roboto Mono (Technical)', value: 'Roboto Mono, monospace' },
+];
 
 const DEFAULT_CONFIG = {
-  front: { headerBg: '#1B3C33', bodyBg: '#ffffff', footerBg: '#10B981', textColor: '#334155', bgImage: '' },
-  back: { headerBg: '#1B3C33', bodyBg: '#ffffff', footerBg: '#f8fafc', textColor: '#334155', bgImage: '' }
+  front: { headerBg: '#1B3C33', bodyBg: '#ffffff', footerBg: '#10B981', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif' },
+  back: { headerBg: '#1B3C33', bodyBg: '#ffffff', footerBg: '#f8fafc', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif' }
 };
 
 export default function TemplatesPage() {
@@ -112,7 +121,7 @@ export default function TemplatesPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Template Desain</h1>
-          <p className="text-muted-foreground">Kustomisasi warna dan background kartu (Skin).</p>
+          <p className="text-muted-foreground">Kustomisasi warna, background, dan font kartu (Skin).</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="gap-2 text-muted-foreground" onClick={handleResetData}>
@@ -181,7 +190,7 @@ export default function TemplatesPage() {
       <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Kustomisasi Warna & Background</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Kustomisasi Warna, Font & Background</DialogTitle>
             <DialogDescription>
               Atur komposisi visual untuk template <strong>{editingTemplate?.name}</strong>.
             </DialogDescription>
@@ -198,8 +207,28 @@ export default function TemplatesPage() {
                 {['front', 'back'].map((side) => (
                   <TabsContent key={side} value={side} className="space-y-6 py-4 border rounded-xl p-4 mt-4 bg-slate-50/50">
                     <div className="space-y-4">
-                      <Label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest">Warna Komposisi</Label>
+                      <Label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest">Warna & Tipografi</Label>
                       <div className="grid grid-cols-1 gap-3">
+                        <div className="bg-white p-3 rounded-lg border shadow-sm space-y-2">
+                          <Label className="text-[11px] font-bold text-slate-700 flex items-center gap-2">
+                            <Type className="h-3 w-3" /> Jenis Font
+                          </Label>
+                          <Select 
+                            value={localConfig[side].fontFamily} 
+                            onValueChange={(val) => setLocalConfig({...localConfig, [side]: {...localConfig[side], fontFamily: val}})}
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {FONT_OPTIONS.map(font => (
+                                <SelectItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>
+                                  {font.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         <ColorInput label="Warna Header" value={localConfig[side].headerBg} onChange={(val) => setLocalConfig({...localConfig, [side]: {...localConfig[side], headerBg: val}})} />
                         <ColorInput label="Warna Body" value={localConfig[side].bodyBg} onChange={(val) => setLocalConfig({...localConfig, [side]: {...localConfig[side], bodyBg: val}})} />
                         <ColorInput label="Warna Footer" value={localConfig[side].footerBg} onChange={(val) => setLocalConfig({...localConfig, [side]: {...localConfig[side], footerBg: val}})} />

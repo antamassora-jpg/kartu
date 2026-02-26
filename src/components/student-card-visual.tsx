@@ -15,8 +15,8 @@ export function StudentCardVisual({
   template?: CardTemplate | null
 }) {
   const DEFAULT_CONFIG = {
-    front: { headerBg: '#2E50B8', bodyBg: '#ffffff', footerBg: '#4FBFDD', textColor: '#334155', bgImage: '' },
-    back: { headerBg: '#2E50B8', bodyBg: '#ffffff', footerBg: '#4FBFDD', textColor: '#334155', bgImage: '' }
+    front: { headerBg: '#2E50B8', bodyBg: '#ffffff', footerBg: '#4FBFDD', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif' },
+    back: { headerBg: '#2E50B8', bodyBg: '#ffffff', footerBg: '#4FBFDD', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif' }
   };
 
   let config = DEFAULT_CONFIG;
@@ -39,12 +39,13 @@ export function StudentCardVisual({
     backgroundImage: current.bgImage ? `url(${current.bgImage})` : 'none',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    color: current.textColor
+    color: current.textColor,
+    fontFamily: current.fontFamily
   };
 
   if (side === 'front') {
     return (
-      <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none font-sans">
+      <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none">
         <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 gap-3 relative z-10 shadow-sm border-b">
           <div className="w-10 h-10 relative bg-white rounded-md p-1 shadow-inner shrink-0">
             <Image src={settings.logo_left} alt="Logo" fill className="object-contain" priority />
@@ -90,7 +91,7 @@ export function StudentCardVisual({
   }
 
   return (
-    <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none font-sans p-6 flex flex-col">
+    <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none p-6 flex flex-col">
       <div className="text-center mb-3 relative z-10">
         <h4 className="font-bold text-[11px] uppercase border-b-2 pb-1 tracking-widest" style={{ color: current.headerBg, borderColor: current.headerBg }}>Ketentuan Pengguna</h4>
       </div>

@@ -17,8 +17,8 @@ export function ExamCardVisual({
   template?: CardTemplate | null
 }) {
   const DEFAULT_CONFIG = {
-    front: { headerBg: '#1e293b', bodyBg: '#ffffff', footerBg: '#f97316', textColor: '#334155', bgImage: '' },
-    back: { headerBg: '#1e293b', bodyBg: '#ffffff', footerBg: '#f97316', textColor: '#334155', bgImage: '' }
+    front: { headerBg: '#1e293b', bodyBg: '#ffffff', footerBg: '#f97316', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif' },
+    back: { headerBg: '#1e293b', bodyBg: '#ffffff', footerBg: '#f97316', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif' }
   };
 
   let config = DEFAULT_CONFIG;
@@ -41,12 +41,13 @@ export function ExamCardVisual({
     backgroundImage: current.bgImage ? `url(${current.bgImage})` : 'none',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    color: current.textColor
+    color: current.textColor,
+    fontFamily: current.fontFamily
   };
 
   if (side === 'front') {
     return (
-      <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none font-sans">
+      <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none">
         <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 gap-3 relative z-10 shadow-sm border-b">
           <div className="w-10 h-10 relative bg-white rounded-md p-1 shadow-inner shrink-0">
             <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" priority />
@@ -88,7 +89,7 @@ export function ExamCardVisual({
   }
 
   return (
-    <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[9px] select-none font-sans p-6 flex flex-col">
+    <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[9px] select-none p-6 flex flex-col">
       <div className="text-center mb-3">
         <h4 className="font-black text-[10px] uppercase border-b pb-1 text-slate-800">Tata Tertib Ujian</h4>
       </div>

@@ -15,8 +15,8 @@ export function IdCardVisual({
   template?: CardTemplate | null
 }) {
   const DEFAULT_CONFIG = {
-    front: { headerBg: '#1B3C33', bodyBg: '#ffffff', footerBg: '#10B981', textColor: '#ffffff', bgImage: '' },
-    back: { headerBg: '#1B3C33', bodyBg: '#ffffff', footerBg: '#f8fafc', textColor: '#ffffff', bgImage: '' }
+    front: { headerBg: '#1B3C33', bodyBg: '#ffffff', footerBg: '#10B981', textColor: '#ffffff', bgImage: '', fontFamily: 'Inter, sans-serif' },
+    back: { headerBg: '#1B3C33', bodyBg: '#ffffff', footerBg: '#f8fafc', textColor: '#ffffff', bgImage: '', fontFamily: 'Inter, sans-serif' }
   };
 
   let config = DEFAULT_CONFIG;
@@ -39,12 +39,13 @@ export function IdCardVisual({
     backgroundImage: current.bgImage ? `url(${current.bgImage})` : 'none',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    color: side === 'front' ? '#ffffff' : '#334155'
+    color: side === 'front' ? '#ffffff' : '#334155',
+    fontFamily: current.fontFamily
   };
 
   if (side === 'front') {
     return (
-      <div style={cardStyle} className="relative rounded-2xl shadow-2xl border overflow-hidden select-none font-sans flex flex-col">
+      <div style={cardStyle} className="relative rounded-2xl shadow-2xl border overflow-hidden select-none flex flex-col">
         <div style={{ backgroundColor: current.headerBg }} className="relative z-20 pt-10 pb-6 px-6 flex flex-col items-center shadow-lg">
           <div className="flex items-center gap-4 w-full text-white">
             <div className="w-12 h-12 relative bg-white rounded-xl p-2 shadow-inner">
@@ -93,7 +94,7 @@ export function IdCardVisual({
   }
 
   return (
-    <div style={cardStyle} className="relative rounded-2xl shadow-2xl border overflow-hidden select-none font-sans flex flex-col p-8">
+    <div style={cardStyle} className="relative rounded-2xl shadow-2xl border overflow-hidden select-none flex flex-col p-8">
       <div className="relative z-10 flex flex-col items-center h-full text-center">
         <div className="w-14 h-14 relative mb-4">
            <Image src={settings.logo_left_id} alt="Logo" fill className="object-contain" />
