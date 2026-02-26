@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { QrCode, ArrowLeft, CheckCircle2, XCircle, Clock, History, ChevronLeftRight } from 'lucide-react';
+import { QrCode, ArrowLeft, CheckCircle2, XCircle, Clock, History, ChevronsLeftRight } from 'lucide-react';
 import { getDB, saveDB } from '@/app/lib/db';
 import { Student, AttendanceLog } from '@/app/lib/types';
 import Image from 'next/image';
@@ -84,7 +84,7 @@ export default function ScannerPage() {
              </div>
           </div>
           <Button variant="outline" size="sm" onClick={handleSwitchMode} className="gap-2">
-            <ChevronLeftRight className="h-4 w-4" /> Ganti Role
+            <ChevronsLeftRight className="h-4 w-4" /> Ganti Role
           </Button>
         </div>
 

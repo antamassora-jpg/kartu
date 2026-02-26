@@ -8,7 +8,7 @@ import {
   Settings, 
   Layout, 
   LogOut,
-  ChevronLeftRight,
+  ChevronsLeftRight,
   LayoutDashboard
 } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -86,7 +86,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleSwitchMode} className="gap-3 text-accent-foreground font-medium">
-              <ChevronLeftRight className="h-4 w-4" />
+              <ChevronsLeftRight className="h-4 w-4" />
               <span>Ganti Mode</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
