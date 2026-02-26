@@ -88,8 +88,24 @@ export default function TemplatesPage() {
     const db = getDB();
     setTemplates(db.templates);
     setSettings(db.school_settings);
+    
+    // Gunakan siswa riil pertama jika ada, jika tidak sediakan data simulasi yang lengkap
     if (db.students.length > 0) {
       setPreviewStudent(db.students[0]);
+    } else {
+      setPreviewStudent({
+        id: 'mock',
+        name: 'CONTOH NAMA SISWA',
+        nis: '12345678',
+        nisn: '0012345678',
+        class: 'XII',
+        major: 'TEKNIK KOMPUTER & JARINGAN',
+        school_year: '2024/2025',
+        photo_url: 'https://picsum.photos/seed/sample/300/400',
+        status: 'Aktif',
+        valid_until: '2025-06-30',
+        card_code: 'VERIFY-MOCK-123'
+      });
     }
   }, []);
 
@@ -206,7 +222,7 @@ export default function TemplatesPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Template Desain</h1>
-          <p className="text-muted-foreground">Kustomisasi warna, background, dan font untuk setiap jenis kartu.</p>
+          <p className="text-muted-foreground">Otomatis sinkron dengan data Siswa & Settings Sekolah.</p>
         </div>
         <div className="flex gap-2">
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
@@ -219,7 +235,7 @@ export default function TemplatesPage() {
               <DialogHeader>
                 <DialogTitle>Tambah Varian Desain</DialogTitle>
                 <DialogDescription>
-                  Buat variasi desain baru untuk kategori kartu tertentu.
+                  Data visual akan secara otomatis mengambil dari pengaturan sekolah yang aktif.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -310,7 +326,7 @@ export default function TemplatesPage() {
                   ) : (
                     <div className="text-center p-8 text-muted-foreground">
                       <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-20" />
-                      <p className="text-[10px] uppercase font-bold">Preview Tidak Tersedia</p>
+                      <p className="text-[10px] uppercase font-bold">Data Settings Belum Siap</p>
                     </div>
                   )}
                 </div>
@@ -334,7 +350,6 @@ export default function TemplatesPage() {
         ))}
       </div>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!templateToDelete} onOpenChange={(open) => !open && setTemplateToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -353,13 +368,13 @@ export default function TemplatesPage() {
       </AlertDialog>
 
       <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex justify-between items-start">
               <div>
                 <DialogTitle className="text-2xl font-bold">Kustomisasi Desain</DialogTitle>
                 <DialogDescription>
-                  Atur komposisi warna, font, dan gambar latar untuk template <strong>{editingTemplate?.name}</strong>.
+                  Gunakan aset riil sekolah untuk pratinjau yang akurat.
                 </DialogDescription>
               </div>
               <Button variant="outline" size="sm" className="gap-2 text-muted-foreground hover:text-destructive hover:border-destructive" onClick={handleResetConfig}>
@@ -436,17 +451,26 @@ export default function TemplatesPage() {
             </div>
 
             <div className="flex flex-col items-center justify-center bg-slate-100 rounded-2xl border-2 border-slate-200 p-8 min-h-[400px]">
-              <div className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-[0.3em]">Live Preview</div>
+              <div className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-[0.3em]">Live Pratinjau (Data Settings Aktif)</div>
               <div className={cn(
-                "transform transition-transform",
+                "transform transition-transform scale-90",
                 editingTemplate?.type === 'ID_CARD' ? 'scale-[0.8]' : 'scale-[1]'
               )}>
                  {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && settings ? (
-                   <StudentCardVisual student={previewStudent} settings={settings} template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                   <div className="flex flex-col gap-8">
+                     <StudentCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                     <StudentCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                   </div>
                  ) : editingTemplate?.type === 'EXAM_CARD' && previewStudent && settings ? (
-                   <ExamCardVisual student={previewStudent} settings={settings} template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                   <div className="flex flex-col gap-8">
+                     <ExamCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                     <ExamCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                   </div>
                  ) : editingTemplate?.type === 'ID_CARD' && previewStudent && settings ? (
-                   <IdCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                   <div className="flex flex-col gap-8">
+                     <IdCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                     <IdCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                   </div>
                  ) : null}
               </div>
             </div>
