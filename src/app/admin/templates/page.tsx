@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -14,7 +15,8 @@ import {
   Plus, 
   Eye, 
   Settings2,
-  Save
+  Save,
+  RefreshCw
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { StudentCardVisual } from '@/components/student-card-visual';
@@ -85,21 +87,30 @@ export default function TemplatesPage() {
     toast({ title: "Tersimpan", description: `Konfigurasi ${editingTemplate.name} telah diperbarui.` });
   };
 
+  const handleAddNew = () => {
+    toast({ title: "Segera Hadir", description: "Fitur pembuatan template kustom sedang dikembangkan." });
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Template Desain</h1>
-          <p className="text-muted-foreground">Pilih, aktifkan, dan kustomisasi gaya kartu sekolah Anda.</p>
+          <p className="text-muted-foreground">Pilih, aktifkan, dan kustomisasi gaya visual kartu sekolah Anda.</p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" /> Template Baru
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => window.location.reload()}>
+            <RefreshCw className="h-4 w-4" /> Reset View
+          </Button>
+          <Button className="gap-2" onClick={handleAddNew}>
+            <Plus className="h-4 w-4" /> Template Baru
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {templates.map((template) => (
-          <Card key={template.id} className={`overflow-hidden border-2 transition-all flex flex-col ${template.is_active ? 'border-primary shadow-md bg-primary/5' : 'border-transparent'}`}>
+          <Card key={template.id} className={`overflow-hidden border-2 transition-all flex flex-col ${template.is_active ? 'border-primary shadow-lg bg-primary/5' : 'border-transparent'}`}>
             <CardHeader className="pb-4">
               <div className="flex justify-between items-start">
                 <div className={`p-2 rounded-lg border shadow-sm ${template.preview_color} text-white`}>
@@ -166,7 +177,7 @@ export default function TemplatesPage() {
           </Card>
         ))}
 
-        <Card className="border-2 border-dashed flex flex-col items-center justify-center py-12 gap-4 cursor-pointer hover:bg-muted/50 transition-colors group">
+        <Card className="border-2 border-dashed flex flex-col items-center justify-center py-12 gap-4 cursor-pointer hover:bg-muted/50 transition-colors group" onClick={handleAddNew}>
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
             <Plus className="h-8 w-8" />
           </div>
@@ -206,13 +217,14 @@ export default function TemplatesPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="t-config">Konfigurasi JSON (Advanced)</Label>
+                <Label htmlFor="t-config">Konfigurasi JSON (Warna Primer, dsb)</Label>
                 <Textarea 
                   id="t-config" 
                   className="font-mono text-xs min-h-[100px]"
                   value={editingTemplate.config_json} 
                   onChange={e => setEditingTemplate({...editingTemplate, config_json: e.target.value})}
                 />
+                <p className="text-[10px] text-muted-foreground italic">Gunakan format JSON, contoh: {"{\"primary\": \"#1B3C33\"}"}</p>
               </div>
             </div>
           )}

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -25,7 +26,7 @@ import { jsPDF } from 'jspdf';
 export default function IDCardsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [settings, setSettings] = useState<SchoolSettings | null>(null);
-  const [templates, setTemplates] = useState<CardTemplate[]>([]);
+  const [activeTemplate, setActiveTemplate] = useState<CardTemplate | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -38,7 +39,11 @@ export default function IDCardsPage() {
     const db = getDB();
     setStudents(db.students);
     setSettings(db.school_settings);
-    setTemplates(db.templates.filter(t => t.type === 'ID_CARD'));
+    
+    // Cari template ID_CARD yang aktif
+    const template = db.templates.find(t => t.type === 'ID_CARD' && t.is_active);
+    setActiveTemplate(template || null);
+    
     if (db.students.length > 0) setPreviewId(db.students[0].id);
   }, []);
 
@@ -48,7 +53,6 @@ export default function IDCardsPage() {
   );
 
   const previewStudent = students.find(s => s.id === previewId);
-  const activeTemplate = templates.find(t => t.is_active);
 
   const toggleSelect = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -108,8 +112,8 @@ export default function IDCardsPage() {
             const s = students.find(x => x.id === id);
             return s && settings ? (
               <div key={id} className="page-break flex flex-col gap-6 items-center mb-10 pb-10 border-b border-dashed">
-                <IdCardVisual student={s} settings={settings} side="front" />
-                <IdCardVisual student={s} settings={settings} side="back" />
+                <IdCardVisual student={s} settings={settings} side="front" template={activeTemplate} />
+                <IdCardVisual student={s} settings={settings} side="back" template={activeTemplate} />
               </div>
             ) : null;
           })}
@@ -184,7 +188,7 @@ export default function IDCardsPage() {
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-lg">Pratinjau: Corporate Green Style</CardTitle>
+                <CardTitle className="text-lg">Pratinjau: {activeTemplate?.name || 'Default'}</CardTitle>
                 <CardDescription>Layout Vertikal 7.3 x 11.1 cm.</CardDescription>
               </div>
               <Button variant="ghost" size="sm" onClick={() => window.location.reload()}>
@@ -199,13 +203,13 @@ export default function IDCardsPage() {
                   <div className="flex flex-col items-center gap-4">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-white px-3 py-1 rounded-full shadow-sm">Front</span>
                     <div ref={cardRefFront} className="shadow-2xl">
-                      <IdCardVisual student={previewStudent} settings={settings} side="front" />
+                      <IdCardVisual student={previewStudent} settings={settings} side="front" template={activeTemplate} />
                     </div>
                   </div>
                   <div className="flex flex-col items-center gap-4">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-white px-3 py-1 rounded-full shadow-sm">Back</span>
                     <div ref={cardRefBack} className="shadow-2xl">
-                      <IdCardVisual student={previewStudent} settings={settings} side="back" />
+                      <IdCardVisual student={previewStudent} settings={settings} side="back" template={activeTemplate} />
                     </div>
                   </div>
                 </div>
