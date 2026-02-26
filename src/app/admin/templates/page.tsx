@@ -6,7 +6,7 @@ import { CardTemplate } from '@/app/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Layout, Palette, Settings2, CheckCircle2, Copy, Trash2 } from 'lucide-react';
+import { Layout, Palette, Settings2, CheckCircle2, Copy, Trash2, Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export default function TemplatesPage() {
