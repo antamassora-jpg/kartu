@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -23,7 +22,8 @@ import {
   Trash2,
   FileDown,
   Loader2,
-  Calendar
+  Calendar,
+  QrCode
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -71,7 +72,6 @@ export default function StudentsPage() {
     }
 
     const db = getDB();
-    // Barcode / Card Code otomatis dibuat di sini
     const student: Student = {
       ...newStudent as Student,
       id: Math.random().toString(36).substr(2, 9),
@@ -83,7 +83,7 @@ export default function StudentsPage() {
     setStudents(updated);
     setIsAddOpen(false);
     setNewStudent({ status: 'Aktif', valid_until: '2025-06-30' });
-    toast({ title: "Berhasil", description: `Siswa ${student.name} berhasil ditambahkan dengan kode kartu otomatis.` });
+    toast({ title: "Berhasil", description: `Siswa ${student.name} berhasil ditambahkan.` });
   };
 
   const handleDelete = (id: string) => {
@@ -161,16 +161,9 @@ export default function StudentsPage() {
         db.students = updated;
         saveDB(db);
         setStudents(updated);
-        toast({ 
-          title: "Import Berhasil", 
-          description: `${newStudents.length} data siswa baru telah ditambahkan.` 
-        });
+        toast({ title: "Import Berhasil", description: `${newStudents.length} data siswa telah ditambahkan.` });
       } catch (error) {
-        toast({ 
-          variant: "destructive", 
-          title: "Import Gagal", 
-          description: "Pastikan menggunakan format titik koma (;) dan kolom yang benar." 
-        });
+        toast({ variant: "destructive", title: "Import Gagal", description: "Pastikan format CSV benar." });
       } finally {
         setIsImporting(false);
         if (fileInputRef.current) fileInputRef.current.value = '';
@@ -184,16 +177,10 @@ export default function StudentsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Data Siswa</h1>
-          <p className="text-muted-foreground">Kelola data master siswa SMKN 2 Tana Toraja.</p>
+          <p className="text-muted-foreground">Kelola database master siswa dan verifikasi kartu.</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto overflow-x-auto">
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileChange} 
-            accept=".csv" 
-            className="hidden" 
-          />
+          <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv" className="hidden" />
           <Button variant="outline" className="gap-2" onClick={handleDownloadFormat}>
             <FileDown className="h-4 w-4" /> Format CSV (;)
           </Button>
@@ -217,7 +204,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.name || ''} 
                     onChange={e => setNewStudent({...newStudent, name: e.target.value})}
-                    placeholder="Masukkan nama lengkap"
+                    placeholder="Nama Lengkap"
                   />
                 </div>
                 <div className="space-y-2">
@@ -225,7 +212,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.nis || ''} 
                     onChange={e => setNewStudent({...newStudent, nis: e.target.value})}
-                    placeholder="Contoh: 2021001"
+                    placeholder="NIS"
                   />
                 </div>
                 <div className="space-y-2">
@@ -233,7 +220,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.nisn || ''} 
                     onChange={e => setNewStudent({...newStudent, nisn: e.target.value})}
-                    placeholder="10 digit nomor"
+                    placeholder="NISN"
                   />
                 </div>
                 <div className="space-y-2">
@@ -241,7 +228,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.class || ''} 
                     onChange={e => setNewStudent({...newStudent, class: e.target.value})}
-                    placeholder="Contoh: XII"
+                    placeholder="Kelas"
                   />
                 </div>
                 <div className="space-y-2">
@@ -249,7 +236,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.major || ''} 
                     onChange={e => setNewStudent({...newStudent, major: e.target.value})}
-                    placeholder="Nama Jurusan"
+                    placeholder="Jurusan"
                   />
                 </div>
                 <div className="space-y-2">
@@ -257,7 +244,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.school_year || ''} 
                     onChange={e => setNewStudent({...newStudent, school_year: e.target.value})}
-                    placeholder="Contoh: 2024/2025"
+                    placeholder="2024/2025"
                   />
                 </div>
                 <div className="space-y-2">
@@ -291,7 +278,7 @@ export default function StudentsPage() {
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead>Nama Siswa</TableHead>
+              <TableHead>Identitas & QR Code</TableHead>
               <TableHead>NIS</TableHead>
               <TableHead>Kelas/Jurusan</TableHead>
               <TableHead>Masa Berlaku</TableHead>
@@ -303,13 +290,28 @@ export default function StudentsPage() {
             {filteredStudents.length > 0 ? filteredStudents.map((student) => (
               <TableRow key={student.id}>
                 <TableCell>
-                  <div className="font-medium">{student.name}</div>
-                  <div className="text-[10px] text-muted-foreground">ID: {student.card_code}</div>
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-14 h-14 bg-white border rounded p-1.5 shadow-inner shrink-0 group hover:scale-150 transition-transform origin-left z-10 cursor-zoom-in">
+                      <Image 
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
+                        alt="QR Code"
+                        fill
+                        className="object-contain"
+                        unoptimized
+                      />
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-900 leading-tight">{student.name}</div>
+                      <div className="text-[9px] text-primary font-black uppercase tracking-widest mt-1 flex items-center gap-1">
+                        <QrCode className="h-3 w-3" /> {student.card_code}
+                      </div>
+                    </div>
+                  </div>
                 </TableCell>
-                <TableCell>{student.nis}</TableCell>
+                <TableCell className="font-mono text-xs">{student.nis}</TableCell>
                 <TableCell>
-                  <div>{student.class}</div>
-                  <div className="text-xs text-muted-foreground">{student.major}</div>
+                  <div className="font-medium">{student.class}</div>
+                  <div className="text-[10px] text-muted-foreground uppercase">{student.major}</div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -318,7 +320,7 @@ export default function StudentsPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={student.status === 'Aktif' ? 'default' : 'secondary'}>
+                  <Badge variant={student.status === 'Aktif' ? 'default' : 'secondary'} className="text-[10px] uppercase px-3">
                     {student.status}
                   </Badge>
                 </TableCell>
@@ -342,7 +344,7 @@ export default function StudentsPage() {
               </TableRow>
             )) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-20 text-muted-foreground italic">
                   Data tidak ditemukan. Silahkan tambah siswa baru atau import CSV.
                 </TableCell>
               </TableRow>
