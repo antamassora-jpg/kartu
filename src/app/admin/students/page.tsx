@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -146,7 +145,7 @@ export default function StudentsPage() {
         const headers = lines[0].split(';').map(h => h.trim());
         
         const db = getDB();
-        const newStudents: Student[] = [];
+        const newStudentsList: Student[] = [];
 
         for (let i = 1; i < lines.length; i++) {
           if (!lines[i].trim()) continue;
@@ -158,7 +157,7 @@ export default function StudentsPage() {
           });
 
           if (entry.name && entry.nis) {
-            newStudents.push({
+            newStudentsList.push({
               id: Math.random().toString(36).substr(2, 9),
               name: entry.name,
               nis: entry.nis,
@@ -174,11 +173,11 @@ export default function StudentsPage() {
           }
         }
 
-        const updated = [...db.students, ...newStudents];
+        const updated = [...db.students, ...newStudentsList];
         db.students = updated;
         saveDB(db);
         setStudents(updated);
-        toast({ title: "Import Berhasil", description: `${newStudents.length} data siswa telah ditambahkan.` });
+        toast({ title: "Import Berhasil", description: `${newStudentsList.length} data siswa telah ditambahkan.` });
       } catch (error) {
         toast({ variant: "destructive", title: "Import Gagal", description: "Pastikan format CSV benar." });
       } finally {
@@ -216,7 +215,6 @@ export default function StudentsPage() {
                 <DialogTitle>Tambah Siswa Baru</DialogTitle>
               </DialogHeader>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
-                {/* Photo Upload Section */}
                 <div className="md:col-span-1 space-y-4">
                   <Label>Foto Siswa</Label>
                   <div className="aspect-[3/4] bg-muted rounded-xl border-2 border-dashed flex flex-col items-center justify-center relative overflow-hidden group">
@@ -251,7 +249,6 @@ export default function StudentsPage() {
                   </div>
                 </div>
 
-                {/* Form Data Section */}
                 <div className="md:col-span-2 grid grid-cols-2 gap-4">
                   <div className="space-y-2 col-span-2">
                     <Label>Nama Lengkap</Label>
@@ -349,12 +346,7 @@ export default function StudentsPage() {
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10 bg-slate-50 border rounded-full overflow-hidden shadow-inner shrink-0 border-white ring-2 ring-slate-100">
                       {student.photo_url ? (
-                        <Image 
-                          src={student.photo_url}
-                          alt={student.name}
-                          fill
-                          className="object-cover"
-                        />
+                        <Image src={student.photo_url} alt={student.name} fill className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-300">
                           <UserIcon className="h-5 w-5" />
@@ -389,10 +381,7 @@ export default function StudentsPage() {
                   <div className="relative w-12 h-12 bg-white border rounded p-1 shadow-inner group hover:scale-[2.5] transition-transform origin-center z-20 cursor-zoom-in">
                     <Image 
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
-                      alt="QR Code"
-                      fill
-                      className="object-contain"
-                      unoptimized
+                      alt="QR Code" fill className="object-contain" unoptimized
                     />
                   </div>
                 </TableCell>

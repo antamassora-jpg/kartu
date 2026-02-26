@@ -17,8 +17,8 @@ export function ExamCardVisual({
   template?: CardTemplate | null
 }) {
   const DEFAULT_CONFIG = {
-    front: { headerBg: '#1e293b', bodyBg: '#ffffff', footerBg: '#f97316', textColor: '#ffffff', bgImage: '' },
-    back: { headerBg: '#1e293b', bodyBg: '#ffffff', footerBg: '#f97316', textColor: '#ffffff', bgImage: '' }
+    front: { headerBg: '#1e293b', bodyBg: '#ffffff', footerBg: '#f97316', textColor: '#334155', bgImage: '' },
+    back: { headerBg: '#1e293b', bodyBg: '#ffffff', footerBg: '#f97316', textColor: '#334155', bgImage: '' }
   };
 
   let config = DEFAULT_CONFIG;
@@ -47,8 +47,8 @@ export function ExamCardVisual({
   if (side === 'front') {
     return (
       <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none font-sans">
-        <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 gap-3 relative z-10 shadow-sm border-b-2 border-orange-500">
-          <div className="w-10 h-10 relative bg-white rounded-md p-1">
+        <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 gap-3 relative z-10 shadow-sm border-b">
+          <div className="w-10 h-10 relative bg-white rounded-md p-1 shadow-inner shrink-0">
             <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" priority />
           </div>
           <div className="flex-1 flex flex-col text-white">
@@ -78,7 +78,7 @@ export function ExamCardVisual({
             </div>
           </div>
         </div>
-        <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1"></div>
+        <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1.5"></div>
       </div>
     );
   }
@@ -99,7 +99,7 @@ export function ExamCardVisual({
            <p className="text-[7px] font-bold border-t pt-0.5 text-slate-800">{settings.principal_name}</p>
         </div>
       </div>
-      <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1"></div>
+      <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1.5"></div>
     </div>
   );
 }

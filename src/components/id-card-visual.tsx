@@ -39,7 +39,7 @@ export function IdCardVisual({
     backgroundImage: current.bgImage ? `url(${current.bgImage})` : 'none',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    color: current.textColor
+    color: side === 'front' ? '#ffffff' : '#334155'
   };
 
   if (side === 'front') {
