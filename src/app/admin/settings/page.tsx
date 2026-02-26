@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Save, Upload, Camera, CreditCard, Award, Contact } from 'lucide-react';
+import { Save, Upload, Camera, CreditCard, Award, Contact, Link as LinkIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,9 +37,14 @@ export default function SettingsPage() {
     const reader = new FileReader();
     reader.onloadend = () => {
       setSettings({ ...settings, [field]: reader.result as string });
-      toast({ title: "Berhasil", description: "Aset telah diperbarui." });
+      toast({ title: "Berhasil", description: "Aset telah diperbarui dari file." });
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleUrlChange = (field: keyof SchoolSettings, url: string) => {
+    if (!settings) return;
+    setSettings({ ...settings, [field]: url });
   };
 
   if (!settings) return null;
@@ -132,7 +137,7 @@ export default function SettingsPage() {
           <Card className="border-orange-200/50 shadow-sm overflow-hidden">
             <CardHeader className="bg-orange-50 border-b">
               <CardTitle className="text-lg">Aset & Identitas Visual</CardTitle>
-              <CardDescription>Upload Logo, TTD, dan Stempel serta atur penempatannya.</CardDescription>
+              <CardDescription>Upload Logo, TTD, dan Stempel (File/URL) serta atur penempatannya.</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               <Tabs defaultValue="student" className="w-full">
@@ -149,6 +154,7 @@ export default function SettingsPage() {
                       label="Logo Kiri (Sekolah)" 
                       image={settings.logo_left} 
                       onUpload={e => handleFileUpload('logo_left', e)} 
+                      onUrlChange={url => handleUrlChange('logo_left', url)}
                       showFront={settings.student_show_logo_front}
                       onShowFrontChange={v => setSettings({...settings, student_show_logo_front: v})}
                       showBack={settings.student_show_logo_back}
@@ -158,6 +164,7 @@ export default function SettingsPage() {
                       label="Logo Kanan (Tut Wuri)" 
                       image={settings.logo_right} 
                       onUpload={e => handleFileUpload('logo_right', e)} 
+                      onUrlChange={url => handleUrlChange('logo_right', url)}
                       showFront={settings.student_show_logo_right_front}
                       onShowFrontChange={v => setSettings({...settings, student_show_logo_right_front: v})}
                       showBack={settings.student_show_logo_right_back}
@@ -167,6 +174,7 @@ export default function SettingsPage() {
                       label="Tanda Tangan" 
                       image={settings.signature_image} 
                       onUpload={e => handleFileUpload('signature_image', e)} 
+                      onUrlChange={url => handleUrlChange('signature_image', url)}
                       aspect="wide"
                       showFront={settings.student_show_sig_front}
                       onShowFrontChange={v => setSettings({...settings, student_show_sig_front: v})}
@@ -177,6 +185,7 @@ export default function SettingsPage() {
                       label="Stempel" 
                       image={settings.stamp_image} 
                       onUpload={e => handleFileUpload('stamp_image', e)} 
+                      onUrlChange={url => handleUrlChange('stamp_image', url)}
                       showFront={settings.student_show_stamp_front}
                       onShowFrontChange={v => setSettings({...settings, student_show_stamp_front: v})}
                       showBack={settings.student_show_stamp_back}
@@ -190,6 +199,7 @@ export default function SettingsPage() {
                       label="Logo Kiri (Sekolah)" 
                       image={settings.logo_left_exam} 
                       onUpload={e => handleFileUpload('logo_left_exam', e)} 
+                      onUrlChange={url => handleUrlChange('logo_left_exam', url)}
                       showFront={settings.exam_show_logo_front}
                       onShowFrontChange={v => setSettings({...settings, exam_show_logo_front: v})}
                       showBack={settings.exam_show_logo_back}
@@ -199,6 +209,7 @@ export default function SettingsPage() {
                       label="Logo Kanan (Tut Wuri)" 
                       image={settings.logo_right_exam} 
                       onUpload={e => handleFileUpload('logo_right_exam', e)} 
+                      onUrlChange={url => handleUrlChange('logo_right_exam', url)}
                       showFront={settings.exam_show_logo_right_front}
                       onShowFrontChange={v => setSettings({...settings, exam_show_logo_right_front: v})}
                       showBack={settings.exam_show_logo_right_back}
@@ -208,6 +219,7 @@ export default function SettingsPage() {
                       label="Tanda Tangan" 
                       image={settings.signature_exam} 
                       onUpload={e => handleFileUpload('signature_exam', e)} 
+                      onUrlChange={url => handleUrlChange('signature_exam', url)}
                       aspect="wide"
                       showFront={settings.exam_show_sig_front}
                       onShowFrontChange={v => setSettings({...settings, exam_show_sig_front: v})}
@@ -218,6 +230,7 @@ export default function SettingsPage() {
                       label="Stempel" 
                       image={settings.stamp_exam} 
                       onUpload={e => handleFileUpload('stamp_exam', e)} 
+                      onUrlChange={url => handleUrlChange('stamp_exam', url)}
                       showFront={settings.exam_show_stamp_front}
                       onShowFrontChange={v => setSettings({...settings, exam_show_stamp_front: v})}
                       showBack={settings.exam_show_stamp_back}
@@ -231,6 +244,7 @@ export default function SettingsPage() {
                       label="Logo Utama" 
                       image={settings.logo_left_id} 
                       onUpload={e => handleFileUpload('logo_left_id', e)} 
+                      onUrlChange={url => handleUrlChange('logo_left_id', url)}
                       showFront={settings.id_show_logo_front}
                       onShowFrontChange={v => setSettings({...settings, id_show_logo_front: v})}
                       showBack={settings.id_show_logo_back}
@@ -240,6 +254,7 @@ export default function SettingsPage() {
                       label="Tanda Tangan" 
                       image={settings.signature_id} 
                       onUpload={e => handleFileUpload('signature_id', e)} 
+                      onUrlChange={url => handleUrlChange('signature_id', url)}
                       aspect="wide"
                       showFront={settings.id_show_sig_front}
                       onShowFrontChange={v => setSettings({...settings, id_show_sig_front: v})}
@@ -250,6 +265,7 @@ export default function SettingsPage() {
                       label="Stempel" 
                       image={settings.stamp_id} 
                       onUpload={e => handleFileUpload('stamp_id', e)} 
+                      onUrlChange={url => handleUrlChange('stamp_id', url)}
                       showFront={settings.id_show_stamp_front}
                       onShowFrontChange={v => setSettings({...settings, id_show_stamp_front: v})}
                       showBack={settings.id_show_stamp_back}
@@ -270,6 +286,7 @@ function AssetUploader({
   label, 
   image, 
   onUpload, 
+  onUrlChange,
   aspect = 'square',
   showFront,
   onShowFrontChange,
@@ -279,6 +296,7 @@ function AssetUploader({
   label: string, 
   image: string, 
   onUpload: (e: any) => void,
+  onUrlChange: (url: string) => void,
   aspect?: 'square' | 'wide',
   showFront: boolean,
   onShowFrontChange: (v: boolean) => void,
@@ -312,6 +330,18 @@ function AssetUploader({
             <input type="file" className="hidden" accept="image/*" onChange={onUpload} />
           </Label>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1">
+          <LinkIcon className="h-3 w-3" /> Link URL Gambar
+        </Label>
+        <Input 
+          placeholder="https://example.com/logo.png" 
+          value={image.startsWith('data:') ? '' : image}
+          onChange={(e) => onUrlChange(e.target.value)}
+          className="text-[10px] h-8"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4 pt-2 border-t mt-2">
