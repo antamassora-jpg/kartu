@@ -42,22 +42,17 @@ export function IdCardVisual({
     color: current.textColor
   };
 
-  // Use ID card specific assets
-  const logoL = settings.logo_left_id || settings.logo_left;
-  const sig = settings.signature_id || settings.signature_image;
-  const stamp = settings.stamp_id || settings.stamp_image;
-
   if (side === 'front') {
     return (
       <div style={cardStyle} className="relative rounded-2xl shadow-2xl border overflow-hidden select-none font-sans flex flex-col">
         <div style={{ backgroundColor: current.headerBg }} className="relative z-20 pt-10 pb-6 px-6 flex flex-col items-center shadow-lg">
           <div className="flex items-center gap-4 w-full text-white">
             <div className="w-12 h-12 relative bg-white rounded-xl p-2 shadow-inner">
-              <Image src={logoL} alt="Logo" fill className="object-contain" priority />
+              <Image src={settings.logo_left_id} alt="Logo" fill className="object-contain" priority />
             </div>
             <div className="flex flex-col">
               <h2 className="font-black text-[11px] uppercase leading-none tracking-tight drop-shadow-sm">{settings.school_name}</h2>
-              <h2 className="font-bold text-[8px] uppercase opacity-70 mt-1">Digital Student Identity</h2>
+              <h2 className="font-bold text-[8px] uppercase opacity-70 mt-1">Digital Identity</h2>
             </div>
           </div>
         </div>
@@ -101,7 +96,7 @@ export function IdCardVisual({
     <div style={cardStyle} className="relative rounded-2xl shadow-2xl border overflow-hidden select-none font-sans flex flex-col p-8">
       <div className="relative z-10 flex flex-col items-center h-full text-center">
         <div className="w-14 h-14 relative mb-4">
-           <Image src={logoL} alt="Logo" fill className="object-contain" />
+           <Image src={settings.logo_left_id} alt="Logo" fill className="object-contain" />
         </div>
         <h3 className="font-black text-[12px] uppercase tracking-tight mb-8 text-slate-800">
           {settings.school_name}
@@ -116,9 +111,9 @@ export function IdCardVisual({
            </div>
         </div>
 
-        <div className="flex-1 w-full space-y-6">
+        <div className="flex-1 w-full space-y-4">
            <h4 className="text-[10px] font-black uppercase tracking-widest border-b pb-2 text-slate-700">
-             Ketentuan & Legalitas
+             Ketentuan Pengguna
            </h4>
            <div className="space-y-3 text-[9px] opacity-80 leading-relaxed italic text-slate-700 text-left whitespace-pre-line">
               {settings.terms_id}
@@ -127,11 +122,11 @@ export function IdCardVisual({
 
         <div className="w-full pt-6 flex justify-between items-end">
             <div className="text-[7px] text-slate-400 font-bold uppercase tracking-tighter">
-              ED-SYNC v2.0
+              ED-SYNC v2.5
             </div>
             <div className="text-center">
                <div className="w-20 h-10 relative mb-1">
-                  <Image src={stamp} alt="Stamp" fill className="object-contain" />
+                  <Image src={settings.stamp_id} alt="Stamp" fill className="object-contain" />
                </div>
                <p className="text-[8px] font-bold uppercase text-slate-800">{settings.principal_name}</p>
             </div>

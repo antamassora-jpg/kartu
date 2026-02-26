@@ -44,17 +44,12 @@ export function ExamCardVisual({
     color: current.textColor
   };
 
-  // Use exam specific assets
-  const logoL = settings.logo_left_exam || settings.logo_left;
-  const sig = settings.signature_exam || settings.signature_image;
-  const stamp = settings.stamp_exam || settings.stamp_image;
-
   if (side === 'front') {
     return (
       <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none font-sans">
         <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 gap-3 relative z-10 shadow-sm border-b-2 border-orange-500">
           <div className="w-10 h-10 relative bg-white rounded-md p-1">
-            <Image src={logoL} alt="Logo" fill className="object-contain" priority />
+            <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" priority />
           </div>
           <div className="flex-1 flex flex-col text-white">
             <span className="font-bold text-[9px] uppercase leading-tight tracking-tight">{settings.school_name}</span>
@@ -99,7 +94,7 @@ export function ExamCardVisual({
       <div className="mt-2 flex justify-end items-end">
         <div className="text-center scale-90 origin-bottom-right">
            <div className="w-16 h-8 relative mx-auto">
-              <Image src={stamp} alt="STAMP" fill className="object-contain opacity-70" />
+              <Image src={settings.stamp_exam} alt="STAMP" fill className="object-contain opacity-70" />
            </div>
            <p className="text-[7px] font-bold border-t pt-0.5 text-slate-800">{settings.principal_name}</p>
         </div>

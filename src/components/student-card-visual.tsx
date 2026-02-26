@@ -42,18 +42,12 @@ export function StudentCardVisual({
     color: current.textColor
   };
 
-  // Use specific student assets or fall back to legacy fields
-  const logoL = settings.logo_left;
-  const logoR = settings.logo_right;
-  const sig = settings.signature_image;
-  const stamp = settings.stamp_image;
-
   if (side === 'front') {
     return (
       <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none font-sans">
         <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 gap-3 relative z-10 shadow-sm border-b">
           <div className="w-10 h-10 relative bg-white rounded-md p-1 shadow-inner shrink-0">
-            <Image src={logoL} alt="Logo" fill className="object-contain" priority />
+            <Image src={settings.logo_left} alt="Logo" fill className="object-contain" priority />
           </div>
           <div className="flex-1 flex flex-col text-white">
             <span className="font-bold text-[10px] uppercase leading-tight tracking-tight drop-shadow-sm">{settings.school_name}</span>
@@ -107,7 +101,7 @@ export function StudentCardVisual({
          <div className="text-center space-y-1">
             <p className="text-[6px] font-bold text-slate-500 uppercase">Kepala Sekolah,</p>
             <div className="w-16 h-8 relative mx-auto">
-               <Image src={sig} alt="TTD" fill className="object-contain" />
+               <Image src={settings.signature_image} alt="TTD" fill className="object-contain" />
             </div>
             <p className="text-[7px] font-bold border-t pt-0.5" style={{ color: current.headerBg }}>{settings.principal_name}</p>
          </div>

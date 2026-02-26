@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Sparkles, Save, Info, Camera, Upload, Trash2, CreditCard, Award, Contact, Image as ImageIcon } from 'lucide-react';
+import { Save, Sparkles, Upload, Camera, CreditCard, Award, Contact } from 'lucide-react';
 import { refineCardTerms } from '@/ai/flows/refine-card-terms-flow';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -109,10 +109,10 @@ export default function SettingsPage() {
               <Tabs defaultValue="student" className="w-full">
                 <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-12">
                   <TabsTrigger value="student" className="data-[state=active]:bg-white gap-2 h-full rounded-none border-r">
-                    <CreditCard className="h-3.5 w-3.5" /> Kartu Pelajar
+                    <CreditCard className="h-3.5 w-3.5" /> Pelajar
                   </TabsTrigger>
                   <TabsTrigger value="exam" className="data-[state=active]:bg-white gap-2 h-full rounded-none border-r">
-                    <Award className="h-3.5 w-3.5" /> Kartu Ujian
+                    <Award className="h-3.5 w-3.5" /> Ujian
                   </TabsTrigger>
                   <TabsTrigger value="id" className="data-[state=active]:bg-white gap-2 h-full rounded-none">
                     <Contact className="h-3.5 w-3.5" /> ID Card
@@ -156,7 +156,7 @@ export default function SettingsPage() {
           <Card className="border-orange-200/50 shadow-sm overflow-hidden">
             <CardHeader className="bg-orange-50 border-b">
               <CardTitle className="text-lg">Aset & Identitas Visual</CardTitle>
-              <CardDescription>Atur logo dan legalitas spesifik per jenis kartu.</CardDescription>
+              <CardDescription>Upload Logo, TTD, dan Stempel untuk tiap jenis kartu.</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               <Tabs defaultValue="student" className="w-full">
@@ -166,8 +166,8 @@ export default function SettingsPage() {
                   <TabsTrigger value="id" className="data-[state=active]:bg-white flex-1 h-full rounded-none text-[10px]">ID Card</TabsTrigger>
                 </TabsList>
                 
-                <div className="p-6 space-y-8">
-                  <TabsContent value="student" className="mt-0 space-y-6">
+                <div className="p-6 space-y-6">
+                  <TabsContent value="student" className="mt-0 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <AssetUploader label="Logo Kiri" image={settings.logo_left} onUpload={e => handleFileUpload('logo_left', e)} />
                       <AssetUploader label="Logo Kanan" image={settings.logo_right} onUpload={e => handleFileUpload('logo_right', e)} />
@@ -176,7 +176,7 @@ export default function SettingsPage() {
                     <AssetUploader label="Stempel" image={settings.stamp_image} onUpload={e => handleFileUpload('stamp_image', e)} fullWidth />
                   </TabsContent>
 
-                  <TabsContent value="exam" className="mt-0 space-y-6">
+                  <TabsContent value="exam" className="mt-0 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <AssetUploader label="Logo Kiri" image={settings.logo_left_exam} onUpload={e => handleFileUpload('logo_left_exam', e)} />
                       <AssetUploader label="Logo Kanan" image={settings.logo_right_exam} onUpload={e => handleFileUpload('logo_right_exam', e)} />
@@ -185,7 +185,7 @@ export default function SettingsPage() {
                     <AssetUploader label="Stempel" image={settings.stamp_exam} onUpload={e => handleFileUpload('stamp_exam', e)} fullWidth />
                   </TabsContent>
 
-                  <TabsContent value="id" className="mt-0 space-y-6">
+                  <TabsContent value="id" className="mt-0 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <AssetUploader label="Logo Kiri" image={settings.logo_left_id} onUpload={e => handleFileUpload('logo_left_id', e)} />
                       <AssetUploader label="Logo Kanan" image={settings.logo_right_id} onUpload={e => handleFileUpload('logo_right_id', e)} />
@@ -214,7 +214,7 @@ function AssetUploader({ label, image, onUpload, fullWidth = false, aspect = 'sq
     <div className={cn("space-y-2", fullWidth && "w-full")}>
       <Label className="text-[10px] uppercase font-bold text-muted-foreground">{label}</Label>
       <div className={cn(
-        "relative bg-muted/20 border-2 border-dashed rounded-xl overflow-hidden flex items-center justify-center group transition-all hover:bg-muted/30 hover:border-primary/30",
+        "relative bg-muted/20 border-2 border-dashed rounded-xl overflow-hidden flex items-center justify-center group transition-all hover:bg-muted/30 hover:border-primary/30 shadow-inner",
         aspect === 'square' ? "aspect-square" : "aspect-[2.5/1]"
       )}>
         {image ? (
