@@ -83,13 +83,13 @@ export default function TemplatesPage() {
   
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Fungsi untuk memuat ulang data dari DB
+  const refreshData = () => {
     const db = getDB();
     setTemplates(db.templates);
     setSettings(db.school_settings);
     
-    // Sinkronisasi Data Siswa Riil untuk Pratinjau
-    if (db.students.length > 0) {
+    if (db.students && db.students.length > 0) {
       setPreviewStudent(db.students[0]);
     } else {
       setPreviewStudent({
@@ -106,6 +106,10 @@ export default function TemplatesPage() {
         card_code: 'ED-SYNC-001'
       });
     }
+  };
+
+  useEffect(() => {
+    refreshData();
   }, []);
 
   useEffect(() => {
@@ -224,6 +228,9 @@ export default function TemplatesPage() {
           <p className="text-muted-foreground">Kustomisasi visual kartu menggunakan data asli dari Data Siswa & Settings.</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={refreshData} className="gap-2">
+            <RotateCcw className="h-4 w-4" /> Refresh Data
+          </Button>
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2 shadow-lg shadow-primary/20">

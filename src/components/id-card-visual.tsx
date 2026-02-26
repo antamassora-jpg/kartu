@@ -52,9 +52,9 @@ export function IdCardVisual({
       <div style={cardStyle} className="relative rounded-2xl shadow-2xl border overflow-hidden select-none flex flex-col">
         <div style={{ backgroundColor: current.headerBg }} className="relative z-20 pt-10 pb-6 px-6 flex flex-col items-center shadow-lg">
           <div className="flex items-center gap-4 w-full text-white">
-            {showLogo && (
+            {showLogo && settings.logo_left_id && (
               <div className="w-12 h-12 relative bg-white rounded-xl p-2 shadow-inner">
-                <Image src={settings.logo_left_id} alt="Logo" fill className="object-contain" priority />
+                <Image src={settings.logo_left_id} alt="Logo" fill className="object-contain" priority unoptimized />
               </div>
             )}
             <div className="flex flex-col">
@@ -67,7 +67,7 @@ export function IdCardVisual({
         <div className="flex-1 relative z-10 flex flex-col items-center justify-center p-8">
           <div className="w-full aspect-[3/4] rounded-2xl border-4 border-white shadow-2xl relative overflow-hidden bg-slate-100">
             {student.photo_url ? (
-              <Image src={student.photo_url} alt={student.name} fill className="object-cover object-top" priority />
+              <Image src={student.photo_url} alt={student.name} fill className="object-cover object-top" priority unoptimized />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-300 uppercase font-bold">FOTO</div>
             )}
@@ -86,8 +86,8 @@ export function IdCardVisual({
         <div style={{ backgroundColor: current.headerBg }} className="relative z-20 p-6 pt-4 space-y-3 border-t border-white/10 text-white">
           <div className="grid grid-cols-2 gap-4 text-[9px] font-bold">
             <div className="flex flex-col">
-              <span className="opacity-60 uppercase text-[6px] tracking-widest mb-1">Nomor Induk</span>
-              <span>{student.nis}</span>
+              <span className="opacity-60 uppercase text-[6px] tracking-widest mb-1">NIS / NISN</span>
+              <span>{student.nis} / {student.nisn || '-'}</span>
             </div>
             <div className="flex flex-col text-right">
               <span className="opacity-60 uppercase text-[6px] tracking-widest mb-1">Berlaku</span>
@@ -98,15 +98,16 @@ export function IdCardVisual({
           {(showSig || showStamp) && (
             <div className="flex justify-between items-end pt-2 border-t border-white/10">
               <div className="w-12 h-12 relative">
-                {showStamp && <Image src={settings.stamp_id} alt="Stamp" fill className="object-contain" />}
+                {showStamp && settings.stamp_id && <Image src={settings.stamp_id} alt="Stamp" fill className="object-contain" unoptimized />}
               </div>
               <div className="text-right">
-                {showSig && (
+                {showSig && settings.signature_id && (
                   <div className="w-16 h-8 relative ml-auto">
-                    <Image src={settings.signature_id} alt="Sig" fill className="object-contain" />
+                    <Image src={settings.signature_id} alt="Sig" fill className="object-contain" unoptimized />
                   </div>
                 )}
                 <p className="text-[7px] font-bold uppercase opacity-80">{settings.principal_name}</p>
+                <p className="text-[5px] opacity-60">NIP: {settings.principal_nip}</p>
               </div>
             </div>
           )}
@@ -118,9 +119,9 @@ export function IdCardVisual({
   return (
     <div style={cardStyle} className="relative rounded-2xl shadow-2xl border overflow-hidden select-none flex flex-col p-8">
       <div className="relative z-10 flex flex-col items-center h-full text-center">
-        {showLogo && (
+        {showLogo && settings.logo_left_id && (
           <div className="w-14 h-14 relative mb-4">
-             <Image src={settings.logo_left_id} alt="Logo" fill className="object-contain" />
+             <Image src={settings.logo_left_id} alt="Logo" fill className="object-contain" unoptimized />
           </div>
         )}
         <h3 className="font-black text-[12px] uppercase tracking-tight mb-8 text-slate-800">
@@ -151,17 +152,18 @@ export function IdCardVisual({
             </div>
             {(showSig || showStamp) && (
               <div className="text-center relative">
-                 {showStamp && (
+                 {showStamp && settings.stamp_id && (
                     <div className="absolute -left-12 top-0 w-20 h-10 pointer-events-none">
-                       <Image src={settings.stamp_id} alt="Stamp" fill className="object-contain" />
+                       <Image src={settings.stamp_id} alt="Stamp" fill className="object-contain" unoptimized />
                     </div>
                  )}
-                 {showSig && (
+                 {showSig && settings.signature_id && (
                    <div className="w-20 h-10 relative mb-1">
-                      <Image src={settings.signature_id} alt="Sig" fill className="object-contain" />
+                      <Image src={settings.signature_id} alt="Sig" fill className="object-contain" unoptimized />
                    </div>
                  )}
                  <p className="text-[8px] font-bold uppercase text-slate-800">{settings.principal_name}</p>
+                 <p className="text-[5px] opacity-60">NIP: {settings.principal_nip}</p>
               </div>
             )}
         </div>

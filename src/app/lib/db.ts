@@ -12,7 +12,7 @@ export interface DB {
 }
 
 const DEFAULT_ASSET_L = 'https://iili.io/KAqSZhb.png';
-const DEFAULT_LOGO_KEMENDIKBUD = 'https://iili.io/29vR0bV.png'; // Logo Tut Wuri Handayani
+const DEFAULT_LOGO_KEMENDIKBUD = 'https://iili.io/29vR0bV.png'; 
 const DEFAULT_SIG = 'https://images.unsplash.com/photo-1574169208507-84376144848b?q=80&w=200&h=100&auto=format&fit=crop';
 const DEFAULT_STAMP = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=200&h=200&auto=format&fit=crop';
 
@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: SchoolSettings = {
   stamp_image: DEFAULT_STAMP,
   terms_student: '1. Kartu wajib dibawa setiap hari.\n2. Dilarang dipinjamkan.\n3. Jika hilang segera lapor ke sekolah.\n4. Berlaku selama siswa aktif.\n5. Kartu dipakai untuk scan layanan/absen.',
   student_show_logo_front: true,
-  student_show_logo_back: false,
+  student_show_logo_back: true,
   student_show_logo_right_front: true,
   student_show_logo_right_back: false,
   student_show_sig_front: false,
@@ -44,7 +44,7 @@ const DEFAULT_SETTINGS: SchoolSettings = {
   stamp_exam: DEFAULT_STAMP,
   terms_exam: '1. Kartu wajib dibawa setiap sesi ujian.\n2. Hadir 15 menit sebelum ujian dimulai.\n3. Dilarang membawa alat komunikasi/HP.\n4. Menjaga ketertiban di dalam ruang ujian.',
   exam_show_logo_front: true,
-  exam_show_logo_back: false,
+  exam_show_logo_back: true,
   exam_show_logo_right_front: true,
   exam_show_logo_right_back: false,
   exam_show_sig_front: false,
@@ -80,19 +80,6 @@ const INITIAL_DB: DB = {
       status: 'Aktif',
       valid_until: '2024-06-30',
       card_code: 'CC-TKJ-001',
-    },
-    {
-      id: '2',
-      nis: '2021002',
-      nisn: '0051234568',
-      name: 'Budi Santoso',
-      class: 'XII',
-      major: 'Otomotif',
-      school_year: '2023/2024',
-      photo_url: 'https://picsum.photos/seed/student2/300/400',
-      status: 'Aktif',
-      valid_until: '2024-06-30',
-      card_code: 'CC-OTO-002',
     }
   ],
   school_settings: DEFAULT_SETTINGS,

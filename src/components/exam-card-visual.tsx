@@ -54,9 +54,9 @@ export function ExamCardVisual({
     return (
       <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none">
         <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 gap-3 relative z-10 shadow-sm border-b">
-          {showLogoLeft && (
+          {showLogoLeft && settings.logo_left_exam && (
             <div className="w-10 h-10 relative bg-white rounded-md p-1 shadow-inner shrink-0">
-              <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" priority />
+              <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" priority unoptimized />
             </div>
           )}
           <div className="flex-1 flex flex-col text-white text-center">
@@ -65,50 +65,50 @@ export function ExamCardVisual({
           </div>
           {showLogoRight && settings.logo_right_exam && (
             <div className="w-10 h-10 relative bg-white rounded-md p-1 shadow-inner shrink-0">
-              <Image src={settings.logo_right_exam} alt="Logo R" fill className="object-contain" priority />
+              <Image src={settings.logo_right_exam} alt="Logo R" fill className="object-contain" priority unoptimized />
             </div>
           )}
         </div>
 
         <div className="flex h-[calc(100%-56px)] relative z-10">
           <div className="w-[100px] flex flex-col items-center justify-center p-2 gap-2 border-r border-slate-100">
-            <div className="w-[75px] h-[95px] bg-slate-50 relative rounded-md overflow-hidden border border-slate-200">
+            <div className="w-[75px] h-[95px] bg-slate-50 relative rounded-md overflow-hidden border border-slate-200 shadow-sm">
               {student.photo_url ? (
-                <Image src={student.photo_url} alt={student.name} fill className="object-cover" priority />
+                <Image src={student.photo_url} alt={student.name} fill className="object-cover" priority unoptimized />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-slate-200 text-[8px]">FOTO</div>
               )}
             </div>
           </div>
-          <div className="flex-1 py-4 px-3 space-y-1.5 text-slate-900 relative">
+          <div className="flex-1 py-4 px-3 space-y-1.5 relative" style={{ color: current.textColor }}>
             <div className="flex flex-col">
-              <span className="text-slate-400 text-[6px] uppercase font-bold">Nama Peserta</span>
+              <span className="opacity-60 text-[6px] uppercase font-bold">Nama Peserta</span>
               <span className="font-bold text-[11px] uppercase">{student.name}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-slate-400 text-[6px] uppercase font-bold">NIS / NISN</span>
+              <span className="opacity-60 text-[6px] uppercase font-bold">NIS / NISN</span>
               <span className="font-bold text-[9px]">{student.nis} / {student.nisn || '-'}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-slate-400 text-[6px] uppercase font-bold">Event Ujian</span>
+              <span className="opacity-60 text-[6px] uppercase font-bold">Event Ujian</span>
               <span className="font-bold text-[8px] uppercase">{exam?.name || 'UJIAN AKHIR SEKOLAH'}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-slate-400 text-[6px] uppercase font-bold">Berlaku Sampai</span>
-              <span className="font-bold text-[8px] text-orange-600">{student.valid_until}</span>
+              <span className="opacity-60 text-[6px] uppercase font-bold">Masa Berlaku</span>
+              <span className="font-bold text-[8px]" style={{ color: current.footerBg }}>{student.valid_until}</span>
             </div>
 
             {(showSig || showStamp) && (
               <div className="absolute bottom-2 right-4 flex items-end gap-2 scale-75 origin-bottom-right">
-                {showStamp && (
+                {showStamp && settings.stamp_exam && (
                   <div className="w-12 h-12 relative">
-                    <Image src={settings.stamp_exam} alt="Stempel" fill className="object-contain" />
+                    <Image src={settings.stamp_exam} alt="Stempel" fill className="object-contain" unoptimized />
                   </div>
                 )}
-                {showSig && (
+                {showSig && settings.signature_exam && (
                   <div className="text-center">
                     <div className="w-14 h-7 relative">
-                      <Image src={settings.signature_exam} alt="TTD" fill className="object-contain" />
+                      <Image src={settings.signature_exam} alt="TTD" fill className="object-contain" unoptimized />
                     </div>
                     <p className="text-[6px] font-bold border-t border-slate-300 leading-none pt-1">{settings.principal_name}</p>
                     <p className="text-[5px] opacity-70">NIP: {settings.principal_nip}</p>
@@ -126,15 +126,15 @@ export function ExamCardVisual({
   return (
     <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[9px] select-none p-6 flex flex-col">
       <div className="text-center mb-3 flex items-center justify-center gap-2 border-b pb-1">
-        {showLogoLeft && (
+        {showLogoLeft && settings.logo_left_exam && (
           <div className="w-6 h-6 relative shrink-0">
-            <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" />
+            <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" unoptimized />
           </div>
         )}
         <h4 className="font-black text-[10px] uppercase text-slate-800">Tata Tertib Ujian</h4>
         {showLogoRight && settings.logo_right_exam && (
           <div className="w-6 h-6 relative shrink-0">
-            <Image src={settings.logo_right_exam} alt="Logo R" fill className="object-contain" />
+            <Image src={settings.logo_right_exam} alt="Logo R" fill className="object-contain" unoptimized />
           </div>
         )}
       </div>
@@ -155,14 +155,14 @@ export function ExamCardVisual({
       {(showSig || showStamp) && (
         <div className="mt-2 flex justify-end items-end relative z-10">
           <div className="text-center scale-90 origin-bottom-right relative">
-             {showStamp && (
+             {showStamp && settings.stamp_exam && (
                 <div className="absolute -left-8 top-0 w-16 h-8 pointer-events-none">
-                   <Image src={settings.stamp_exam} alt="STAMP" fill className="object-contain opacity-70" />
+                   <Image src={settings.stamp_exam} alt="STAMP" fill className="object-contain opacity-70" unoptimized />
                 </div>
              )}
-             {showSig && (
+             {showSig && settings.signature_exam && (
                <div className="w-16 h-8 relative mx-auto">
-                  <Image src={settings.signature_exam} alt="SIG" fill className="object-contain" />
+                  <Image src={settings.signature_exam} alt="SIG" fill className="object-contain" unoptimized />
                </div>
              )}
              <p className="text-[7px] font-bold border-t pt-0.5 text-slate-800 leading-none">{settings.principal_name}</p>
