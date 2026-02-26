@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     setIsMounted(true);
     if (localStorage.getItem('isLoggedIn') !== 'true') {
-      router.push('/login');
+      router.push('/'); // Redirect ke HomePage jika mencoba akses admin tanpa login
     }
     if (localStorage.getItem('userRole') !== 'admin') {
       router.push('/mode-selection');

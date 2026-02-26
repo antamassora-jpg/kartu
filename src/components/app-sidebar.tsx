@@ -49,7 +49,7 @@ export function AppSidebar() {
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userRole');
-    router.push('/login');
+    router.push('/'); // Diarahkan ke HomePage profesional
   };
 
   const handleSwitchMode = () => {
@@ -60,7 +60,7 @@ export function AppSidebar() {
     <Sidebar className="border-r">
       <SidebarHeader className="p-4 flex flex-row items-center gap-3">
         <div className="w-8 h-8 relative">
-          <Image src="https://iili.io/KAqSZhb.png" alt="Logo" fill className="object-contain" priority />
+          <Image src="https://iili.io/KAqSZhb.png" alt="Logo" fill className="object-contain" priority unoptimized />
         </div>
         <div className="flex flex-col">
           <span className="font-bold text-sm text-primary leading-tight">EduCard Sync</span>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -12,14 +11,11 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Search, 
   LogIn, 
-  UserCheck, 
+  ShieldCheck, 
   Info, 
-  Camera, 
   Loader2, 
   Zap, 
   Navigation,
-  QrCode,
-  ShieldCheck,
   CheckCircle2
 } from 'lucide-react';
 import {
@@ -63,6 +59,7 @@ export default function LandingPage() {
     
     setTimeout(() => {
       const db = getDB();
+      // Mencari berdasarkan NIS, NISN, atau Kode Kartu
       const found = db.students.find(s => 
         s.nis === searchQuery || 
         s.nisn === searchQuery || 
@@ -78,7 +75,7 @@ export default function LandingPage() {
         toast({
           variant: "destructive",
           title: "Data Tidak Ditemukan",
-          description: "Pastikan nomor induk atau kode kartu sudah benar."
+          description: "Pastikan nomor induk atau kode kartu sudah benar sesuai data di sekolah."
         });
       }
     }, 1000);
@@ -92,7 +89,7 @@ export default function LandingPage() {
     setTimeout(() => {
       if (username === 'admin123' && password === 'password123') {
         localStorage.setItem('isLoggedIn', 'true');
-        toast({ title: "Login Berhasil", description: "Selamat datang kembali." });
+        toast({ title: "Login Berhasil", description: "Selamat datang kembali di panel EduCard Sync." });
         router.push('/mode-selection');
       } else {
         setLoginError('Username atau password salah.');
@@ -109,10 +106,10 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-12 h-12 bg-slate-50 rounded-xl p-2 shadow-sm border">
+            <div className="relative w-12 h-12 bg-slate-50 rounded-xl p-2 shadow-sm border border-slate-100">
               <Image 
                 src="https://iili.io/KAqSZhb.png" 
-                alt="Logo" 
+                alt="Logo Sekolah" 
                 fill 
                 className="object-contain"
                 priority
@@ -129,33 +126,34 @@ export default function LandingPage() {
             <Dialog>
               <DialogTrigger asChild>
                 <Button size="lg" className="px-8 rounded-full shadow-xl shadow-primary/20 gap-2 font-black uppercase tracking-widest text-[10px] h-12">
-                  <LogIn className="h-4 w-4" /> Portal Akses
+                  <LogIn className="h-4 w-4" /> Portal Masuk
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
-                <div className="bg-primary p-10 text-white text-center space-y-3">
+                <div className="bg-primary p-10 text-white text-center space-y-3 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
                    <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto border border-white/20 mb-2">
                       <ShieldCheck className="h-8 w-8 text-white" />
                    </div>
-                   <DialogTitle className="text-2xl font-black uppercase tracking-tighter">Login Internal</DialogTitle>
-                   <DialogDescription className="text-white/70 font-bold text-xs">
-                     Manajemen Kartu & Absensi Digital
+                   <DialogTitle className="text-2xl font-black uppercase tracking-tighter">Akses Internal</DialogTitle>
+                   <DialogDescription className="text-white/70 font-bold text-xs uppercase tracking-widest">
+                     Management & Scanning System
                    </DialogDescription>
                 </div>
                 <form onSubmit={handleLogin} className="p-10 space-y-6">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Username</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Username</Label>
                       <Input 
                         value={username} 
                         onChange={(e) => setUsername(e.target.value)} 
-                        placeholder="Masukkan username"
+                        placeholder="admin123"
                         required 
                         className="h-12 rounded-xl border-slate-200 bg-slate-50 focus-visible:bg-white"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Password</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Password</Label>
                       <Input 
                         type="password" 
                         value={password} 
@@ -167,7 +165,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                   {loginError && (
-                    <Alert variant="destructive" className="py-3 rounded-xl">
+                    <Alert variant="destructive" className="py-3 rounded-xl border-destructive/20 bg-destructive/5">
                       <AlertDescription className="text-xs font-bold">{loginError}</AlertDescription>
                     </Alert>
                   )}
@@ -177,7 +175,7 @@ export default function LandingPage() {
                       Demo: admin123 / password123
                     </AlertDescription>
                   </Alert>
-                  <Button type="submit" className="w-full h-14 text-sm font-black uppercase tracking-widest shadow-lg shadow-primary/20" disabled={isLoggingIn}>
+                  <Button type="submit" className="w-full h-14 text-sm font-black uppercase tracking-widest shadow-lg shadow-primary/20 rounded-2xl" disabled={isLoggingIn}>
                     {isLoggingIn ? <Loader2 className="h-6 w-6 animate-spin" /> : 'MASUK SEKARANG'}
                   </Button>
                 </form>
@@ -187,24 +185,25 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Header */}
+      {/* Hero Header Section */}
       <section className="relative pt-24 pb-32 lg:pt-32 lg:pb-40 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10 text-center space-y-8">
            <Badge className="bg-primary/5 text-primary border-primary/20 px-6 py-2 text-[10px] font-black tracking-[0.4em] uppercase rounded-full">
-              Digital Identity & Smart Tracking
+              Sistem Sinkronisasi Kartu & Absensi Digital
            </Badge>
-           <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter">
-             EduCard <span className="text-primary">Sync.</span><br/><span className="italic opacity-30 text-5xl md:text-7xl">Smart Verification.</span>
+           <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter uppercase">
+             Identity <span className="text-primary">Sync.</span><br/><span className="italic opacity-30 text-5xl md:text-7xl">Smart Control.</span>
            </h1>
            <p className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
-             Sistem verifikasi identitas siswa terpadu untuk efisiensi administrasi dan monitoring kehadiran di SMKN 2 Tana Toraja.
+             Platform verifikasi kartu pelajar terpadu untuk monitoring kehadiran dan administrasi digital SMKN 2 Tana Toraja.
            </p>
         </div>
+        {/* Decorative elements */}
         <div className="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]"></div>
         <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-[400px] h-[400px] bg-secondary/10 rounded-full blur-[100px]"></div>
       </section>
 
-      {/* Tracer Section - Fitur Utama */}
+      {/* Tracer Center - Fitur Pencarian */}
       <section className="py-24 bg-slate-50 relative border-y">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
@@ -215,10 +214,10 @@ export default function LandingPage() {
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 text-primary">
                          <Navigation className="h-5 w-5 fill-primary" />
-                         <span className="text-[10px] font-black uppercase tracking-[0.4em]">Tracer Identity Tool</span>
+                         <span className="text-[10px] font-black uppercase tracking-[0.4em]">Identity Tracer Tool</span>
                       </div>
-                      <h3 className="text-4xl font-black text-slate-900 tracking-tight leading-none uppercase">Lacak Kartu.</h3>
-                      <p className="text-muted-foreground font-medium">Verifikasi data siswa melalui NIS, NISN, atau Kode Kartu unik secara instan.</p>
+                      <h3 className="text-4xl font-black text-slate-900 tracking-tight leading-none uppercase">Lacak Validitas.</h3>
+                      <p className="text-muted-foreground font-medium">Verifikasi data siswa melalui NIS, NISN, atau Kode Kartu untuk memastikan keaslian kartu pelajar.</p>
                     </div>
 
                     <form onSubmit={handleSearch} className="relative group">
@@ -226,7 +225,7 @@ export default function LandingPage() {
                         <Search />
                       </div>
                       <Input 
-                        placeholder="Masukkan NIS / NISN / KODE..." 
+                        placeholder="Masukkan NIS / NISN / KODE KARTU..." 
                         className="pl-16 h-20 text-xl border-2 border-slate-100 bg-slate-50/50 focus-visible:bg-white rounded-3xl font-black uppercase placeholder:normal-case placeholder:font-medium"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -236,22 +235,18 @@ export default function LandingPage() {
                         className="absolute right-4 top-4 h-12 px-10 font-black rounded-2xl text-[10px] tracking-widest shadow-xl shadow-primary/20"
                         disabled={isSearching}
                       >
-                        {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'TELUSURI'}
+                        {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'TELUSURI DATA'}
                       </Button>
                     </form>
 
                     <div className="flex flex-wrap gap-8 pt-6">
                        <div className="flex items-center gap-3">
                           <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Real-time Data</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Real-time DB Sync</span>
                        </div>
                        <div className="flex items-center gap-3">
                           <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Valid Identification</span>
-                       </div>
-                       <div className="flex items-center gap-3">
-                          <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Secure Access</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Official Status</span>
                        </div>
                     </div>
                   </div>
@@ -261,11 +256,16 @@ export default function LandingPage() {
                     <div className="relative z-10 space-y-8">
                       {hasSearched && searchResult ? (
                         <div className="animate-in fade-in zoom-in-95 duration-500 space-y-8 text-center">
-                          <div className="w-40 h-52 bg-white/10 backdrop-blur-2xl rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/20 mx-auto group">
+                          <div className="w-40 h-52 bg-white/10 backdrop-blur-2xl rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/20 mx-auto group relative">
                             <Image 
                               src={searchResult.photo_url || 'https://picsum.photos/seed/user/300/400'} 
-                              alt="Profile" fill className="object-cover transition-transform group-hover:scale-110 duration-700" unoptimized 
+                              alt="Profil Siswa" fill className="object-cover transition-transform group-hover:scale-110 duration-700" unoptimized 
                             />
+                            {searchResult.status === 'Aktif' && (
+                              <div className="absolute top-2 right-2 bg-emerald-500 p-1.5 rounded-full">
+                                <CheckCircle2 className="h-4 w-4 text-white" />
+                              </div>
+                            )}
                           </div>
                           <div className="space-y-2">
                             <h4 className="text-3xl font-black uppercase tracking-tighter leading-none">{searchResult.name}</h4>
@@ -273,7 +273,7 @@ export default function LandingPage() {
                           </div>
                           <div className="bg-white/5 p-5 rounded-2xl flex justify-between items-center border border-white/5 backdrop-blur-sm">
                              <div className="text-left">
-                                <p className="text-[8px] font-black uppercase opacity-40 tracking-widest">Status Kartu</p>
+                                <p className="text-[8px] font-black uppercase opacity-40 tracking-widest">Status Keanggotaan</p>
                                 <p className="text-xs font-black uppercase text-emerald-400 mt-1">{searchResult.status}</p>
                              </div>
                              <div className="w-12 h-12 bg-white p-1 rounded-lg">
@@ -281,7 +281,7 @@ export default function LandingPage() {
                              </div>
                           </div>
                           <Button variant="secondary" className="w-full font-black h-14 rounded-2xl text-[10px] tracking-widest uppercase shadow-2xl" asChild>
-                            <Link href={`/verify/${searchResult.card_code}`}>LIHAT VERIFIKASI PENUH</Link>
+                            <Link href={`/verify/${searchResult.card_code}`}>KONFIRMASI IDENTITAS</Link>
                           </Button>
                         </div>
                       ) : (
@@ -290,7 +290,7 @@ export default function LandingPage() {
                             <Zap className="h-24 w-24 text-white" fill="white" />
                             <div className="absolute inset-0 bg-white blur-2xl opacity-50 animate-pulse"></div>
                           </div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.5em]">System Ready for Tracking</p>
+                          <p className="text-[10px] font-black uppercase tracking-[0.5em]">Siap Untuk Pemindaian Data</p>
                         </div>
                       )}
                     </div>
@@ -302,20 +302,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer Korporat */}
+      {/* Footer Section */}
       <footer className="bg-white py-16">
         <div className="container mx-auto px-4">
-           <div className="flex flex-col md:flex-row justify-between items-center gap-8 border-t pt-10">
+           <div className="flex flex-col md:flex-row justify-between items-center gap-8 border-t border-slate-100 pt-10">
               <div className="flex items-center gap-4">
-                 <Image src="https://iili.io/KAqSZhb.png" alt="Logo" width={32} height={32} unoptimized />
-                 <span className="text-[11px] font-black text-slate-800 uppercase tracking-widest">EduCard Sync v2.5</span>
+                 <Image src="https://iili.io/KAqSZhb.png" alt="Logo Sekolah" width={32} height={32} unoptimized />
+                 <span className="text-[11px] font-black text-slate-800 uppercase tracking-widest">EduCard Sync Tana Toraja</span>
               </div>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
-                 &copy; {new Date().getFullYear()} SMK NEGERI 2 TANA TORAJA. ALL RIGHTS RESERVED.
+                 &copy; {new Date().getFullYear()} SMK NEGERI 2 TANA TORAJA. POWERED BY EDUCARD.
               </p>
               <div className="flex gap-6">
-                 <span className="text-[10px] font-black uppercase text-primary tracking-widest cursor-pointer hover:underline">Privacy Policy</span>
-                 <span className="text-[10px] font-black uppercase text-primary tracking-widest cursor-pointer hover:underline">Documentation</span>
+                 <Link href="#" className="text-[10px] font-black uppercase text-primary tracking-widest hover:underline">Privasi</Link>
+                 <Link href="#" className="text-[10px] font-black uppercase text-primary tracking-widest hover:underline">Ketentuan</Link>
               </div>
            </div>
         </div>
