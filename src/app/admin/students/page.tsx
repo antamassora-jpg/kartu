@@ -333,11 +333,12 @@ export default function StudentsPage() {
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead>Identitas & QR Code</TableHead>
+              <TableHead>Identitas</TableHead>
               <TableHead>NIS</TableHead>
               <TableHead>Kelas/Jurusan</TableHead>
               <TableHead>Masa Berlaku</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>QR Code</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -345,36 +346,25 @@ export default function StudentsPage() {
             {filteredStudents.length > 0 ? filteredStudents.map((student) => (
               <TableRow key={student.id}>
                 <TableCell>
-                  <div className="flex items-center gap-4">
-                    <div className="flex -space-x-3 items-center">
-                      <div className="relative w-14 h-14 bg-white border rounded p-1.5 shadow-inner shrink-0 group hover:scale-150 transition-transform origin-left z-20 cursor-zoom-in">
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-10 h-10 bg-slate-50 border rounded-full overflow-hidden shadow-inner shrink-0 border-white ring-2 ring-slate-100">
+                      {student.photo_url ? (
                         <Image 
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
-                          alt="QR Code"
+                          src={student.photo_url}
+                          alt={student.name}
                           fill
-                          className="object-contain"
-                          unoptimized
+                          className="object-cover"
                         />
-                      </div>
-                      <div className="relative w-14 h-14 bg-slate-50 border rounded-full overflow-hidden shadow-inner shrink-0 z-10 border-white ring-2 ring-slate-100">
-                        {student.photo_url ? (
-                          <Image 
-                            src={student.photo_url}
-                            alt={student.name}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-300">
-                            <UserIcon className="h-6 w-6" />
-                          </div>
-                        )}
-                      </div>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-300">
+                          <UserIcon className="h-5 w-5" />
+                        </div>
+                      )}
                     </div>
                     <div>
                       <div className="font-bold text-slate-900 leading-tight">{student.name}</div>
-                      <div className="text-[9px] text-primary font-black uppercase tracking-widest mt-1 flex items-center gap-1">
-                        <QrCode className="h-3 w-3" /> {student.card_code}
+                      <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest mt-0.5">
+                        {student.card_code}
                       </div>
                     </div>
                   </div>
@@ -394,6 +384,17 @@ export default function StudentsPage() {
                   <Badge variant={student.status === 'Aktif' ? 'default' : 'secondary'} className="text-[10px] uppercase px-3">
                     {student.status}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="relative w-12 h-12 bg-white border rounded p-1 shadow-inner group hover:scale-[2.5] transition-transform origin-center z-20 cursor-zoom-in">
+                    <Image 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
+                      alt="QR Code"
+                      fill
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -415,7 +416,7 @@ export default function StudentsPage() {
               </TableRow>
             )) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-20 text-muted-foreground italic">
+                <TableCell colSpan={7} className="text-center py-20 text-muted-foreground italic">
                   Data tidak ditemukan. Silahkan tambah siswa baru atau import CSV.
                 </TableCell>
               </TableRow>
