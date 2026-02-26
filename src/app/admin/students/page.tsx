@@ -22,7 +22,8 @@ import {
   Edit, 
   Trash2,
   FileDown,
-  Loader2
+  Loader2,
+  Calendar
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -70,6 +71,7 @@ export default function StudentsPage() {
     }
 
     const db = getDB();
+    // Barcode / Card Code otomatis dibuat di sini
     const student: Student = {
       ...newStudent as Student,
       id: Math.random().toString(36).substr(2, 9),
@@ -81,7 +83,7 @@ export default function StudentsPage() {
     setStudents(updated);
     setIsAddOpen(false);
     setNewStudent({ status: 'Aktif', valid_until: '2025-06-30' });
-    toast({ title: "Berhasil", description: "Data siswa telah ditambahkan." });
+    toast({ title: "Berhasil", description: `Siswa ${student.name} berhasil ditambahkan dengan kode kartu otomatis.` });
   };
 
   const handleDelete = (id: string) => {
@@ -94,7 +96,6 @@ export default function StudentsPage() {
   };
 
   const handleDownloadFormat = () => {
-    // Menggunakan semicolon (;) sebagai pemisah sesuai permintaan (agar tidak menggunakan koma)
     const headers = "name;nis;nisn;class;major;school_year;status;valid_until";
     const sampleData = "Andi Pratama;2021001;0051234567;XII;Teknik Komputer & Jaringan;2024/2025;Aktif;2025-06-30";
     const csvContent = `${headers}\n${sampleData}`;
@@ -125,7 +126,6 @@ export default function StudentsPage() {
       try {
         const text = event.target?.result as string;
         const lines = text.split('\n');
-        // Mendukung pemisahan dengan semicolon (;)
         const headers = lines[0].split(';').map(h => h.trim());
         
         const db = getDB();
@@ -207,7 +207,7 @@ export default function StudentsPage() {
                 <Plus className="h-4 w-4" /> Siswa Baru
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Tambah Siswa Baru</DialogTitle>
               </DialogHeader>
@@ -252,12 +252,20 @@ export default function StudentsPage() {
                     placeholder="Nama Jurusan"
                   />
                 </div>
-                <div className="space-y-2 col-span-2">
+                <div className="space-y-2">
                   <Label>Tahun Ajaran</Label>
                   <Input 
                     value={newStudent.school_year || ''} 
                     onChange={e => setNewStudent({...newStudent, school_year: e.target.value})}
                     placeholder="Contoh: 2024/2025"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Berlaku Sampai</Label>
+                  <Input 
+                    type="date"
+                    value={newStudent.valid_until || ''} 
+                    onChange={e => setNewStudent({...newStudent, valid_until: e.target.value})}
                   />
                 </div>
               </div>
@@ -286,6 +294,7 @@ export default function StudentsPage() {
               <TableHead>Nama Siswa</TableHead>
               <TableHead>NIS</TableHead>
               <TableHead>Kelas/Jurusan</TableHead>
+              <TableHead>Masa Berlaku</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
@@ -295,12 +304,18 @@ export default function StudentsPage() {
               <TableRow key={student.id}>
                 <TableCell>
                   <div className="font-medium">{student.name}</div>
-                  <div className="text-xs text-muted-foreground">{student.nisn || '-'}</div>
+                  <div className="text-[10px] text-muted-foreground">ID: {student.card_code}</div>
                 </TableCell>
                 <TableCell>{student.nis}</TableCell>
                 <TableCell>
                   <div>{student.class}</div>
                   <div className="text-xs text-muted-foreground">{student.major}</div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    {student.valid_until}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <Badge variant={student.status === 'Aktif' ? 'default' : 'secondary'}>
@@ -327,7 +342,7 @@ export default function StudentsPage() {
               </TableRow>
             )) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
                   Data tidak ditemukan. Silahkan tambah siswa baru atau import CSV.
                 </TableCell>
               </TableRow>
