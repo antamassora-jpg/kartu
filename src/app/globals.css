@@ -65,15 +65,7 @@
 }
 
 @media print {
-  /* Aturan Dasar Print */
-  html, body {
-    height: 100%;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden;
-  }
-
-  /* Sembunyikan elemen non-cetak */
+  /* Hide non-print elements */
   .no-print, 
   header, 
   nav, 
@@ -81,46 +73,50 @@
   footer, 
   button,
   .sidebar-provider,
-  [role="dialog"] {
+  [role="dialog"],
+  [data-sidebar="sidebar"] {
     display: none !important;
   }
 
-  /* Paksa Tampilkan Area Cetak */
+  /* Reset layout for print */
+  html, body {
+    background: white !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Show and style the print area */
   #print-area {
     display: block !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
+    position: static !important;
     width: 100% !important;
-    z-index: 9999 !important;
-    background: white !important;
     visibility: visible !important;
+    background: white !important;
   }
 
   #print-area * {
     visibility: visible !important;
   }
 
-  /* Paksa Warna & Background muncul */
+  /* Ensure colors and backgrounds print */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    color-adjust: exact !important;
-  }
-
-  /* Pengaturan Halaman */
-  @page {
-    margin: 10mm;
-    size: auto;
   }
 
   .page-break {
     page-break-after: always;
     break-after: page;
   }
+
+  @page {
+    margin: 10mm;
+    size: auto;
+  }
 }
 
-/* Sembunyikan area print di layar normal */
+/* Screen visibility of the print area */
 #print-area {
   display: none;
 }

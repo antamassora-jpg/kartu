@@ -80,7 +80,7 @@ const INITIAL_DB: DB = {
   ],
   logs: [],
   exams: [
-    { id: 'e1', name: 'Ujian Tengah Semester Ganjil', school_year: '2023/2024', semester: 'Ganjil', start_date: '2023-10-01', end_date: '2023-10-10' }
+    { id: 'e1', name: 'PAS Ganjil', school_year: '2024/2025', semester: 'Ganjil', start_date: '2024-12-01', end_date: '2024-12-15' }
   ],
   templates: [
     { id: 't1', type: 'STUDENT_CARD', name: 'Modern Blue Style', config_json: '{"front":{"headerBg":"#2E50B8","bodyBg":"#ffffff","footerBg":"#4FBFDD","textColor":"#334155","bgImage":""},"back":{"headerBg":"#2E50B8","bodyBg":"#ffffff","footerBg":"#4FBFDD","textColor":"#334155","bgImage":""}}', is_active: true, preview_color: 'bg-blue-600' },
@@ -98,31 +98,6 @@ export function getDB(): DB {
   }
   try {
     const parsed = JSON.parse(stored);
-    
-    // Migration for new fields
-    let changed = false;
-    if (parsed.school_settings && !parsed.school_settings.terms_student) {
-      parsed.school_settings.terms_student = DEFAULT_SETTINGS.terms_student;
-      parsed.school_settings.terms_exam = DEFAULT_SETTINGS.terms_exam;
-      parsed.school_settings.terms_id = DEFAULT_SETTINGS.terms_id;
-      changed = true;
-    }
-
-    // Migration for specific assets
-    if (parsed.school_settings && !parsed.school_settings.logo_left_exam) {
-      parsed.school_settings.logo_left_exam = parsed.school_settings.logo_left || DEFAULT_SETTINGS.logo_left;
-      parsed.school_settings.logo_right_exam = parsed.school_settings.logo_right || DEFAULT_SETTINGS.logo_right;
-      parsed.school_settings.signature_exam = parsed.school_settings.signature_image || DEFAULT_SETTINGS.signature_image;
-      parsed.school_settings.stamp_exam = parsed.school_settings.stamp_image || DEFAULT_SETTINGS.stamp_image;
-      
-      parsed.school_settings.logo_left_id = parsed.school_settings.logo_left || DEFAULT_SETTINGS.logo_left;
-      parsed.school_settings.logo_right_id = parsed.school_settings.logo_right || DEFAULT_SETTINGS.logo_right;
-      parsed.school_settings.signature_id = parsed.school_settings.signature_image || DEFAULT_SETTINGS.signature_image;
-      parsed.school_settings.stamp_id = parsed.school_settings.stamp_image || DEFAULT_SETTINGS.stamp_image;
-      changed = true;
-    }
-
-    if (changed) saveDB(parsed);
     return parsed;
   } catch (e) {
     return INITIAL_DB;

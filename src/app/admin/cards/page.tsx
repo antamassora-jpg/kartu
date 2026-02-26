@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { getDB } from '@/app/lib/db';
-import { Student, SchoolSettings } from '@/app/lib/types';
+import { Student, SchoolSettings, CardTemplate } from '@/app/lib/types';
 import { Button } from '@/components/ui/button';
 import { 
   Select, 
@@ -40,6 +40,7 @@ import { jsPDF } from 'jspdf';
 export default function CardsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [settings, setSettings] = useState<SchoolSettings | null>(null);
+  const [activeTemplate, setActiveTemplate] = useState<CardTemplate | null>(null);
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const [selectedMajor, setSelectedMajor] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -55,6 +56,8 @@ export default function CardsPage() {
     const db = getDB();
     setStudents(db.students);
     setSettings(db.school_settings);
+    const template = db.templates.find(t => t.type === 'STUDENT_CARD' && t.is_active);
+    setActiveTemplate(template || null);
     if (db.students.length > 0) setPreviewId(db.students[0].id);
   }, []);
 
@@ -94,50 +97,23 @@ export default function CardsPage() {
     setIsProcessing(true);
     
     try {
-      const canvasFront = await html2canvas(cardRefFront.current, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: null,
-      });
-      const canvasBack = await html2canvas(cardRefBack.current, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: null,
-      });
+      const canvasFront = await html2canvas(cardRefFront.current, { scale: 3, useCORS: true });
+      const canvasBack = await html2canvas(cardRefBack.current, { scale: 3, useCORS: true });
 
-      const imgDataFront = canvasFront.toDataURL('image/png');
-      const imgDataBack = canvasBack.toDataURL('image/png');
-
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: [85.6, 54]
-      });
-
-      pdf.addImage(imgDataFront, 'PNG', 0, 0, 85.6, 54);
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85.6, 54] });
+      pdf.addImage(canvasFront.toDataURL('image/png'), 'PNG', 0, 0, 85.6, 54);
       pdf.addPage([85.6, 54], 'landscape');
-      pdf.addImage(imgDataBack, 'PNG', 0, 0, 85.6, 54);
-
+      pdf.addImage(canvasBack.toDataURL('image/png'), 'PNG', 0, 0, 85.6, 54);
       pdf.save(`Kartu_Pelajar_${previewStudent.name.replace(/\s+/g, '_')}.pdf`);
-      
-      toast({
-        title: "Berhasil",
-        description: `Kartu ${previewStudent.name} telah diunduh.`
-      });
+      toast({ title: "Berhasil", description: "Kartu telah diunduh." });
     } catch (error) {
-      console.error('PDF Generation Error:', error);
-      toast({
-        variant: "destructive",
-        title: "Gagal",
-        description: "Terjadi kesalahan saat membuat PDF."
-      });
+      toast({ variant: "destructive", title: "Gagal", description: "Gagal membuat PDF." });
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handlePrint = () => {
-    // Memberi jeda sebentar agar DOM benar-benar terupdate jika ada pergantian state
     setTimeout(() => {
       window.print();
       setIsPrintModalOpen(false);
@@ -146,52 +122,39 @@ export default function CardsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Area tersembunyi untuk proses cetak browser - Selalu sinkron dengan seleksi atau pratinjau */}
       <div id="print-area">
         <div className="flex flex-col items-center gap-10 p-10">
-          {selectedIds.size > 0 ? (
-            // Jika ada seleksi massal, cetak semua yang dipilih
-            Array.from(selectedIds).map(id => {
-              const s = students.find(x => x.id === id);
-              return s && settings ? (
-                <div key={id} className="page-break flex flex-col gap-6 items-center mb-10 pb-10 border-b border-dashed">
-                  <StudentCardVisual student={s} settings={settings} side="front" />
-                  <StudentCardVisual student={s} settings={settings} side="back" />
-                </div>
-              ) : null;
-            })
-          ) : previewId && previewStudent && settings ? (
-            // Jika tidak ada seleksi, cetak kartu yang sedang di-preview (Cetak Sekarang)
-            <div className="flex flex-col gap-6 items-center">
-              <StudentCardVisual student={previewStudent} settings={settings} side="front" />
-              <StudentCardVisual student={previewStudent} settings={settings} side="back" />
-            </div>
-          ) : null}
+          {(selectedIds.size > 0 ? Array.from(selectedIds) : (previewId ? [previewId] : [])).map(id => {
+            const s = students.find(x => x.id === id);
+            return s && settings ? (
+              <div key={id} className="page-break flex flex-col gap-6 items-center mb-10 pb-10 border-b border-dashed">
+                <StudentCardVisual student={s} settings={settings} side="front" template={activeTemplate} />
+                <StudentCardVisual student={s} settings={settings} side="back" template={activeTemplate} />
+              </div>
+            ) : null;
+          })}
         </div>
       </div>
 
       <div className="no-print flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Kartu Pelajar</h1>
-          <p className="text-muted-foreground">Generate, kustomisasi, dan cetak kartu pelajar siswa secara massal.</p>
+          <p className="text-muted-foreground">Generate dan cetak kartu pelajar siswa secara massal.</p>
         </div>
-        <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-          <Button variant="outline" className="gap-2 shrink-0" onClick={() => {
-            toast({ title: "Fitur segera hadir", description: "Export data CSV sedang dalam pengembangan." });
-          }}>
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => toast({title: "Segera Hadir"})}>
             <FileDown className="h-4 w-4" /> Export CSV
           </Button>
-          <Button className="gap-2 shrink-0" onClick={() => setIsPrintModalOpen(true)} disabled={selectedIds.size === 0}>
+          <Button className="gap-2" onClick={() => setIsPrintModalOpen(true)} disabled={selectedIds.size === 0}>
             <Printer className="h-4 w-4" /> Cetak Massal ({selectedIds.size})
           </Button>
         </div>
       </div>
 
       <div className="no-print grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-1 border-primary/20">
+        <Card className="lg:col-span-1">
           <CardHeader>
             <CardTitle className="text-lg">Filter & Navigasi</CardTitle>
-            <CardDescription>Cari dan pilih siswa untuk diproses.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="relative">
@@ -203,66 +166,49 @@ export default function CardsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-
             <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-muted-foreground">Kelas</label>
-                <Select value={selectedClass} onValueChange={setSelectedClass}>
-                  <SelectTrigger size="sm">
-                    <SelectValue placeholder="Kelas" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Semua</SelectItem>
-                    {classes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-muted-foreground">Jurusan</label>
-                <Select value={selectedMajor} onValueChange={setSelectedMajor}>
-                  <SelectTrigger size="sm">
-                    <SelectValue placeholder="Jurusan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Semua</SelectItem>
-                    {majors.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select value={selectedClass} onValueChange={setSelectedClass}>
+                <SelectTrigger size="sm"><SelectValue placeholder="Kelas" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Kelas</SelectItem>
+                  {classes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={selectedMajor} onValueChange={setSelectedMajor}>
+                <SelectTrigger size="sm"><SelectValue placeholder="Jurusan" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Jurusan</SelectItem>
+                  {majors.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
-
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Daftar Siswa ({filteredStudents.length})</label>
-                <Button variant="ghost" size="sm" className="h-7 text-[10px] px-2" onClick={toggleSelectAll}>
-                  {selectedIds.size === filteredStudents.length ? 'Batal Semua' : 'Pilih Semua'}
+                <label className="text-xs font-bold uppercase text-muted-foreground">Daftar Siswa</label>
+                <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={toggleSelectAll}>
+                  {selectedIds.size === filteredStudents.length ? 'Batal' : 'Pilih Semua'}
                 </Button>
               </div>
-              <div className="max-h-[350px] overflow-y-auto border rounded-md divide-y bg-muted/20">
-                {filteredStudents.length > 0 ? filteredStudents.map(s => (
+              <div className="max-h-[400px] overflow-y-auto border rounded divide-y bg-muted/5">
+                {filteredStudents.map(s => (
                   <div 
                     key={s.id} 
-                    className={`p-3 text-sm cursor-pointer hover:bg-white flex items-center justify-between group transition-colors ${previewId === s.id ? 'bg-white border-l-4 border-primary' : ''}`}
+                    className={`p-2.5 text-xs cursor-pointer hover:bg-white flex items-center justify-between transition-colors ${previewId === s.id ? 'bg-white border-l-4 border-primary' : ''}`}
                     onClick={() => setPreviewId(s.id)}
                   >
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="shrink-0" onClick={(e) => toggleSelect(s.id, e)}>
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <div onClick={(e) => toggleSelect(s.id, e)}>
                         {selectedIds.has(s.id) ? (
                           <CheckSquare className="h-4 w-4 text-primary" />
                         ) : (
                           <Square className="h-4 w-4 text-muted-foreground" />
                         )}
                       </div>
-                      <div className="truncate">
-                        <div className="font-semibold truncate">{s.name}</div>
-                        <div className="text-[10px] text-muted-foreground">{s.nis} • {s.major}</div>
-                      </div>
+                      <span className="font-semibold truncate">{s.name}</span>
                     </div>
-                    <Eye className={`h-4 w-4 shrink-0 transition-opacity ${previewId === s.id ? 'opacity-100 text-primary' : 'opacity-0 group-hover:opacity-100'}`} />
+                    <Eye className={`h-3 w-3 ${previewId === s.id ? 'text-primary' : 'opacity-20'}`} />
                   </div>
-                )) : (
-                  <div className="p-10 text-center text-xs text-muted-foreground italic">Siswa tidak ditemukan</div>
-                )}
+                ))}
               </div>
             </div>
           </CardContent>
@@ -270,87 +216,43 @@ export default function CardsPage() {
 
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg flex justify-between items-center">
-              Pratinjau Kartu Pelajar
-              <Button variant="outline" size="sm" className="gap-1 h-8 text-xs" onClick={() => {
-                const db = getDB();
-                setStudents(db.students);
-                setSettings(db.school_settings);
-                toast({ title: "Berhasil", description: "Data pratinjau diperbarui." });
-              }}>
-                <RefreshCw className="h-3 w-3" /> Refresh
-              </Button>
-            </CardTitle>
-            <CardDescription>Tampilan kartu saat dicetak sesuai pengaturan sekolah.</CardDescription>
+            <CardTitle className="text-lg">Pratinjau Kartu</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col items-center gap-10 py-10 bg-muted/5 rounded-b-lg">
+          <CardContent className="flex flex-col items-center gap-8 py-10 bg-muted/5 rounded-b-lg">
             {previewStudent && settings ? (
               <>
-                <div className="space-y-4 flex flex-col items-center">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground bg-white px-4 py-1 rounded-full border shadow-sm">Tampak Depan</span>
-                  <div ref={cardRefFront} className="shadow-2xl">
-                    <StudentCardVisual student={previewStudent} settings={settings} side="front" />
-                  </div>
+                <div ref={cardRefFront} className="shadow-2xl">
+                  <StudentCardVisual student={previewStudent} settings={settings} side="front" template={activeTemplate} />
                 </div>
-                <div className="space-y-4 flex flex-col items-center">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground bg-white px-4 py-1 rounded-full border shadow-sm">Tampak Belakang</span>
-                  <div ref={cardRefBack} className="shadow-2xl">
-                    <StudentCardVisual student={previewStudent} settings={settings} side="back" />
-                  </div>
+                <div ref={cardRefBack} className="shadow-2xl">
+                  <StudentCardVisual student={previewStudent} settings={settings} side="back" template={activeTemplate} />
                 </div>
-                <div className="w-full flex flex-col sm:flex-row justify-center gap-3 mt-4 border-t pt-8 px-6">
-                   <Button variant="outline" className="flex-1 gap-2 h-11" onClick={handleDownloadSingle} disabled={isProcessing}>
+                <div className="flex gap-3 w-full max-w-sm">
+                   <Button variant="outline" className="flex-1 gap-2" onClick={handleDownloadSingle} disabled={isProcessing}>
                      {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                     Download PDF
+                     PDF
                    </Button>
-                   <Button className="flex-1 gap-2 h-11" onClick={handlePrint}>
-                     <Printer className="h-4 w-4" /> Cetak Sekarang
+                   <Button className="flex-1 gap-2" onClick={handlePrint}>
+                     <Printer className="h-4 w-4" /> Cetak
                    </Button>
                 </div>
               </>
             ) : (
-              <div className="py-20 flex flex-col items-center gap-4 text-muted-foreground italic">
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center animate-pulse">
-                  <Eye className="h-8 w-8 opacity-20" />
-                </div>
-                Pilih siswa untuk melihat pratinjau kartu
-              </div>
+              <div className="py-20 text-muted-foreground italic">Pilih siswa untuk melihat pratinjau</div>
             )}
           </CardContent>
         </Card>
       </div>
 
       <Dialog open={isPrintModalOpen} onOpenChange={setIsPrintModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto no-print">
+        <DialogContent className="max-w-2xl no-print">
           <DialogHeader>
-            <DialogTitle>Siap untuk Mencetak</DialogTitle>
-            <DialogDescription>
-              Menyiapkan {selectedIds.size} kartu untuk proses pencetakan massal.
-            </DialogDescription>
+            <DialogTitle>Konfirmasi Cetak Massal</DialogTitle>
+            <DialogDescription>Anda akan mencetak {selectedIds.size} kartu pelajar.</DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6 border-y my-4 bg-muted/10 p-4 rounded-lg">
-             {Array.from(selectedIds).slice(0, 4).map(id => {
-               const s = students.find(x => x.id === id);
-               return s && settings ? (
-                 <div key={id} className="scale-75 origin-top-left border shadow-sm rounded-xl overflow-hidden mb-[-50px]">
-                   <StudentCardVisual student={s} settings={settings} side="front" />
-                 </div>
-               ) : null;
-             })}
-             {selectedIds.size > 4 && (
-               <div className="col-span-full text-center py-4 text-xs font-bold text-muted-foreground">
-                 + {selectedIds.size - 4} Kartu lainnya dalam antrian cetak...
-               </div>
-             )}
-          </div>
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <div className="flex-1 text-xs text-muted-foreground mb-4 sm:mb-0">
-               <p>Tips: Gunakan kertas PVC ID Card atau Art Paper 260gsm untuk hasil terbaik.</p>
-            </div>
+          <DialogFooter>
             <Button variant="ghost" onClick={() => setIsPrintModalOpen(false)}>Batal</Button>
-            <Button className="gap-2" onClick={handlePrint}>
-              <Printer className="h-4 w-4" /> Konfirmasi Cetak Massal
-            </Button>
+            <Button className="gap-2" onClick={handlePrint}><Printer className="h-4 w-4" /> Mulai Cetak</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
