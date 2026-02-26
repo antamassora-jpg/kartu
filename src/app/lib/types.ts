@@ -29,6 +29,8 @@ export interface SchoolSettings {
   // Student Layout Config
   student_show_logo_front: boolean;
   student_show_logo_back: boolean;
+  student_show_logo_right_front: boolean;
+  student_show_logo_right_back: boolean;
   student_show_sig_front: boolean;
   student_show_sig_back: boolean;
   student_show_stamp_front: boolean;
@@ -43,6 +45,8 @@ export interface SchoolSettings {
   // Exam Layout Config
   exam_show_logo_front: boolean;
   exam_show_logo_back: boolean;
+  exam_show_logo_right_front: boolean;
+  exam_show_logo_right_back: boolean;
   exam_show_sig_front: boolean;
   exam_show_sig_back: boolean;
   exam_show_stamp_front: boolean;

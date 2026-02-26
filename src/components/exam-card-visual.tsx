@@ -45,7 +45,8 @@ export function ExamCardVisual({
     fontFamily: current.fontFamily
   };
 
-  const showLogo = side === 'front' ? settings.exam_show_logo_front : settings.exam_show_logo_back;
+  const showLogoLeft = side === 'front' ? settings.exam_show_logo_front : settings.exam_show_logo_back;
+  const showLogoRight = side === 'front' ? settings.exam_show_logo_right_front : settings.exam_show_logo_right_back;
   const showSig = side === 'front' ? settings.exam_show_sig_front : settings.exam_show_sig_back;
   const showStamp = side === 'front' ? settings.exam_show_stamp_front : settings.exam_show_stamp_back;
 
@@ -53,15 +54,20 @@ export function ExamCardVisual({
     return (
       <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none">
         <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 gap-3 relative z-10 shadow-sm border-b">
-          {showLogo && (
+          {showLogoLeft && (
             <div className="w-10 h-10 relative bg-white rounded-md p-1 shadow-inner shrink-0">
               <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" priority />
             </div>
           )}
-          <div className="flex-1 flex flex-col text-white">
+          <div className="flex-1 flex flex-col text-white text-center">
             <span className="font-bold text-[9px] uppercase leading-tight tracking-tight">{settings.school_name}</span>
             <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: current.footerBg }}>KARTU PESERTA UJIAN</span>
           </div>
+          {showLogoRight && settings.logo_right_exam && (
+            <div className="w-10 h-10 relative bg-white rounded-md p-1 shadow-inner shrink-0">
+              <Image src={settings.logo_right_exam} alt="Logo R" fill className="object-contain" priority />
+            </div>
+          )}
         </div>
 
         <div className="flex h-[calc(100%-56px)] relative z-10">
@@ -88,7 +94,6 @@ export function ExamCardVisual({
               <span className="font-bold text-[8px] uppercase">{exam?.name || 'UJIAN SEKOLAH'}</span>
             </div>
 
-            {/* Floating Assets on Front if enabled */}
             {(showSig || showStamp) && (
               <div className="absolute bottom-2 right-4 flex items-end gap-2 scale-75 origin-bottom-right">
                 {showStamp && (
@@ -116,12 +121,17 @@ export function ExamCardVisual({
   return (
     <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[9px] select-none p-6 flex flex-col">
       <div className="text-center mb-3 flex items-center justify-center gap-2 border-b pb-1">
-        {showLogo && (
+        {showLogoLeft && (
           <div className="w-6 h-6 relative shrink-0">
             <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" />
           </div>
         )}
         <h4 className="font-black text-[10px] uppercase text-slate-800">Tata Tertib Ujian</h4>
+        {showLogoRight && settings.logo_right_exam && (
+          <div className="w-6 h-6 relative shrink-0">
+            <Image src={settings.logo_right_exam} alt="Logo R" fill className="object-contain" />
+          </div>
+        )}
       </div>
       <div className="flex gap-4 flex-1">
         <div className="flex-1 whitespace-pre-line text-slate-600 leading-tight italic px-2">

@@ -12,7 +12,7 @@ export interface DB {
 }
 
 const DEFAULT_ASSET_L = 'https://iili.io/KAqSZhb.png';
-const DEFAULT_ASSET_R = 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?q=80&w=200&h=200&auto=format&fit=crop';
+const DEFAULT_LOGO_KEMENDIKBUD = 'https://iili.io/29vR0bV.png'; // Logo Tut Wuri Handayani
 const DEFAULT_SIG = 'https://images.unsplash.com/photo-1574169208507-84376144848b?q=80&w=200&h=100&auto=format&fit=crop';
 const DEFAULT_STAMP = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=200&h=200&auto=format&fit=crop';
 
@@ -24,12 +24,14 @@ const DEFAULT_SETTINGS: SchoolSettings = {
   
   // Student
   logo_left: DEFAULT_ASSET_L,
-  logo_right: DEFAULT_ASSET_R,
+  logo_right: DEFAULT_LOGO_KEMENDIKBUD,
   signature_image: DEFAULT_SIG,
   stamp_image: DEFAULT_STAMP,
   terms_student: '1. Kartu wajib dibawa setiap hari.\n2. Dilarang dipinjamkan.\n3. Jika hilang segera lapor ke sekolah.\n4. Berlaku selama siswa aktif.\n5. Kartu dipakai untuk scan layanan/absen.',
   student_show_logo_front: true,
   student_show_logo_back: false,
+  student_show_logo_right_front: true,
+  student_show_logo_right_back: false,
   student_show_sig_front: false,
   student_show_sig_back: true,
   student_show_stamp_front: false,
@@ -37,12 +39,14 @@ const DEFAULT_SETTINGS: SchoolSettings = {
 
   // Exam
   logo_left_exam: DEFAULT_ASSET_L,
-  logo_right_exam: DEFAULT_ASSET_R,
+  logo_right_exam: DEFAULT_LOGO_KEMENDIKBUD,
   signature_exam: DEFAULT_SIG,
   stamp_exam: DEFAULT_STAMP,
   terms_exam: '1. Kartu wajib dibawa setiap sesi ujian.\n2. Hadir 15 menit sebelum ujian dimulai.\n3. Dilarang membawa alat komunikasi/HP.\n4. Menjaga ketertiban di dalam ruang ujian.',
   exam_show_logo_front: true,
   exam_show_logo_back: false,
+  exam_show_logo_right_front: true,
+  exam_show_logo_right_back: false,
   exam_show_sig_front: false,
   exam_show_sig_back: true,
   exam_show_stamp_front: false,
@@ -50,7 +54,7 @@ const DEFAULT_SETTINGS: SchoolSettings = {
 
   // ID Card
   logo_left_id: DEFAULT_ASSET_L,
-  logo_right_id: DEFAULT_ASSET_R,
+  logo_right_id: '',
   signature_id: DEFAULT_SIG,
   stamp_id: DEFAULT_STAMP,
   terms_id: '1. Kartu identitas resmi SMKN 2 Tana Toraja.\n2. Wajib dikenakan selama jam dinas/operasional.\n3. Penyalahgunaan kartu akan dikenakan sanksi.\n4. Temukan kartu? Hubungi admin sekolah.',

@@ -171,13 +171,22 @@ export default function SettingsPage() {
                   {/* Student Config */}
                   <TabsContent value="student" className="mt-0 space-y-6">
                     <AssetUploader 
-                      label="Logo Sekolah" 
+                      label="Logo Kiri (Sekolah)" 
                       image={settings.logo_left} 
                       onUpload={e => handleFileUpload('logo_left', e)} 
                       showFront={settings.student_show_logo_front}
                       onShowFrontChange={v => setSettings({...settings, student_show_logo_front: v})}
                       showBack={settings.student_show_logo_back}
                       onShowBackChange={v => setSettings({...settings, student_show_logo_back: v})}
+                    />
+                    <AssetUploader 
+                      label="Logo Kanan (Tut Wuri)" 
+                      image={settings.logo_right} 
+                      onUpload={e => handleFileUpload('logo_right', e)} 
+                      showFront={settings.student_show_logo_right_front}
+                      onShowFrontChange={v => setSettings({...settings, student_show_logo_right_front: v})}
+                      showBack={settings.student_show_logo_right_back}
+                      onShowBackChange={v => setSettings({...settings, student_show_logo_right_back: v})}
                     />
                     <AssetUploader 
                       label="Tanda Tangan" 
@@ -203,13 +212,22 @@ export default function SettingsPage() {
                   {/* Exam Config */}
                   <TabsContent value="exam" className="mt-0 space-y-6">
                     <AssetUploader 
-                      label="Logo Sekolah" 
+                      label="Logo Kiri (Sekolah)" 
                       image={settings.logo_left_exam} 
                       onUpload={e => handleFileUpload('logo_left_exam', e)} 
                       showFront={settings.exam_show_logo_front}
                       onShowFrontChange={v => setSettings({...settings, exam_show_logo_front: v})}
                       showBack={settings.exam_show_logo_back}
                       onShowBackChange={v => setSettings({...settings, exam_show_logo_back: v})}
+                    />
+                    <AssetUploader 
+                      label="Logo Kanan (Tut Wuri)" 
+                      image={settings.logo_right_exam} 
+                      onUpload={e => handleFileUpload('logo_right_exam', e)} 
+                      showFront={settings.exam_show_logo_right_front}
+                      onShowFrontChange={v => setSettings({...settings, exam_show_logo_right_front: v})}
+                      showBack={settings.exam_show_logo_right_back}
+                      onShowBackChange={v => setSettings({...settings, exam_show_logo_right_back: v})}
                     />
                     <AssetUploader 
                       label="Tanda Tangan" 
@@ -235,7 +253,7 @@ export default function SettingsPage() {
                   {/* ID Config */}
                   <TabsContent value="id" className="mt-0 space-y-6">
                     <AssetUploader 
-                      label="Logo Sekolah" 
+                      label="Logo Utama" 
                       image={settings.logo_left_id} 
                       onUpload={e => handleFileUpload('logo_left_id', e)} 
                       showFront={settings.id_show_logo_front}
