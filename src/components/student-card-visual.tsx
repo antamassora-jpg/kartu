@@ -1,12 +1,7 @@
-
 "use client";
 
 import { Student, SchoolSettings } from '@/app/lib/types';
 import Image from 'next/image';
-import { QrCode } from 'lucide-react';
-
-// Standard ID-1 size: 85.60 × 53.98 mm
-// Scale: 1mm = 3.78px approximately, but we'll use a fixed aspect ratio for display
 
 export function StudentCardVisual({ 
   student, 
@@ -27,14 +22,14 @@ export function StudentCardVisual({
         {/* Header */}
         <div className="h-14 bg-primary flex items-center px-4 gap-3 relative z-10 shadow-sm">
           <div className="w-10 h-10 relative bg-white rounded-md p-1 shadow-inner">
-            <Image src={settings.logo_left} alt="Logo" fill className="object-contain" />
+            <Image src={settings.logo_left} alt="Logo" fill className="object-contain" priority />
           </div>
           <div className="flex-1 flex flex-col text-white">
             <span className="font-bold text-[11px] uppercase leading-tight tracking-tight">{settings.school_name}</span>
             <span className="text-[6.5px] opacity-80 line-clamp-2 leading-tight">{settings.address}</span>
           </div>
           <div className="w-10 h-10 relative bg-white/10 rounded-md p-1.5 border border-white/20">
-             <Image src={settings.logo_right} alt="Logo" fill className="object-contain" />
+             <Image src={settings.logo_right} alt="Logo" fill className="object-contain" priority />
           </div>
         </div>
 
@@ -43,19 +38,20 @@ export function StudentCardVisual({
           <div className="w-[110px] flex flex-col items-center justify-center p-3 gap-2 border-r border-dashed border-muted/50">
             <div className="w-[85px] h-[105px] bg-muted relative rounded-md overflow-hidden border-2 border-white shadow-md">
               {student.photo_url ? (
-                <Image src={student.photo_url} alt={student.name} fill className="object-cover" />
+                <Image src={student.photo_url} alt={student.name} fill className="object-cover" priority />
               ) : (
                 <div className="flex items-center justify-center h-full text-[8px] text-muted-foreground uppercase font-bold bg-muted/50">PAS FOTO</div>
               )}
             </div>
-            <div className="w-14 h-14 relative bg-white border border-muted p-1 rounded-sm shadow-sm flex items-center justify-center">
-               {/* Realistic looking QR Code placeholder using a service */}
+            <div className="w-14 h-14 relative bg-white border border-muted p-1 rounded-sm shadow-sm flex items-center justify-center overflow-hidden">
                <div className="relative w-full h-full">
                  <Image 
                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${student.card_code}`}
                    alt="QR Code"
                    fill
                    className="object-contain"
+                   priority
+                   unoptimized
                  />
                </div>
             </div>
@@ -85,11 +81,9 @@ export function StudentCardVisual({
               <div className="text-center w-28">
                 <div className="text-[6px] text-muted-foreground mb-1">Ditetapkan di Tana Toraja,<br/>Kepala Sekolah,</div>
                 <div className="h-8 w-20 relative mx-auto mb-1">
-                   {/* Signature image with relative positioning */}
-                   <Image src={settings.signature_image} alt="Tanda Tangan" fill className="object-contain z-10" />
-                   {/* Stamp image slightly offset and semi-transparent */}
+                   <Image src={settings.signature_image} alt="Tanda Tangan" fill className="object-contain z-10" priority />
                    <div className="absolute -top-1 -left-2 w-10 h-10 opacity-30 z-0 rotate-[-10deg]">
-                     <Image src={settings.stamp_image} alt="Stempel" fill className="object-contain mix-blend-multiply" />
+                     <Image src={settings.stamp_image} alt="Stempel" fill className="object-contain mix-blend-multiply" priority />
                    </div>
                 </div>
                 <div className="font-bold border-t border-black text-[7px] pt-0.5">{settings.principal_name}</div>

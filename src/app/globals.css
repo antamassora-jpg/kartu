@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -66,9 +65,11 @@
 }
 
 @media print {
+  /* Sembunyikan semua elemen secara default saat cetak */
   body * {
     visibility: hidden;
   }
+  /* Tampilkan hanya area print dan turunannya */
   #print-area, #print-area * {
     visibility: visible;
   }
@@ -77,14 +78,25 @@
     left: 0;
     top: 0;
     width: 100%;
-    background: white;
     display: block !important;
+    background: white;
   }
+  /* Paksa background muncul saat print (terutama untuk elemen berwarna) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  /* Sembunyikan elemen dengan class no-print */
   .no-print {
     display: none !important;
   }
+  /* Hilangkan margin default browser */
+  @page {
+    margin: 0;
+  }
 }
 
+/* Sembunyikan area print di layar normal */
 #print-area {
   display: none;
 }

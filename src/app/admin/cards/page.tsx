@@ -137,26 +137,30 @@ export default function CardsPage() {
   };
 
   const handleConfirmPrint = () => {
-    window.print();
-    setIsPrintModalOpen(false);
+    // Berikan sedikit waktu agar render DOM selesai jika ada perubahan
+    setTimeout(() => {
+      window.print();
+      setIsPrintModalOpen(false);
+    }, 100);
   };
 
   return (
     <div className="space-y-6">
+      {/* Area tersembunyi untuk proses cetak browser */}
       <div id="print-area">
-        <div className="p-8 grid grid-cols-2 gap-4">
-          {Array.from(selectedIds).length > 0 ? (
+        <div className="p-10 flex flex-col items-center gap-10">
+          {selectedIds.size > 0 ? (
             Array.from(selectedIds).map(id => {
               const s = students.find(x => x.id === id);
               return s && settings ? (
-                <div key={id} className="mb-8 flex flex-col gap-4 items-center break-inside-avoid">
+                <div key={id} className="flex flex-col gap-6 items-center break-inside-avoid page-break-after-always pb-10 border-b border-dashed border-slate-300 w-full">
                   <StudentCardVisual student={s} settings={settings} side="front" />
                   <StudentCardVisual student={s} settings={settings} side="back" />
                 </div>
               ) : null;
             })
           ) : previewStudent && settings && (
-            <div className="flex flex-col gap-4 items-center break-inside-avoid">
+            <div className="flex flex-col gap-6 items-center break-inside-avoid">
               <StudentCardVisual student={previewStudent} settings={settings} side="front" />
               <StudentCardVisual student={previewStudent} settings={settings} side="back" />
             </div>
@@ -164,7 +168,7 @@ export default function CardsPage() {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="no-print flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Kartu Pelajar</h1>
           <p className="text-muted-foreground">Generate, kustomisasi, dan cetak kartu pelajar siswa secara massal.</p>
@@ -181,7 +185,7 @@ export default function CardsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="no-print grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-1 border-primary/20">
           <CardHeader>
             <CardTitle className="text-lg">Filter & Navigasi</CardTitle>
