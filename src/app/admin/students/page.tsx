@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getDB, saveDB } from '@/app/lib/db';
 import { Student } from '@/app/lib/types';
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,9 @@ import {
   MoreVertical, 
   Edit, 
   Trash2,
-  FileSpreadsheet
+  FileSpreadsheet,
+  FileDown,
+  Loader2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -39,11 +42,15 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { toast } from '@/hooks/use-toast';
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [newStudent, setNewStudent] = useState<Partial<Student>>({
     status: 'Aktif',
     valid_until: '2025-06-30'
@@ -59,6 +66,11 @@ export default function StudentsPage() {
   );
 
   const handleAdd = () => {
+    if (!newStudent.name || !newStudent.nis) {
+      toast({ title: "Gagal", description: "Nama dan NIS wajib diisi.", variant: "destructive" });
+      return;
+    }
+
     const db = getDB();
     const student: Student = {
       ...newStudent as Student,
@@ -71,6 +83,7 @@ export default function StudentsPage() {
     setStudents(updated);
     setIsAddOpen(false);
     setNewStudent({ status: 'Aktif', valid_until: '2025-06-30' });
+    toast({ title: "Berhasil", description: "Data siswa telah ditambahkan." });
   };
 
   const handleDelete = (id: string) => {
@@ -79,6 +92,89 @@ export default function StudentsPage() {
     db.students = updated;
     saveDB(db);
     setStudents(updated);
+    toast({ title: "Dihapus", description: "Data siswa berhasil dihapus." });
+  };
+
+  const handleDownloadFormat = () => {
+    const headers = "name,nis,nisn,class,major,school_year,status,valid_until";
+    const sampleData = "Andi Pratama,2021001,0051234567,XII,Teknik Komputer & Jaringan,2023/2024,Aktif,2025-06-30";
+    const csvContent = `${headers}\n${sampleData}`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "format_import_siswa.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({ title: "Format Diunduh", description: "Silahkan isi data pada file CSV tersebut." });
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const lines = text.split('\n');
+        const headers = lines[0].split(',').map(h => h.trim());
+        
+        const db = getDB();
+        const newStudents: Student[] = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          const values = lines[i].split(',').map(v => v.trim());
+          const entry: any = {};
+          
+          headers.forEach((header, index) => {
+            entry[header] = values[index];
+          });
+
+          newStudents.push({
+            id: Math.random().toString(36).substr(2, 9),
+            name: entry.name || 'Unknown',
+            nis: entry.nis || '000',
+            nisn: entry.nisn || '',
+            class: entry.class || '-',
+            major: entry.major || '-',
+            school_year: entry.school_year || '2024/2025',
+            status: (entry.status as any) || 'Aktif',
+            valid_until: entry.valid_until || '2025-06-30',
+            card_code: `CC-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+            photo_url: `https://picsum.photos/seed/${entry.nis || Math.random()}/300/400`
+          });
+        }
+
+        const updated = [...db.students, ...newStudents];
+        db.students = updated;
+        saveDB(db);
+        setStudents(updated);
+        toast({ 
+          title: "Import Berhasil", 
+          description: `${newStudents.length} data siswa baru telah ditambahkan.` 
+        });
+      } catch (error) {
+        toast({ 
+          variant: "destructive", 
+          title: "Import Gagal", 
+          description: "Pastikan format file CSV benar." 
+        });
+      } finally {
+        setIsImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -89,8 +185,19 @@ export default function StudentsPage() {
           <p className="text-muted-foreground">Kelola data master siswa SMKN 2 Tana Toraja.</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto overflow-x-auto">
-          <Button variant="outline" className="gap-2">
-            <FileSpreadsheet className="h-4 w-4" /> Import
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileChange} 
+            accept=".csv" 
+            className="hidden" 
+          />
+          <Button variant="outline" className="gap-2" onClick={handleDownloadFormat}>
+            <FileDown className="h-4 w-4" /> Format CSV
+          </Button>
+          <Button variant="outline" className="gap-2" onClick={handleImportClick} disabled={isImporting}>
+            {isImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            Import Data
           </Button>
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
@@ -108,6 +215,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.name || ''} 
                     onChange={e => setNewStudent({...newStudent, name: e.target.value})}
+                    placeholder="Masukkan nama lengkap"
                   />
                 </div>
                 <div className="space-y-2">
@@ -115,6 +223,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.nis || ''} 
                     onChange={e => setNewStudent({...newStudent, nis: e.target.value})}
+                    placeholder="Contoh: 2021001"
                   />
                 </div>
                 <div className="space-y-2">
@@ -122,6 +231,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.nisn || ''} 
                     onChange={e => setNewStudent({...newStudent, nisn: e.target.value})}
+                    placeholder="10 digit nomor"
                   />
                 </div>
                 <div className="space-y-2">
@@ -129,6 +239,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.class || ''} 
                     onChange={e => setNewStudent({...newStudent, class: e.target.value})}
+                    placeholder="Contoh: XII"
                   />
                 </div>
                 <div className="space-y-2">
@@ -136,6 +247,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.major || ''} 
                     onChange={e => setNewStudent({...newStudent, major: e.target.value})}
+                    placeholder="Nama Jurusan"
                   />
                 </div>
                 <div className="space-y-2 col-span-2">
@@ -143,7 +255,7 @@ export default function StudentsPage() {
                   <Input 
                     value={newStudent.school_year || ''} 
                     onChange={e => setNewStudent({...newStudent, school_year: e.target.value})}
-                    placeholder="2024/2025"
+                    placeholder="Contoh: 2024/2025"
                   />
                 </div>
               </div>
@@ -177,7 +289,7 @@ export default function StudentsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredStudents.map((student) => (
+            {filteredStudents.length > 0 ? filteredStudents.map((student) => (
               <TableRow key={student.id}>
                 <TableCell>
                   <div className="font-medium">{student.name}</div>
@@ -211,7 +323,13 @@ export default function StudentsPage() {
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+            )) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                  Data tidak ditemukan. Silahkan tambah siswa baru atau import CSV.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
