@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -9,14 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Sparkles, Save, Info, Camera, Upload, Trash2 } from 'lucide-react';
+import { Sparkles, Save, Info, Camera, Upload, Trash2, CreditCard, Award, Contact } from 'lucide-react';
 import { refineCardTerms } from '@/ai/flows/refine-card-terms-flow';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<SchoolSettings | null>(null);
-  const [isRefining, setIsRefining] = useState(false);
+  const [isRefining, setIsRefining] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     setSettings(getDB().school_settings);
@@ -42,17 +42,17 @@ export default function SettingsPage() {
     reader.readAsDataURL(file);
   };
 
-  const handleAiRefine = async () => {
-    if (!settings?.terms_text) return;
-    setIsRefining(true);
+  const handleAiRefine = async (field: 'terms_student' | 'terms_exam' | 'terms_id') => {
+    if (!settings?.[field]) return;
+    setIsRefining(prev => ({ ...prev, [field]: true }));
     try {
-      const result = await refineCardTerms({ rawTermsText: settings.terms_text });
-      setSettings({ ...settings, terms_text: result.refinedTermsText });
+      const result = await refineCardTerms({ rawTermsText: settings[field] });
+      setSettings({ ...settings, [field]: result.refinedTermsText });
       toast({ title: "AI Refined", description: "Ketentuan kartu telah diperbaiki secara otomatis." });
     } catch (err) {
       toast({ title: "Gagal", description: "Gagal memproses AI." });
     } finally {
-      setIsRefining(false);
+      setIsRefining(prev => ({ ...prev, [field]: false }));
     }
   };
 
@@ -99,25 +99,69 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-secondary/20 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between bg-secondary/5 border-b">
-              <div>
-                <CardTitle className="text-lg">Aturan & Ketentuan Kartu</CardTitle>
-                <CardDescription>Teks tata tertib yang akan muncul di belakang kartu.</CardDescription>
-              </div>
-              <Button variant="outline" size="sm" className="gap-2 text-secondary hover:text-secondary border-secondary bg-white" onClick={handleAiRefine} disabled={isRefining}>
-                <Sparkles className="h-4 w-4" /> {isRefining ? 'AI Memproses...' : 'AI Perbaiki Teks'}
-              </Button>
+          <Card className="border-secondary/20 shadow-sm overflow-hidden">
+            <CardHeader className="bg-secondary/5 border-b">
+              <CardTitle className="text-lg">Aturan & Ketentuan Kartu</CardTitle>
+              <CardDescription>Teks tata tertib untuk setiap jenis kartu yang dicetak.</CardDescription>
             </CardHeader>
-            <CardContent className="pt-6">
-              <Textarea 
-                className="min-h-[180px] font-mono text-sm leading-relaxed" 
-                value={settings.terms_text} 
-                onChange={e => setSettings({...settings, terms_text: e.target.value})} 
-              />
-              <div className="mt-3 flex items-start gap-2 text-[10px] text-muted-foreground bg-muted/30 p-3 rounded-lg border border-dashed">
+            <CardContent className="p-0">
+              <Tabs defaultValue="student" className="w-full">
+                <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-12">
+                  <TabsTrigger value="student" className="data-[state=active]:bg-white gap-2 h-full rounded-none border-r">
+                    <CreditCard className="h-3.5 w-3.5" /> Kartu Pelajar
+                  </TabsTrigger>
+                  <TabsTrigger value="exam" className="data-[state=active]:bg-white gap-2 h-full rounded-none border-r">
+                    <Award className="h-3.5 w-3.5" /> Kartu Ujian
+                  </TabsTrigger>
+                  <TabsTrigger value="id" className="data-[state=active]:bg-white gap-2 h-full rounded-none">
+                    <Contact className="h-3.5 w-3.5" /> ID Card
+                  </TabsTrigger>
+                </TabsList>
+                <div className="p-6 space-y-4">
+                  <TabsContent value="student" className="space-y-4 mt-0">
+                    <div className="flex justify-between items-center mb-2">
+                      <Label className="text-xs font-bold uppercase text-muted-foreground">Ketentuan Kartu Pelajar</Label>
+                      <Button variant="outline" size="sm" className="gap-2 text-secondary border-secondary h-8" onClick={() => handleAiRefine('terms_student')} disabled={isRefining['terms_student']}>
+                        <Sparkles className="h-3 w-3" /> {isRefining['terms_student'] ? 'Memproses...' : 'AI Refine'}
+                      </Button>
+                    </div>
+                    <Textarea 
+                      className="min-h-[150px] font-mono text-sm leading-relaxed" 
+                      value={settings.terms_student} 
+                      onChange={e => setSettings({...settings, terms_student: e.target.value})} 
+                    />
+                  </TabsContent>
+                  <TabsContent value="exam" className="space-y-4 mt-0">
+                    <div className="flex justify-between items-center mb-2">
+                      <Label className="text-xs font-bold uppercase text-muted-foreground">Ketentuan Kartu Ujian</Label>
+                      <Button variant="outline" size="sm" className="gap-2 text-secondary border-secondary h-8" onClick={() => handleAiRefine('terms_exam')} disabled={isRefining['terms_exam']}>
+                        <Sparkles className="h-3 w-3" /> {isRefining['terms_exam'] ? 'Memproses...' : 'AI Refine'}
+                      </Button>
+                    </div>
+                    <Textarea 
+                      className="min-h-[150px] font-mono text-sm leading-relaxed" 
+                      value={settings.terms_exam} 
+                      onChange={e => setSettings({...settings, terms_exam: e.target.value})} 
+                    />
+                  </TabsContent>
+                  <TabsContent value="id" className="space-y-4 mt-0">
+                    <div className="flex justify-between items-center mb-2">
+                      <Label className="text-xs font-bold uppercase text-muted-foreground">Ketentuan ID Card Corporate</Label>
+                      <Button variant="outline" size="sm" className="gap-2 text-secondary border-secondary h-8" onClick={() => handleAiRefine('terms_id')} disabled={isRefining['terms_id']}>
+                        <Sparkles className="h-3 w-3" /> {isRefining['terms_id'] ? 'Memproses...' : 'AI Refine'}
+                      </Button>
+                    </div>
+                    <Textarea 
+                      className="min-h-[150px] font-mono text-sm leading-relaxed" 
+                      value={settings.terms_id} 
+                      onChange={e => setSettings({...settings, terms_id: e.target.value})} 
+                    />
+                  </TabsContent>
+                </div>
+              </Tabs>
+              <div className="px-6 pb-6 pt-0 flex items-start gap-2 text-[10px] text-muted-foreground">
                 <Info className="h-3 w-3 mt-0.5 shrink-0" />
-                <p>Gunakan baris baru untuk setiap poin aturan. AI akan membantu merapikan kalimat agar lebih profesional.</p>
+                <p>Setiap kategori kartu memiliki tata tertib berbeda yang akan dicetak di bagian belakang kartu.</p>
               </div>
             </CardContent>
           </Card>

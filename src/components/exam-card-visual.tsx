@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Student, SchoolSettings, ExamEvent, CardTemplate } from '@/app/lib/types';
@@ -26,7 +25,10 @@ export function ExamCardVisual({
   try {
     if (template?.config_json) {
       const parsed = JSON.parse(template.config_json);
-      if (parsed.front) config = parsed;
+      config = {
+        front: { ...DEFAULT_CONFIG.front, ...parsed.front },
+        back: { ...DEFAULT_CONFIG.back, ...parsed.back }
+      };
     }
   } catch (e) {}
 
@@ -67,12 +69,12 @@ export function ExamCardVisual({
               <span className="font-bold text-[11px] uppercase">{student.name}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-slate-400 text-[6px] uppercase font-bold">NIS</span>
-              <span className="font-bold text-[9px]">{student.nis}</span>
+              <span className="text-slate-400 text-[6px] uppercase font-bold">NIS / NISN</span>
+              <span className="font-bold text-[9px]">{student.nis} / {student.nisn}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-slate-400 text-[6px] uppercase font-bold">Mata Pelajaran</span>
-              <span className="font-bold text-[8px] uppercase">{student.major}</span>
+              <span className="text-slate-400 text-[6px] uppercase font-bold">Event Ujian</span>
+              <span className="font-bold text-[8px] uppercase">{exam?.name || 'UJIAN SEKOLAH'}</span>
             </div>
           </div>
         </div>
@@ -86,10 +88,16 @@ export function ExamCardVisual({
       <div className="text-center mb-3">
         <h4 className="font-black text-[10px] uppercase border-b pb-1 text-slate-800">Tata Tertib Ujian</h4>
       </div>
-      <div className="flex-1 space-y-1 text-slate-600 leading-tight">
-        <p>1. Membawa kartu ini setiap sesi ujian.</p>
-        <p>2. Hadir tepat waktu sesuai jadwal.</p>
-        <p>3. Dilarang membawa alat komunikasi.</p>
+      <div className="flex-1 whitespace-pre-line text-slate-600 leading-tight italic px-2">
+        {settings.terms_exam}
+      </div>
+      <div className="mt-2 flex justify-end items-end">
+        <div className="text-center scale-90 origin-bottom-right">
+           <div className="w-16 h-8 relative mx-auto">
+              <Image src={settings.stamp_image} alt="STAMP" fill className="object-contain opacity-70" />
+           </div>
+           <p className="text-[7px] font-bold border-t pt-0.5 text-slate-800">{settings.principal_name}</p>
+        </div>
       </div>
       <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1"></div>
     </div>

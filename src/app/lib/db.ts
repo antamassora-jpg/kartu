@@ -20,7 +20,9 @@ const DEFAULT_SETTINGS: SchoolSettings = {
   principal_nip: '19700101 199501 1 001',
   signature_image: 'https://images.unsplash.com/photo-1574169208507-84376144848b?q=80&w=200&h=100&auto=format&fit=crop',
   stamp_image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=200&h=200&auto=format&fit=crop',
-  terms_text: '1. Kartu wajib dibawa setiap hari.\n2. Dilarang dipinjamkan.\n3. Jika hilang segera lapor ke sekolah.\n4. Berlaku selama siswa aktif.\n5. Kartu dipakai untuk scan layanan/absen.',
+  terms_student: '1. Kartu wajib dibawa setiap hari.\n2. Dilarang dipinjamkan.\n3. Jika hilang segera lapor ke sekolah.\n4. Berlaku selama siswa aktif.\n5. Kartu dipakai untuk scan layanan/absen.',
+  terms_exam: '1. Kartu wajib dibawa setiap sesi ujian.\n2. Hadir 15 menit sebelum ujian dimulai.\n3. Dilarang membawa alat komunikasi/HP.\n4. Menjaga ketertiban di dalam ruang ujian.',
+  terms_id: '1. Kartu identitas resmi SMKN 2 Tana Toraja.\n2. Wajib dikenakan selama jam dinas/operasional.\n3. Penyalahgunaan kartu akan dikenakan sanksi.\n4. Temukan kartu? Hubungi admin sekolah.',
 };
 
 const INITIAL_DB: DB = {
@@ -62,10 +64,9 @@ const INITIAL_DB: DB = {
     { id: 'e1', name: 'Ujian Tengah Semester Ganjil', school_year: '2023/2024', semester: 'Ganjil', start_date: '2023-10-01', end_date: '2023-10-10' }
   ],
   templates: [
-    { id: 't1', type: 'STUDENT_CARD', name: 'Modern Blue Style', config_json: '{"primary": "#2E50B8"}', is_active: true, preview_color: 'bg-blue-600' },
-    { id: 't2', type: 'EXAM_CARD', name: 'Professional Exam Card', config_json: '{"primary": "#F97316"}', is_active: true, preview_color: 'bg-orange-500' },
-    { id: 't3', type: 'ID_CARD', name: 'Modern Green Batik', config_json: '{"primary": "#1B3C33"}', is_active: true, preview_color: 'bg-emerald-800' },
-    { id: 't4', type: 'ID_CARD', name: 'Corporate Dark', config_json: '{"primary": "#0F172A"}', is_active: false, preview_color: 'bg-slate-900' }
+    { id: 't1', type: 'STUDENT_CARD', name: 'Modern Blue Style', config_json: '{"front":{"headerBg":"#2E50B8","bodyBg":"#ffffff","footerBg":"#4FBFDD","textColor":"#334155","bgImage":""},"back":{"headerBg":"#2E50B8","bodyBg":"#ffffff","footerBg":"#4FBFDD","textColor":"#334155","bgImage":""}}', is_active: true, preview_color: 'bg-blue-600' },
+    { id: 't2', type: 'EXAM_CARD', name: 'Professional Exam Card', config_json: '{"front":{"headerBg":"#1e293b","bodyBg":"#ffffff","footerBg":"#f97316","textColor":"#ffffff","bgImage":""},"back":{"headerBg":"#1e293b","bodyBg":"#ffffff","footerBg":"#f97316","textColor":"#ffffff","bgImage":""}}', is_active: true, preview_color: 'bg-orange-500' },
+    { id: 't3', type: 'ID_CARD', name: 'Modern Green Batik', config_json: '{"front":{"headerBg":"#1B3C33","bodyBg":"#ffffff","footerBg":"#10B981","textColor":"#ffffff","bgImage":""},"back":{"headerBg":"#1B3C33","bodyBg":"#f8fafc","footerBg":"#10B981","textColor":"#ffffff","bgImage":""}}', is_active: true, preview_color: 'bg-emerald-800' }
   ]
 };
 
@@ -78,9 +79,11 @@ export function getDB(): DB {
   }
   try {
     const parsed = JSON.parse(stored);
-    // Pastikan data templates tidak kosong jika local storage sudah ada data lama
-    if (!parsed.templates || parsed.templates.length === 0) {
-      parsed.templates = INITIAL_DB.templates;
+    // Migration for new terms fields if they don't exist
+    if (parsed.school_settings && !parsed.school_settings.terms_student) {
+      parsed.school_settings.terms_student = DEFAULT_SETTINGS.terms_student;
+      parsed.school_settings.terms_exam = DEFAULT_SETTINGS.terms_exam;
+      parsed.school_settings.terms_id = DEFAULT_SETTINGS.terms_id;
       saveDB(parsed);
     }
     return parsed;

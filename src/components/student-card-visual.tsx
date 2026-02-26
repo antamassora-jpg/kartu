@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Student, SchoolSettings, CardTemplate } from '@/app/lib/types';
@@ -24,7 +23,6 @@ export function StudentCardVisual({
   try {
     if (template?.config_json) {
       const parsed = JSON.parse(template.config_json);
-      // Ensure color properties exist even if not in JSON
       config = {
         front: { ...DEFAULT_CONFIG.front, ...parsed.front },
         back: { ...DEFAULT_CONFIG.back, ...parsed.back }
@@ -47,18 +45,16 @@ export function StudentCardVisual({
   if (side === 'front') {
     return (
       <div style={cardStyle} className="relative rounded-xl shadow-lg border overflow-hidden text-[10px] select-none font-sans">
-        {/* Header Section */}
         <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 gap-3 relative z-10 shadow-sm border-b">
           <div className="w-10 h-10 relative bg-white rounded-md p-1 shadow-inner shrink-0">
             <Image src={settings.logo_left} alt="Logo" fill className="object-contain" priority />
           </div>
           <div className="flex-1 flex flex-col text-white">
-            <span className="font-bold text-[10px] uppercase leading-tight tracking-tight drop-shadow-sm" style={{ color: current.textColor === '#ffffff' ? '#ffffff' : 'white' }}>{settings.school_name}</span>
-            <span className="text-[6.5px] opacity-90 line-clamp-2 leading-tight" style={{ color: current.textColor === '#ffffff' ? '#ffffff' : 'rgba(255,255,255,0.8)' }}>{settings.address}</span>
+            <span className="font-bold text-[10px] uppercase leading-tight tracking-tight drop-shadow-sm">{settings.school_name}</span>
+            <span className="text-[6.5px] opacity-90 line-clamp-2 leading-tight">{settings.address}</span>
           </div>
         </div>
 
-        {/* Content Section */}
         <div className="flex h-[calc(100%-56px)] relative z-10">
           <div className="w-[110px] flex flex-col items-center justify-center p-3 gap-2 border-r border-dashed border-muted/50">
             <div className="w-[80px] h-[100px] bg-muted relative rounded-md overflow-hidden border-2 border-white shadow-md">
@@ -71,24 +67,23 @@ export function StudentCardVisual({
           </div>
 
           <div className="flex-1 py-3 px-4 flex flex-col justify-center gap-3">
-            <div className="space-y-2">
+            <div className="space-y-2 text-slate-700">
               <div className="flex flex-col">
                 <span className="text-muted-foreground text-[6px] uppercase font-bold tracking-wider">Nama Lengkap</span>
-                <span className="font-extrabold text-[11px] uppercase leading-tight" style={{ color: current.textColor }}>{student.name}</span>
+                <span className="font-extrabold text-[11px] uppercase leading-tight">{student.name}</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-muted-foreground text-[6px] uppercase font-bold tracking-wider">NIS / NISN</span>
-                <span className="font-bold text-[9px]" style={{ color: current.textColor }}>{student.nis} / {student.nisn || '-'}</span>
+                <span className="font-bold text-[9px]">{student.nis} / {student.nisn || '-'}</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-muted-foreground text-[6px] uppercase font-bold tracking-wider">Program Keahlian</span>
-                <span className="font-bold text-[9px] uppercase" style={{ color: current.textColor }}>{student.major}</span>
+                <span className="font-bold text-[9px] uppercase">{student.major}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Footer Decoration */}
         <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1.5"></div>
       </div>
     );
@@ -99,8 +94,8 @@ export function StudentCardVisual({
       <div className="text-center mb-4 relative z-10">
         <h4 className="font-bold text-[11px] uppercase border-b-2 pb-1 tracking-widest" style={{ color: current.headerBg, borderColor: current.headerBg }}>Ketentuan Pengguna</h4>
       </div>
-      <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[8.5px] px-2 leading-relaxed relative z-10" style={{ color: current.textColor }}>
-        {settings.terms_text}
+      <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[8.5px] px-2 leading-relaxed relative z-10">
+        {settings.terms_student}
       </div>
       <div className="mt-4 flex justify-end items-end relative z-10">
          <div className="text-center space-y-1">
@@ -108,7 +103,7 @@ export function StudentCardVisual({
             <div className="w-16 h-8 relative mx-auto">
                <Image src={settings.signature_image} alt="TTD" fill className="object-contain" />
             </div>
-            <p className="text-[7px] font-bold border-t pt-0.5" style={{ color: current.textColor }}>{settings.principal_name}</p>
+            <p className="text-[7px] font-bold border-t pt-0.5" style={{ color: current.headerBg }}>{settings.principal_name}</p>
          </div>
       </div>
       <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1.5"></div>

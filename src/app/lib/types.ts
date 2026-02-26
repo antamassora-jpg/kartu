@@ -23,7 +23,9 @@ export interface SchoolSettings {
   principal_nip?: string;
   signature_image: string;
   stamp_image: string;
-  terms_text: string;
+  terms_student: string;
+  terms_exam: string;
+  terms_id: string;
 }
 
 export type TemplateType = 'STUDENT_CARD' | 'EXAM_CARD' | 'ID_CARD';
