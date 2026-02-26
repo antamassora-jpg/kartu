@@ -25,7 +25,8 @@ import {
   Download,
   FileText,
   Award,
-  Contact
+  Contact,
+  Activity
 } from 'lucide-react';
 import {
   Dialog,
@@ -38,7 +39,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getDB } from '@/app/lib/db';
-import { Student, SchoolSettings, CardTemplate, ExamEvent } from '@/app/lib/types';
+import { Student, SchoolSettings, CardTemplate, ExamEvent, AttendanceLog } from '@/app/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { 
   BarChart, 
@@ -60,6 +61,7 @@ export default function LandingPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState<Student | null>(null);
+  const [attendanceStats, setAttendanceStats] = useState({ total: 0, thisMonth: 0 });
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [settings, setSettings] = useState<SchoolSettings | null>(null);
@@ -107,6 +109,19 @@ export default function LandingPage() {
         `VERIFY-${s.card_code}` === query
       );
       
+      if (found) {
+        // Hitung statistik kehadiran dari logs
+        const studentLogs = db.logs.filter(l => l.student_id === found.id && l.is_valid);
+        const now = new Date();
+        const thisMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const logsThisMonth = studentLogs.filter(l => l.date.startsWith(thisMonthStr));
+
+        setAttendanceStats({
+          total: studentLogs.length,
+          thisMonth: logsThisMonth.length
+        });
+      }
+
       setSearchResult(found || null);
       setIsSearching(false);
       setHasSearched(true);
@@ -176,7 +191,6 @@ export default function LandingPage() {
     setIsDownloading(type);
 
     try {
-      // Tunggu render sebentar
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const frontElement = downloadRef.current.querySelector('#card-front') as HTMLElement;
@@ -224,7 +238,6 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white font-body selection:bg-primary/20">
-      {/* Hidden Card Container for Export */}
       <div className="fixed -left-[2000px] top-0 pointer-events-none" ref={downloadRef}>
         {searchResult && settings && isDownloading === 'STUDENT' && (
           <div className="flex flex-col gap-4">
@@ -368,28 +381,52 @@ export default function LandingPage() {
 
                 {hasSearched && searchResult ? (
                   <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700">
-                    <div className="bg-white rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row gap-12 items-center text-left">
-                      <div className="w-48 h-64 bg-slate-100 rounded-3xl overflow-hidden relative shadow-2xl shrink-0 border-4 border-slate-50">
-                        <Image src={searchResult.photo_url || 'https://picsum.photos/seed/placeholder/300/400'} alt="Foto Siswa" fill className="object-cover" unoptimized />
+                    <div className="bg-white rounded-[2.5rem] p-8 md:p-12 flex flex-col items-stretch gap-8 text-left">
+                      <div className="flex flex-col md:flex-row gap-12 items-center">
+                        <div className="w-48 h-64 bg-slate-100 rounded-3xl overflow-hidden relative shadow-2xl shrink-0 border-4 border-slate-50">
+                          <Image src={searchResult.photo_url || 'https://picsum.photos/seed/placeholder/300/400'} alt="Foto Siswa" fill className="object-cover" unoptimized />
+                        </div>
+                        <div className="flex-1 space-y-6">
+                          <div className="flex items-center justify-between">
+                              <Badge className="bg-emerald-500 text-white font-black uppercase text-[9px] tracking-[0.2em] px-4 py-1.5 rounded-full">Kartu Aktif & Terverifikasi</Badge>
+                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{searchResult.card_code}</span>
+                          </div>
+                          <div>
+                            <h3 className="text-5xl font-black text-slate-900 leading-none uppercase tracking-tighter">{searchResult.name}</h3>
+                            <p className="text-primary font-black uppercase tracking-[0.3em] text-xs mt-3">{searchResult.class} - {searchResult.major}</p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-100">
+                              <div>
+                                  <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Identitas (NIS/NISN)</p>
+                                  <p className="text-base font-bold text-slate-800">{searchResult.nis} / {searchResult.nisn || '-'}</p>
+                              </div>
+                              <div>
+                                  <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Masa Berlaku</p>
+                                  <p className="text-base font-bold text-slate-800">{searchResult.valid_until}</p>
+                              </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex-1 space-y-6">
-                        <div className="flex items-center justify-between">
-                            <Badge className="bg-emerald-500 text-white font-black uppercase text-[9px] tracking-[0.2em] px-4 py-1.5 rounded-full">Kartu Aktif & Terverifikasi</Badge>
-                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{searchResult.card_code}</span>
+
+                      {/* Ringkasan Kehadiran */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50 rounded-[2rem] border-2 border-slate-100">
+                        <div className="flex items-center gap-4">
+                           <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">
+                              <CalendarCheck className="h-6 w-6 text-primary" />
+                           </div>
+                           <div>
+                              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Total Kehadiran</p>
+                              <p className="text-2xl font-black text-primary">{attendanceStats.total} <span className="text-xs text-slate-400">kali hadir</span></p>
+                           </div>
                         </div>
-                        <div>
-                          <h3 className="text-5xl font-black text-slate-900 leading-none uppercase tracking-tighter">{searchResult.name}</h3>
-                          <p className="text-primary font-black uppercase tracking-[0.3em] text-xs mt-3">{searchResult.class} - {searchResult.major}</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-100">
-                            <div>
-                                <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Identitas (NIS/NISN)</p>
-                                <p className="text-base font-bold text-slate-800">{searchResult.nis} / {searchResult.nisn || '-'}</p>
-                            </div>
-                            <div>
-                                <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Masa Berlaku</p>
-                                <p className="text-base font-bold text-slate-800">{searchResult.valid_until}</p>
-                            </div>
+                        <div className="flex items-center gap-4">
+                           <div className="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center">
+                              <Activity className="h-6 w-6 text-secondary" />
+                           </div>
+                           <div>
+                              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Kehadiran Bulan Ini</p>
+                              <p className="text-2xl font-black text-secondary">{attendanceStats.thisMonth} <span className="text-xs text-slate-400">kali hadir</span></p>
+                           </div>
                         </div>
                       </div>
                     </div>
@@ -469,4 +506,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
