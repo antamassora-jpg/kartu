@@ -23,10 +23,10 @@ import {
   FileDown,
   Loader2,
   Calendar,
-  QrCode,
   Camera,
   Link as LinkIcon,
-  User as UserIcon
+  User as UserIcon,
+  Filter
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -44,12 +44,15 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState('');
+  const [selectedClass, setSelectedClass] = useState<string>('all');
+  const [selectedMajor, setSelectedMajor] = useState<string>('all');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,10 +68,15 @@ export default function StudentsPage() {
     setStudents(getDB().students);
   }, []);
 
-  const filteredStudents = students.filter(s => 
-    s.name.toLowerCase().includes(search.toLowerCase()) || 
-    s.nis.includes(search)
-  );
+  const classes = Array.from(new Set(students.map(s => s.class))).sort();
+  const majors = Array.from(new Set(students.map(s => s.major))).sort();
+
+  const filteredStudents = students.filter(s => {
+    const matchSearch = s.name.toLowerCase().includes(search.toLowerCase()) || s.nis.includes(search);
+    const matchClass = selectedClass === 'all' || s.class === selectedClass;
+    const matchMajor = selectedMajor === 'all' || s.major === selectedMajor;
+    return matchSearch && matchClass && matchMajor;
+  });
 
   const handleAdd = () => {
     if (!newStudent.name || !newStudent.nis) {
@@ -316,14 +324,41 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 bg-white p-2 rounded-lg border shadow-sm">
-        <Search className="h-4 w-4 text-muted-foreground ml-2" />
-        <Input 
-          placeholder="Cari nama atau NIS..." 
-          className="border-none shadow-none focus-visible:ring-0"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+      <div className="flex flex-col lg:flex-row gap-4 bg-white p-4 rounded-lg border shadow-sm">
+        <div className="flex-1 relative flex items-center">
+          <Search className="h-4 w-4 text-muted-foreground absolute left-3" />
+          <Input 
+            placeholder="Cari nama atau NIS..." 
+            className="pl-9 bg-muted/20 border-none shadow-none focus-visible:ring-1"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4 min-w-[300px]">
+          <div className="flex-1 flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+            <Select value={selectedClass} onValueChange={setSelectedClass}>
+              <SelectTrigger className="w-full h-10">
+                <SelectValue placeholder="Semua Kelas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Kelas</SelectItem>
+                {classes.map(c => <SelectItem key={c} value={c}>Kelas {c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1">
+            <Select value={selectedMajor} onValueChange={setSelectedMajor}>
+              <SelectTrigger className="w-full h-10">
+                <SelectValue placeholder="Semua Jurusan" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Jurusan</SelectItem>
+                {majors.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
       <div className="rounded-lg border bg-white overflow-hidden shadow-sm">
@@ -363,7 +398,7 @@ export default function StudentsPage() {
                 </TableCell>
                 <TableCell className="font-mono text-xs">{student.nis}</TableCell>
                 <TableCell>
-                  <div className="font-medium">{student.class}</div>
+                  <div className="font-medium">Kelas {student.class}</div>
                   <div className="text-[10px] text-muted-foreground uppercase">{student.major}</div>
                 </TableCell>
                 <TableCell>
