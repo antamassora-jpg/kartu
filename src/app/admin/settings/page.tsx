@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -9,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Save, Upload, Camera, Loader2, Link as LinkIcon, RefreshCw } from 'lucide-react';
+import { Save, Upload, Camera, Loader2, Link as LinkIcon, RefreshCw, Palette } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,8 +28,7 @@ export default function SettingsPage() {
     if (!settings) return;
     
     setIsSaving(true);
-    // Simulasi jeda agar user melihat proses penyimpanan
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
       const db = getDB();
@@ -38,14 +36,14 @@ export default function SettingsPage() {
       saveDB(db);
       
       toast({ 
-        title: "Perubahan Berhasil Disimpan", 
-        description: "Konfigurasi sekolah dan aset visual telah diperbarui di database lokal.",
+        title: "Konfigurasi Disimpan", 
+        description: "Aset visual dan pengaturan hukum telah diperbarui untuk semua jenis kartu.",
       });
     } catch (error) {
       toast({ 
         variant: "destructive", 
         title: "Gagal Menyimpan", 
-        description: "Terjadi kesalahan sistem saat mencoba menyimpan data." 
+        description: "Terjadi kesalahan sistem saat mencoba memperbarui database." 
       });
     } finally {
       setIsSaving(false);
@@ -60,7 +58,7 @@ export default function SettingsPage() {
     reader.onloadend = () => {
       const result = reader.result as string;
       setSettings(prev => prev ? ({ ...prev, [field]: result }) : null);
-      toast({ title: "Gambar Berhasil Dimuat", description: "Klik 'Simpan Perubahan' untuk memperbarui database." });
+      toast({ title: "Aset Dimuat", description: "Klik 'Simpan Perubahan' untuk mengaktifkan aset baru ini." });
     };
     reader.readAsDataURL(file);
   };
@@ -74,7 +72,7 @@ export default function SettingsPage() {
   };
 
   if (!settings) return (
-    <div className="h-full flex items-center justify-center">
+    <div className="h-full flex items-center justify-center py-40">
        <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
@@ -89,7 +87,7 @@ export default function SettingsPage() {
         <Button 
           onClick={handleSave} 
           disabled={isSaving}
-          className="gap-2 h-14 px-10 shadow-2xl shadow-primary/20 min-w-[220px] rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:scale-105"
+          className="gap-2 h-14 px-10 shadow-2xl shadow-primary/20 min-w-[220px] rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
         >
           {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
           {isSaving ? 'SEDANG MENYIMPAN...' : 'SIMPAN PERUBAHAN'}
@@ -188,48 +186,136 @@ export default function SettingsPage() {
             <CardHeader className="bg-primary/5 border-b">
               <CardTitle className="text-lg font-black uppercase tracking-tight">Aset & Identitas Visual</CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
-               <AssetUploader 
-                  label="Logo Sekolah (Kiri)" 
-                  image={settings.logo_left} 
-                  onUpload={e => handleFileUpload('logo_left', e)} 
-                  onUrlChange={url => handleUrlChange('logo_left', url)}
-                  showFront={settings.student_show_logo_front}
-                  onShowFrontChange={v => updateSetting('student_show_logo_front', v)}
-                  showBack={settings.student_show_logo_back}
-                  onShowBackChange={v => updateSetting('student_show_logo_back', v)}
-                />
-                <AssetUploader 
-                  label="Logo Kanan (Tut Wuri)" 
-                  image={settings.logo_right} 
-                  onUpload={e => handleFileUpload('logo_right', e)} 
-                  onUrlChange={url => handleUrlChange('logo_right', url)}
-                  showFront={settings.student_show_logo_right_front}
-                  onShowFrontChange={v => updateSetting('student_show_logo_right_front', v)}
-                  showBack={settings.student_show_logo_right_back}
-                  onShowBackChange={v => updateSetting('student_show_logo_right_back', v)}
-                />
-                <AssetUploader 
-                  label="Tanda Tangan (Kepsek)" 
-                  image={settings.signature_image} 
-                  onUpload={e => handleFileUpload('signature_image', e)} 
-                  onUrlChange={url => handleUrlChange('signature_image', url)}
-                  aspect="wide"
-                  showFront={settings.student_show_sig_front}
-                  onShowFrontChange={v => updateSetting('student_show_sig_front', v)}
-                  showBack={settings.student_show_sig_back}
-                  onShowBackChange={v => updateSetting('student_show_sig_back', v)}
-                />
-                <AssetUploader 
-                  label="Stempel Sekolah" 
-                  image={settings.stamp_image} 
-                  onUpload={e => handleFileUpload('stamp_image', e)} 
-                  onUrlChange={url => handleUrlChange('stamp_image', url)}
-                  showFront={settings.student_show_stamp_front}
-                  onShowFrontChange={v => updateSetting('student_show_stamp_front', v)}
-                  showBack={settings.student_show_stamp_back}
-                  onShowBackChange={v => updateSetting('student_show_stamp_back', v)}
-                />
+            <CardContent className="p-0">
+              <Tabs defaultValue="pelajar" className="w-full">
+                <TabsList className="w-full grid grid-cols-3 h-12 bg-slate-100/50 border-b rounded-none">
+                  <TabsTrigger value="pelajar" className="font-bold text-[9px] uppercase tracking-widest">Pelajar</TabsTrigger>
+                  <TabsTrigger value="ujian" className="font-bold text-[9px] uppercase tracking-widest">Ujian</TabsTrigger>
+                  <TabsTrigger value="idcard" className="font-bold text-[9px] uppercase tracking-widest">ID Card</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="pelajar" className="p-6 space-y-6 mt-0">
+                  <AssetUploader 
+                    label="Logo Sekolah (Kiri)" 
+                    image={settings.logo_left} 
+                    onUpload={e => handleFileUpload('logo_left', e)} 
+                    onUrlChange={url => handleUrlChange('logo_left', url)}
+                    showFront={settings.student_show_logo_front}
+                    onShowFrontChange={v => updateSetting('student_show_logo_front', v)}
+                    showBack={settings.student_show_logo_back}
+                    onShowBackChange={v => updateSetting('student_show_logo_back', v)}
+                  />
+                  <AssetUploader 
+                    label="Logo Kanan (Tut Wuri)" 
+                    image={settings.logo_right} 
+                    onUpload={e => handleFileUpload('logo_right', e)} 
+                    onUrlChange={url => handleUrlChange('logo_right', url)}
+                    showFront={settings.student_show_logo_right_front}
+                    onShowFrontChange={v => updateSetting('student_show_logo_right_front', v)}
+                    showBack={settings.student_show_logo_right_back}
+                    onShowBackChange={v => updateSetting('student_show_logo_right_back', v)}
+                  />
+                  <AssetUploader 
+                    label="Tanda Tangan (Kepsek)" 
+                    image={settings.signature_image} 
+                    onUpload={e => handleFileUpload('signature_image', e)} 
+                    onUrlChange={url => handleUrlChange('signature_image', url)}
+                    aspect="wide"
+                    showFront={settings.student_show_sig_front}
+                    onShowFrontChange={v => updateSetting('student_show_sig_front', v)}
+                    showBack={settings.student_show_sig_back}
+                    onShowBackChange={v => updateSetting('student_show_sig_back', v)}
+                  />
+                  <AssetUploader 
+                    label="Stempel Sekolah" 
+                    image={settings.stamp_image} 
+                    onUpload={e => handleFileUpload('stamp_image', e)} 
+                    onUrlChange={url => handleUrlChange('stamp_image', url)}
+                    showFront={settings.student_show_stamp_front}
+                    onShowFrontChange={v => updateSetting('student_show_stamp_front', v)}
+                    showBack={settings.student_show_stamp_back}
+                    onShowBackChange={v => updateSetting('student_show_stamp_back', v)}
+                  />
+                </TabsContent>
+
+                <TabsContent value="ujian" className="p-6 space-y-6 mt-0">
+                  <AssetUploader 
+                    label="Logo Sekolah (Ujian)" 
+                    image={settings.logo_left_exam} 
+                    onUpload={e => handleFileUpload('logo_left_exam', e)} 
+                    onUrlChange={url => handleUrlChange('logo_left_exam', url)}
+                    showFront={settings.exam_show_logo_front}
+                    onShowFrontChange={v => updateSetting('exam_show_logo_front', v)}
+                    showBack={settings.exam_show_logo_back}
+                    onShowBackChange={v => updateSetting('exam_show_logo_back', v)}
+                  />
+                  <AssetUploader 
+                    label="Logo Kanan (Ujian)" 
+                    image={settings.logo_right_exam} 
+                    onUpload={e => handleFileUpload('logo_right_exam', e)} 
+                    onUrlChange={url => handleUrlChange('logo_right_exam', url)}
+                    showFront={settings.exam_show_logo_right_front}
+                    onShowFrontChange={v => updateSetting('exam_show_logo_right_front', v)}
+                    showBack={settings.exam_show_logo_right_back}
+                    onShowBackChange={v => updateSetting('exam_show_logo_right_back', v)}
+                  />
+                  <AssetUploader 
+                    label="Tanda Tangan (Ujian)" 
+                    image={settings.signature_exam} 
+                    onUpload={e => handleFileUpload('signature_exam', e)} 
+                    onUrlChange={url => handleUrlChange('signature_exam', url)}
+                    aspect="wide"
+                    showFront={settings.exam_show_sig_front}
+                    onShowFrontChange={v => updateSetting('exam_show_sig_front', v)}
+                    showBack={settings.exam_show_sig_back}
+                    onShowBackChange={v => updateSetting('exam_show_sig_back', v)}
+                  />
+                  <AssetUploader 
+                    label="Stempel (Ujian)" 
+                    image={settings.stamp_exam} 
+                    onUpload={e => handleFileUpload('stamp_exam', e)} 
+                    onUrlChange={url => handleUrlChange('stamp_exam', url)}
+                    showFront={settings.exam_show_stamp_front}
+                    onShowFrontChange={v => updateSetting('exam_show_stamp_front', v)}
+                    showBack={settings.exam_show_stamp_back}
+                    onShowBackChange={v => updateSetting('exam_show_stamp_back', v)}
+                  />
+                </TabsContent>
+
+                <TabsContent value="idcard" className="p-6 space-y-6 mt-0">
+                  <AssetUploader 
+                    label="Logo (ID Card)" 
+                    image={settings.logo_left_id} 
+                    onUpload={e => handleFileUpload('logo_left_id', e)} 
+                    onUrlChange={url => handleUrlChange('logo_left_id', url)}
+                    showFront={settings.id_show_logo_front}
+                    onShowFrontChange={v => updateSetting('id_show_logo_front', v)}
+                    showBack={settings.id_show_logo_back}
+                    onShowBackChange={v => updateSetting('id_show_logo_back', v)}
+                  />
+                  <AssetUploader 
+                    label="Tanda Tangan (ID Card)" 
+                    image={settings.signature_id} 
+                    onUpload={e => handleFileUpload('signature_id', e)} 
+                    onUrlChange={url => handleUrlChange('signature_id', url)}
+                    aspect="wide"
+                    showFront={settings.id_show_sig_front}
+                    onShowFrontChange={v => updateSetting('id_show_sig_front', v)}
+                    showBack={settings.id_show_sig_back}
+                    onShowBackChange={v => updateSetting('id_show_sig_back', v)}
+                  />
+                  <AssetUploader 
+                    label="Stempel (ID Card)" 
+                    image={settings.stamp_id} 
+                    onUpload={e => handleFileUpload('stamp_id', e)} 
+                    onUrlChange={url => handleUrlChange('stamp_id', url)}
+                    showFront={settings.id_show_stamp_front}
+                    onShowFrontChange={v => updateSetting('id_show_stamp_front', v)}
+                    showBack={settings.id_show_stamp_back}
+                    onShowBackChange={v => updateSetting('id_show_stamp_back', v)}
+                  />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </div>
