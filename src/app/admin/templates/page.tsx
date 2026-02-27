@@ -296,16 +296,32 @@ export default function TemplatesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col gap-8 p-8 pt-0">
+              {/* Dual Preview Container (Front & Back) */}
               <div className={cn(
-                "bg-slate-50 rounded-[2.5rem] flex items-center justify-center border-2 border-dashed border-slate-200 overflow-hidden relative group/visual",
-                template.type === 'ID_CARD' ? "aspect-[3/4]" : "aspect-[1.6/1]"
+                "bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-dashed border-slate-200 overflow-hidden relative p-4 gap-2",
+                template.type === 'ID_CARD' ? "aspect-[1/1.8]" : "aspect-[1/1.3]"
               )}>
-                <div className="transition-transform scale-[0.5]">
-                   {template.type === 'STUDENT_CARD' && previewStudent && <StudentCardVisual student={previewStudent} settings={settings} template={template} />}
-                   {template.type === 'EXAM_CARD' && previewStudent && <ExamCardVisual student={previewStudent} settings={settings} template={template} />}
-                   {template.type === 'ID_CARD' && previewStudent && <IdCardVisual student={previewStudent} settings={settings} template={template} />}
+                {/* Front Preview */}
+                <div className="flex flex-col items-center w-full">
+                  <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest mb-1">Tampak Depan</span>
+                  <div className="transition-transform scale-[0.35] origin-top h-auto mb-[-125px]">
+                     {template.type === 'STUDENT_CARD' && previewStudent && <StudentCardVisual student={previewStudent} settings={settings} side="front" template={template} />}
+                     {template.type === 'EXAM_CARD' && previewStudent && <ExamCardVisual student={previewStudent} settings={settings} side="front" template={template} />}
+                     {template.type === 'ID_CARD' && previewStudent && <IdCardVisual student={previewStudent} settings={settings} side="front" template={template} />}
+                  </div>
+                </div>
+                
+                {/* Back Preview */}
+                <div className="flex flex-col items-center w-full pt-4 border-t border-slate-200/50">
+                  <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest mb-1">Tampak Belakang</span>
+                  <div className="transition-transform scale-[0.35] origin-top h-auto mb-[-125px]">
+                     {template.type === 'STUDENT_CARD' && previewStudent && <StudentCardVisual student={previewStudent} settings={settings} side="back" template={template} />}
+                     {template.type === 'EXAM_CARD' && previewStudent && <ExamCardVisual student={previewStudent} settings={settings} side="back" template={template} />}
+                     {template.type === 'ID_CARD' && previewStudent && <IdCardVisual student={previewStudent} settings={settings} side="back" template={template} />}
+                  </div>
                 </div>
               </div>
+
               <div className="flex gap-3">
                 <Button className="flex-1 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-lg" onClick={() => handleToggleActive(template.id)} disabled={template.is_active}>
                   {template.is_active ? 'AKTIF' : 'AKTIFKAN'}
