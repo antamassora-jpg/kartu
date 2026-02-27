@@ -19,7 +19,8 @@ import {
   Eye,
   Image as ImageIcon,
   Upload,
-  X
+  X,
+  ArrowRightLeft
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { StudentCardVisual } from '@/components/student-card-visual';
@@ -142,7 +143,7 @@ export default function TemplatesPage() {
       type: newTemplateType,
       config_json: JSON.stringify(DEFAULT_CONFIG),
       is_active: false,
-      preview_color: 'bg-slate-500'
+      preview_color: newTemplateType === 'STUDENT_CARD' ? 'bg-blue-600' : (newTemplateType === 'EXAM_CARD' ? 'bg-orange-500' : 'bg-emerald-800')
     };
     db.templates.push(newTemplate);
     saveDB(db);
@@ -212,39 +213,43 @@ export default function TemplatesPage() {
   };
 
   if (!isMounted || !settings) return (
-    <div className="h-full flex items-center justify-center">
+    <div className="h-full flex items-center justify-center py-40">
        <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-end">
+    <div className="space-y-6 pb-20">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-black font-headline text-primary tracking-tighter uppercase">Template Desain</h1>
-          <p className="text-muted-foreground font-medium">Kustomisasi aspek visual kartu menggunakan data dari Settings.</p>
+          <p className="text-muted-foreground font-medium">Kustomisasi aspek visual kartu yang menyesuaikan dengan alur tata letak di Settings.</p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" size="sm" onClick={refreshData} className="gap-2 h-11 px-6 rounded-2xl font-bold uppercase text-[10px] border-2">
-            <RotateCcw className="h-4 w-4" /> REFRESH DATA
+            <RotateCcw className="h-4 w-4" /> REFRESH SUMBER DATA
           </Button>
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2 shadow-2xl shadow-primary/20 h-11 px-8 rounded-2xl font-black uppercase text-[10px] tracking-widest">
-                <Plus className="h-4 w-4" /> BUAT TEMPLATE BARU
+                <Plus className="h-4 w-4" /> BUAT VARIAN DESAIN
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-[2.5rem] p-10">
-              <DialogHeader><DialogTitle className="text-2xl font-black uppercase tracking-tight">Tambah Varian Desain</DialogTitle></DialogHeader>
+            <DialogContent className="rounded-[2.5rem] p-10 max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-black uppercase tracking-tight">Tambah Varian Baru</DialogTitle>
+              </DialogHeader>
               <div className="space-y-6 py-6">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Label Nama Template</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Label Nama Template</Label>
                   <Input placeholder="Misal: Modern Red Premium" value={newTemplateName} onChange={e => setNewTemplateName(e.target.value)} className="h-14 rounded-2xl border-2" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Pilih Jenis Kartu</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Pilih Jenis Kartu</Label>
                   <Select value={newTemplateType} onValueChange={(v: any) => setNewTemplateType(v)}>
-                    <SelectTrigger className="h-14 rounded-2xl border-2"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-14 rounded-2xl border-2">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="STUDENT_CARD">Kartu Pelajar Digital</SelectItem>
                       <SelectItem value="EXAM_CARD">Kartu Tanda Peserta Ujian</SelectItem>
@@ -253,7 +258,9 @@ export default function TemplatesPage() {
                   </Select>
                 </div>
               </div>
-              <DialogFooter><Button onClick={handleAddTemplate} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest shadow-xl">DAFTARKAN TEMPLATE</Button></DialogFooter>
+              <DialogFooter>
+                <Button onClick={handleAddTemplate} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest shadow-xl">DAFTARKAN TEMPLATE</Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
@@ -281,14 +288,22 @@ export default function TemplatesPage() {
                 </div>
               </div>
               <CardTitle className="mt-6 font-black uppercase tracking-tight text-xl">{template.name}</CardTitle>
-              <CardDescription className="uppercase text-[9px] font-black tracking-[0.3em] text-muted-foreground mt-1">{template.type.replace('_', ' ')}</CardDescription>
+              <CardDescription className="uppercase text-[9px] font-black tracking-[0.3em] text-muted-foreground mt-1">
+                {template.type === 'STUDENT_CARD' ? 'KARTU PELAJAR' : template.type === 'EXAM_CARD' ? 'KARTU UJIAN' : 'ID CARD UMUM'}
+              </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col gap-8 p-8 pt-0">
-              <div className="aspect-[4/5] bg-slate-50 rounded-[2.5rem] flex items-center justify-center border-2 border-dashed border-slate-200 overflow-hidden relative group/visual">
+              <div className={cn(
+                "bg-slate-50 rounded-[2.5rem] flex items-center justify-center border-2 border-dashed border-slate-200 overflow-hidden relative group/visual",
+                template.type === 'ID_CARD' ? "aspect-[3/4]" : "aspect-[1.6/1]"
+              )}>
                 <div className="absolute inset-0 bg-slate-900/10 opacity-0 group-hover/visual:opacity-100 transition-opacity flex items-center justify-center z-20">
-                    <Badge className="bg-white text-slate-900 gap-2"><Eye className="h-3 w-3" /> Live Preview</Badge>
+                    <Badge className="bg-white text-slate-900 gap-2 shadow-xl"><Eye className="h-3 w-3" /> Live Preview</Badge>
                 </div>
-                <div className="scale-[0.52] transition-transform group-hover/visual:scale-[0.58] duration-700">
+                <div className={cn(
+                  "transition-transform group-hover/visual:scale-[0.55] duration-700",
+                  template.type === 'ID_CARD' ? "scale-[0.45]" : "scale-[0.5]"
+                )}>
                    {template.type === 'STUDENT_CARD' && previewStudent && (
                      <StudentCardVisual student={previewStudent} settings={settings} template={template} />
                    )}
@@ -301,7 +316,12 @@ export default function TemplatesPage() {
                 </div>
               </div>
               <div className="flex gap-3">
-                <Button className="flex-1 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-lg" variant={template.is_active ? 'secondary' : 'default'} onClick={() => handleToggleActive(template.id)} disabled={template.is_active}>
+                <Button 
+                  className="flex-1 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-lg" 
+                  variant={template.is_active ? 'secondary' : 'default'} 
+                  onClick={() => handleToggleActive(template.id)} 
+                  disabled={template.is_active}
+                >
                   {template.is_active ? 'SEDANG DIGUNAKAN' : 'AKTIFKAN DESAIN'}
                 </Button>
                 <Button variant="outline" className="h-14 w-14 rounded-2xl border-2 flex items-center justify-center" onClick={() => openConfig(template)}>
@@ -336,7 +356,7 @@ export default function TemplatesPage() {
                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full"></div>
                <div className="relative z-10">
                   <h2 className="text-3xl font-black uppercase tracking-tighter">Visual Editor: {editingTemplate?.name}</h2>
-                  <p className="text-xs text-white/50 font-black uppercase tracking-[0.4em] mt-1">Customization • Template Settings</p>
+                  <p className="text-xs text-white/50 font-black uppercase tracking-[0.4em] mt-1">Customization • {editingTemplate?.type.replace('_', ' ')}</p>
                </div>
                <Button variant="ghost" size="sm" onClick={() => setLocalConfig(DEFAULT_CONFIG)} className="gap-2 text-white/40 hover:text-white hover:bg-white/10 h-12 px-8 rounded-full font-black text-[10px] uppercase tracking-widest border border-white/10">
                  <RotateCcw className="h-4 w-4" /> RESET DESAIN
@@ -368,7 +388,7 @@ export default function TemplatesPage() {
 
                     <div className="space-y-4">
                       <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
-                         <ImageIcon className="h-3 w-3" /> Background Khusus
+                         <ImageIcon className="h-3 w-3" /> Background Khusus (Sisi {side === 'front' ? 'Depan' : 'Belakang'})
                       </Label>
                       <div className="bg-slate-50 p-6 rounded-[2rem] border-2 border-dashed border-slate-200 flex flex-col items-center gap-4">
                          {localConfig[side].bgImage ? (
@@ -383,20 +403,20 @@ export default function TemplatesPage() {
                              setCurrentSideForUpload(side as 'front' | 'back');
                              fileInputRef.current?.click();
                            }}>
-                             <Upload className="h-5 w-5" /> UNGGAH BACKGROUND
+                             <Upload className="h-5 w-5" /> UNGGAH GAMBAR LATAR
                            </Button>
                          )}
-                         <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Rekomendasi: 1011x638 px (landscape)</p>
+                         <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Gunakan Gambar Tanpa Data Statis Agar Tidak Tumpang Tindih</p>
                       </div>
                     </div>
                     
                     <div className="space-y-4">
-                       <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Konfigurasi Warna Palet</Label>
+                       <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Konfigurasi Palet Warna</Label>
                        <div className="grid grid-cols-2 gap-4">
-                          <ColorField label="Background Header" value={localConfig[side].headerBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], headerBg: v}})} />
-                          <ColorField label="Background Body" value={localConfig[side].bodyBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], bodyBg: v}})} />
-                          <ColorField label="Warna Aksen" value={localConfig[side].footerBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], footerBg: v}})} />
-                          <ColorField label="Warna Teks Utama" value={localConfig[side].textColor} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], textColor: v}})} />
+                          <ColorField label="Header Background" value={localConfig[side].headerBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], headerBg: v}})} />
+                          <ColorField label="Main Body Background" value={localConfig[side].bodyBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], bodyBg: v}})} />
+                          <ColorField label="Accent / Footer Color" value={localConfig[side].footerBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], footerBg: v}})} />
+                          <ColorField label="Primary Text Color" value={localConfig[side].textColor} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], textColor: v}})} />
                        </div>
                     </div>
                   </TabsContent>
@@ -404,35 +424,55 @@ export default function TemplatesPage() {
               </Tabs>
             </div>
 
-            <div className="bg-slate-100/50 flex flex-col items-center justify-center p-16 border-l gap-12 relative">
+            <div className="bg-slate-100/50 flex flex-col items-center justify-center p-16 border-l gap-12 relative overflow-y-auto">
               <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
                   <Eye className="h-4 w-4 text-slate-300" />
-                  <span className="text-[10px] font-black uppercase text-slate-300 tracking-[0.6em]">Live Visual Preview</span>
+                  <span className="text-[10px] font-black uppercase text-slate-300 tracking-[0.6em]">Visual Layout Preview</span>
               </div>
-              <div className="flex flex-col gap-12 scale-[0.88] origin-center shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] rounded-3xl p-6 bg-white/50">
-                 {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && (
-                   <>
-                     <StudentCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                     <StudentCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                   </>
-                 )}
-                 {editingTemplate?.type === 'EXAM_CARD' && previewStudent && (
-                   <>
-                     <ExamCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                     <ExamCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                   </>
-                 )}
-                 {editingTemplate?.type === 'ID_CARD' && previewStudent && (
-                   <>
-                     <IdCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                     <IdCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                   </>
-                 )}
+              
+              <div className={cn(
+                "flex flex-col gap-12 origin-center shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] rounded-3xl p-8 bg-white/50",
+                editingTemplate?.type === 'ID_CARD' ? "scale-[0.7]" : "scale-[0.85]"
+              )}>
+                 <div className="space-y-4 text-center">
+                    <Badge variant="outline" className="uppercase text-[9px] font-black tracking-widest text-slate-400">Front View</Badge>
+                    {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && (
+                      <StudentCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                    )}
+                    {editingTemplate?.type === 'EXAM_CARD' && previewStudent && (
+                      <ExamCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                    )}
+                    {editingTemplate?.type === 'ID_CARD' && previewStudent && (
+                      <IdCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                    )}
+                 </div>
+
+                 <div className="space-y-4 text-center">
+                    <Badge variant="outline" className="uppercase text-[9px] font-black tracking-widest text-slate-400">Back View</Badge>
+                    {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && (
+                      <StudentCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                    )}
+                    {editingTemplate?.type === 'EXAM_CARD' && previewStudent && (
+                      <ExamCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                    )}
+                    {editingTemplate?.type === 'ID_CARD' && previewStudent && (
+                      <IdCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                    )}
+                 </div>
+              </div>
+
+              <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 flex items-start gap-4 max-w-md">
+                 <ArrowRightLeft className="h-5 w-5 text-blue-500 mt-1 shrink-0" />
+                 <p className="text-[10px] text-blue-700 leading-relaxed font-medium">
+                   <strong>Info Penempatan:</strong> Elemen seperti Foto, QR Code, dan Data Diri diatur melalui halaman <strong>Settings &gt; Tata Letak</strong>. Halaman ini hanya untuk mengelola <strong>Estetika Visual</strong>.
+                 </p>
               </div>
             </div>
           </div>
           <div className="p-10 bg-white border-t flex justify-end">
-             <Button onClick={handleSaveConfig} className="h-16 px-14 rounded-3xl font-black uppercase tracking-widest shadow-2xl shadow-primary/30 transition-all hover:scale-105 active:scale-95"><Save className="h-6 w-6 mr-3" /> SIMPAN VISUAL KARTU</Button>
+             <Button onClick={handleSaveConfig} className="h-16 px-14 rounded-3xl font-black uppercase tracking-widest shadow-2xl shadow-primary/30 transition-all hover:scale-105 active:scale-95">
+               <Save className="h-6 w-6 mr-3" /> SIMPAN KONFIGURASI VISUAL
+             </Button>
           </div>
         </DialogContent>
       </Dialog>
