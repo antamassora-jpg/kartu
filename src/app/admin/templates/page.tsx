@@ -20,7 +20,8 @@ import {
   Image as ImageIcon,
   Upload,
   X,
-  ArrowRightLeft
+  ArrowRightLeft,
+  ChevronRight
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { StudentCardVisual } from '@/components/student-card-visual';
@@ -231,7 +232,7 @@ export default function TemplatesPage() {
           </Button>
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2 shadow-2xl shadow-primary/20 h-11 px-8 rounded-2xl font-black uppercase text-[10px] tracking-widest">
+              <Button className="gap-2 shadow-2xl shadow-primary/20 h-11 px-8 rounded-2xl font-black uppercase text-[10px] tracking-widest text-white">
                 <Plus className="h-4 w-4" /> BUAT VARIAN DESAIN
               </Button>
             </DialogTrigger>
@@ -247,7 +248,7 @@ export default function TemplatesPage() {
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Pilih Jenis Kartu</Label>
                   <Select value={newTemplateType} onValueChange={(v: any) => setNewTemplateType(v)}>
-                    <SelectTrigger className="h-14 rounded-2xl border-2">
+                    <SelectTrigger className="h-14 rounded-2xl border-2 text-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -259,7 +260,7 @@ export default function TemplatesPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button onClick={handleAddTemplate} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest shadow-xl">DAFTARKAN TEMPLATE</Button>
+                <Button onClick={handleAddTemplate} className="w-full h-14 rounded-2xl font-black uppercase tracking-widest shadow-xl text-white">DAFTARKAN TEMPLATE</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -279,7 +280,7 @@ export default function TemplatesPage() {
                 </div>
                 <div className="flex gap-2">
                    {template.is_active ? (
-                     <Badge className="bg-primary px-5 py-1.5 font-black text-[10px] rounded-full uppercase tracking-widest">AKTIF</Badge>
+                     <Badge className="bg-primary px-5 py-1.5 font-black text-[10px] rounded-full uppercase tracking-widest text-white">AKTIF</Badge>
                    ) : (
                      <Button variant="ghost" size="icon" className="h-11 w-11 text-destructive hover:bg-destructive/10 opacity-30 group-hover:opacity-100 transition-opacity" onClick={() => setTemplateToDelete(template.id)}>
                        <Trash2 className="h-5 w-5" />
@@ -317,7 +318,7 @@ export default function TemplatesPage() {
               </div>
               <div className="flex gap-3">
                 <Button 
-                  className="flex-1 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-lg" 
+                  className="flex-1 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-lg text-white" 
                   variant={template.is_active ? 'secondary' : 'default'} 
                   onClick={() => handleToggleActive(template.id)} 
                   disabled={template.is_active}
@@ -347,39 +348,44 @@ export default function TemplatesPage() {
       </AlertDialog>
 
       <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
-        <DialogContent className="max-w-7xl rounded-[4rem] p-0 overflow-hidden border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)]">
+        <DialogContent className="!max-w-[95vw] md:!max-w-6xl h-[90vh] p-0 overflow-hidden flex flex-col rounded-[2.5rem] border-none shadow-2xl bg-white">
           <DialogHeader className="sr-only">
             <DialogTitle>Editor Visual: {editingTemplate?.name}</DialogTitle>
           </DialogHeader>
           
-          <div className="bg-slate-900 p-10 text-white flex justify-between items-center relative overflow-hidden">
+          <div className="shrink-0 bg-slate-900 p-6 md:p-8 text-white flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden">
                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full"></div>
                <div className="relative z-10">
-                  <h2 className="text-3xl font-black uppercase tracking-tighter">Visual Editor: {editingTemplate?.name}</h2>
-                  <p className="text-xs text-white/50 font-black uppercase tracking-[0.4em] mt-1">Customization • {editingTemplate?.type.replace('_', ' ')}</p>
+                  <h2 className="text-2xl font-black uppercase tracking-tighter">Visual Editor: {editingTemplate?.name}</h2>
+                  <p className="text-[10px] text-white/50 font-black uppercase tracking-[0.4em] mt-1">Konfigurasi Estetika & Varian Desain</p>
                </div>
-               <Button variant="ghost" size="sm" onClick={() => setLocalConfig(DEFAULT_CONFIG)} className="gap-2 text-white/40 hover:text-white hover:bg-white/10 h-12 px-8 rounded-full font-black text-[10px] uppercase tracking-widest border border-white/10">
-                 <RotateCcw className="h-4 w-4" /> RESET DESAIN
-               </Button>
+               <div className="relative z-10 flex gap-3">
+                  <Button variant="ghost" size="sm" onClick={() => setLocalConfig(DEFAULT_CONFIG)} className="gap-2 text-white/40 hover:text-white hover:bg-white/10 h-10 px-6 rounded-full font-black text-[10px] uppercase tracking-widest border border-white/10">
+                    <RotateCcw className="h-3.5 w-3.5" /> RESET
+                  </Button>
+                  <Button onClick={() => setIsConfigOpen(false)} variant="ghost" size="icon" className="h-10 w-10 text-white/40 hover:text-white">
+                    <X className="h-5 w-5" />
+                  </Button>
+               </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-            <div className="p-12 space-y-10 bg-white border-r max-h-[72vh] overflow-y-auto scrollbar-none">
+          <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
+            <div className="w-full md:w-1/2 bg-white border-r overflow-y-auto p-6 md:p-10 space-y-8 scrollbar-thin">
               <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleBgUpload} />
               
               <Tabs defaultValue="front">
-                <TabsList className="grid w-full grid-cols-2 h-16 bg-slate-100 p-1.5 rounded-[2rem]">
-                  <TabsTrigger value="front" className="rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">TAMPAK DEPAN</TabsTrigger>
-                  <TabsTrigger value="back" className="rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">TAMPAK BELAKANG</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 h-14 bg-slate-100 p-1 rounded-2xl">
+                  <TabsTrigger value="front" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">TAMPAK DEPAN</TabsTrigger>
+                  <TabsTrigger value="back" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">TAMPAK BELAKANG</TabsTrigger>
                 </TabsList>
                 {['front', 'back'].map(side => (
-                  <TabsContent key={side} value={side} className="space-y-8 pt-10">
+                  <TabsContent key={side} value={side} className="space-y-8 pt-8">
                     <div className="space-y-4">
                       <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
                          <Type className="h-3 w-3" /> Pemilihan Tipografi
                       </Label>
                       <Select value={localConfig[side].fontFamily} onValueChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], fontFamily: v}})}>
-                        <SelectTrigger className="h-14 rounded-2xl border-2"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="h-12 rounded-xl border-2 text-slate-800"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {FONT_OPTIONS.map(f => <SelectItem key={f.value} value={f.value} style={{fontFamily: f.value}}>{f.name}</SelectItem>)}
                         </SelectContent>
@@ -388,35 +394,35 @@ export default function TemplatesPage() {
 
                     <div className="space-y-4">
                       <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
-                         <ImageIcon className="h-3 w-3" /> Background Khusus (Sisi {side === 'front' ? 'Depan' : 'Belakang'})
+                         <ImageIcon className="h-3 w-3" /> Background Khusus
                       </Label>
-                      <div className="bg-slate-50 p-6 rounded-[2rem] border-2 border-dashed border-slate-200 flex flex-col items-center gap-4">
+                      <div className="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center gap-4">
                          {localConfig[side].bgImage ? (
-                           <div className="relative w-full aspect-video rounded-xl overflow-hidden border-4 border-white shadow-lg">
+                           <div className="relative w-full aspect-video rounded-xl overflow-hidden border-4 border-white shadow-md">
                               <Image src={localConfig[side].bgImage} alt="Background" fill className="object-cover" unoptimized />
                               <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg" onClick={() => setLocalConfig({...localConfig, [side]: {...localConfig[side], bgImage: ''}})}>
                                 <X className="h-4 w-4" />
                               </Button>
                            </div>
                          ) : (
-                           <Button variant="outline" className="h-14 w-full rounded-2xl gap-3 border-2" onClick={() => {
+                           <Button variant="outline" className="h-12 w-full rounded-xl gap-3 border-2" onClick={() => {
                              setCurrentSideForUpload(side as 'front' | 'back');
                              fileInputRef.current?.click();
                            }}>
-                             <Upload className="h-5 w-5" /> UNGGAH GAMBAR LATAR
+                             <Upload className="h-4 w-4" /> UNGGAH GAMBAR LATAR
                            </Button>
                          )}
-                         <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Gunakan Gambar Tanpa Data Statis Agar Tidak Tumpang Tindih</p>
+                         <p className="text-[8px] text-muted-foreground uppercase font-black tracking-widest text-center px-4">Gunakan Gambar Tanpa Data Statis Agar Tidak Tumpang Tindih</p>
                       </div>
                     </div>
                     
                     <div className="space-y-4">
-                       <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Konfigurasi Palet Warna</Label>
-                       <div className="grid grid-cols-2 gap-4">
-                          <ColorField label="Header Background" value={localConfig[side].headerBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], headerBg: v}})} />
-                          <ColorField label="Main Body Background" value={localConfig[side].bodyBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], bodyBg: v}})} />
-                          <ColorField label="Accent / Footer Color" value={localConfig[side].footerBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], footerBg: v}})} />
-                          <ColorField label="Primary Text Color" value={localConfig[side].textColor} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], textColor: v}})} />
+                       <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Skema Palet Warna</Label>
+                       <div className="grid grid-cols-2 gap-3">
+                          <ColorField label="Header Bg" value={localConfig[side].headerBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], headerBg: v}})} />
+                          <ColorField label="Body Bg" value={localConfig[side].bodyBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], bodyBg: v}})} />
+                          <ColorField label="Footer Bg" value={localConfig[side].footerBg} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], footerBg: v}})} />
+                          <ColorField label="Text Color" value={localConfig[side].textColor} onChange={v => setLocalConfig({...localConfig, [side]: {...localConfig[side], textColor: v}})} />
                        </div>
                     </div>
                   </TabsContent>
@@ -424,54 +430,62 @@ export default function TemplatesPage() {
               </Tabs>
             </div>
 
-            <div className="bg-slate-100/50 flex flex-col items-center justify-center p-16 border-l gap-12 relative overflow-y-auto">
-              <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
-                  <Eye className="h-4 w-4 text-slate-300" />
-                  <span className="text-[10px] font-black uppercase text-slate-300 tracking-[0.6em]">Visual Layout Preview</span>
+            <div className="w-full md:w-1/2 bg-slate-50 overflow-y-auto p-6 md:p-10 flex flex-col items-center gap-8 border-l relative">
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-30">
+                  <Eye className="h-3.5 w-3.5" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.4em]">Visual Layout Preview</span>
               </div>
               
               <div className={cn(
-                "flex flex-col gap-12 origin-center shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] rounded-3xl p-8 bg-white/50",
+                "flex flex-col gap-10 origin-top shadow-2xl rounded-2xl p-6 bg-white border border-slate-200 mt-4",
                 editingTemplate?.type === 'ID_CARD' ? "scale-[0.7]" : "scale-[0.85]"
               )}>
-                 <div className="space-y-4 text-center">
-                    <Badge variant="outline" className="uppercase text-[9px] font-black tracking-widest text-slate-400">Front View</Badge>
-                    {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && (
-                      <StudentCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                    )}
-                    {editingTemplate?.type === 'EXAM_CARD' && previewStudent && (
-                      <ExamCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                    )}
-                    {editingTemplate?.type === 'ID_CARD' && previewStudent && (
-                      <IdCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                    )}
+                 <div className="space-y-3 text-center">
+                    <span className="uppercase text-[8px] font-black tracking-widest text-slate-400">Tampak Depan</span>
+                    <div className="rounded-lg overflow-hidden border">
+                      {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && (
+                        <StudentCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                      )}
+                      {editingTemplate?.type === 'EXAM_CARD' && previewStudent && (
+                        <ExamCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                      )}
+                      {editingTemplate?.type === 'ID_CARD' && previewStudent && (
+                        <IdCardVisual student={previewStudent} settings={settings} side="front" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                      )}
+                    </div>
                  </div>
 
-                 <div className="space-y-4 text-center">
-                    <Badge variant="outline" className="uppercase text-[9px] font-black tracking-widest text-slate-400">Back View</Badge>
-                    {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && (
-                      <StudentCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                    )}
-                    {editingTemplate?.type === 'EXAM_CARD' && previewStudent && (
-                      <ExamCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                    )}
-                    {editingTemplate?.type === 'ID_CARD' && previewStudent && (
-                      <IdCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
-                    )}
+                 <div className="space-y-3 text-center">
+                    <span className="uppercase text-[8px] font-black tracking-widest text-slate-400">Tampak Belakang</span>
+                    <div className="rounded-lg overflow-hidden border">
+                      {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && (
+                        <StudentCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                      )}
+                      {editingTemplate?.type === 'EXAM_CARD' && previewStudent && (
+                        <ExamCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                      )}
+                      {editingTemplate?.type === 'ID_CARD' && previewStudent && (
+                        <IdCardVisual student={previewStudent} settings={settings} side="back" template={{...editingTemplate, config_json: JSON.stringify(localConfig)}} />
+                      )}
+                    </div>
                  </div>
               </div>
 
-              <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 flex items-start gap-4 max-w-md">
-                 <ArrowRightLeft className="h-5 w-5 text-blue-500 mt-1 shrink-0" />
-                 <p className="text-[10px] text-blue-700 leading-relaxed font-medium">
-                   <strong>Info Penempatan:</strong> Elemen seperti Foto, QR Code, dan Data Diri diatur melalui halaman <strong>Settings &gt; Tata Letak</strong>. Halaman ini hanya untuk mengelola <strong>Estetika Visual</strong>.
+              <div className="bg-blue-50/50 p-5 rounded-2xl border border-blue-100/50 flex items-start gap-3 max-w-sm">
+                 <ArrowRightLeft className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
+                 <p className="text-[9px] text-blue-700 leading-relaxed font-medium">
+                   Pengaturan posisi elemen (Foto, QR, Data Diri) dikelola secara terpisah melalui halaman <strong>Settings &gt; Tata Letak</strong>.
                  </p>
               </div>
             </div>
           </div>
-          <div className="p-10 bg-white border-t flex justify-end">
-             <Button onClick={handleSaveConfig} className="h-16 px-14 rounded-3xl font-black uppercase tracking-widest shadow-2xl shadow-primary/30 transition-all hover:scale-105 active:scale-95">
-               <Save className="h-6 w-6 mr-3" /> SIMPAN KONFIGURASI VISUAL
+
+          <div className="shrink-0 p-6 bg-white border-t flex justify-end gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+             <Button variant="ghost" onClick={() => setIsConfigOpen(false)} className="h-12 px-8 rounded-xl font-bold uppercase text-[10px] tracking-widest">
+               BATAL
+             </Button>
+             <Button onClick={handleSaveConfig} className="h-12 px-10 rounded-xl font-black uppercase tracking-widest shadow-xl text-white transition-all hover:scale-[1.02] active:scale-95">
+               <Save className="h-4 w-4 mr-2" /> SIMPAN DESAIN
              </Button>
           </div>
         </DialogContent>
@@ -482,9 +496,9 @@ export default function TemplatesPage() {
 
 function ColorField({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) {
   return (
-    <div className="bg-slate-50 p-4 rounded-3xl border-2 border-slate-100 flex items-center justify-between gap-4 hover:border-primary/20 transition-all group">
-      <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 group-hover:text-primary transition-colors">{label}</span>
-      <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-sm border-4 border-white ring-1 ring-slate-200">
+    <div className="bg-slate-50 p-3 rounded-xl border-2 border-slate-100 flex items-center justify-between gap-3 hover:border-primary/20 transition-all group">
+      <span className="text-[8px] font-black uppercase tracking-widest text-slate-500 group-hover:text-primary transition-colors">{label}</span>
+      <div className="relative w-8 h-8 rounded-lg overflow-hidden shadow-inner border-2 border-white ring-1 ring-slate-200 shrink-0">
          <input type="color" value={value} onChange={e => onChange(e.target.value)} className="absolute inset-[-6px] w-[160%] h-[160%] cursor-pointer border-none p-0 bg-transparent" />
       </div>
     </div>
