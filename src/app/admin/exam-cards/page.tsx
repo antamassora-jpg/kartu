@@ -135,15 +135,18 @@ export default function ExamCardsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Print Area */}
+      {/* Area Cetak Khusus */}
       <div id="print-area">
-        {(selectedIds.size > 0 ? Array.from(selectedIds) : [previewId]).map(id => {
+        {Array.from(selectedIds).map(id => {
           const s = students.find(x => x.id === id);
           return s && settings ? (
             <div key={id} className="page-break">
-              <ExamCardVisual student={s} settings={settings} exam={selectedExam} side="front" template={activeTemplate} />
-              <div className="h-10"></div>
-              <ExamCardVisual student={s} settings={settings} exam={selectedExam} side="back" template={activeTemplate} />
+              <div className="print-card-gap">
+                <ExamCardVisual student={s} settings={settings} exam={selectedExam} side="front" template={activeTemplate} />
+              </div>
+              <div>
+                <ExamCardVisual student={s} settings={settings} exam={selectedExam} side="back" template={activeTemplate} />
+              </div>
             </div>
           ) : null;
         })}

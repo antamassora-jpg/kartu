@@ -115,15 +115,18 @@ export default function IDCardsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Print Area */}
+      {/* Area Cetak Khusus */}
       <div id="print-area">
-        {(selectedIds.size > 0 ? Array.from(selectedIds) : (previewId ? [previewId] : [])).map(id => {
+        {Array.from(selectedIds).map(id => {
           const s = students.find(x => x.id === id);
           return s && settings ? (
             <div key={id} className="page-break">
-              <IdCardVisual student={s} settings={settings} side="front" template={activeTemplate} />
-              <div className="h-10"></div>
-              <IdCardVisual student={s} settings={settings} side="back" template={activeTemplate} />
+              <div className="print-card-gap">
+                <IdCardVisual student={s} settings={settings} side="front" template={activeTemplate} />
+              </div>
+              <div>
+                <IdCardVisual student={s} settings={settings} side="back" template={activeTemplate} />
+              </div>
             </div>
           ) : null;
         })}
@@ -137,9 +140,6 @@ export default function IDCardsPage() {
         <div className="flex gap-2">
           <Button variant="outline" className="gap-2 shadow-sm" onClick={() => setIsPrintModalOpen(true)} disabled={selectedIds.size === 0}>
             <Printer className="h-4 w-4" /> Cetak Massal ({selectedIds.size})
-          </Button>
-          <Button className="gap-2" onClick={() => toast({title: "Segera Hadir", description: "Fitur upload staff baru dalam pengembangan."})}>
-            <Users className="h-4 w-4" /> Tambah Staff
           </Button>
         </div>
       </div>

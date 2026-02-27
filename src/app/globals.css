@@ -70,6 +70,7 @@
   header, 
   nav, 
   aside, 
+  main,
   footer, 
   button,
   .sidebar-provider,
@@ -95,7 +96,10 @@
     visibility: visible !important;
     width: 100% !important;
     background: white !important;
-    position: static !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 9999 !important;
   }
 
   #print-area * {
@@ -110,19 +114,27 @@
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
+    width: 100% !important;
     min-height: 100vh !important;
-    padding: 20mm 0 !important;
+    padding: 10mm 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Berikan jarak antara kartu depan dan belakang di satu halaman jika perlu */
+  .print-card-gap {
+    margin-bottom: 10mm !important;
   }
 
   /* Memaksa warna dan latar belakang tetap tercetak */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 
   @page {
     margin: 0;
-    size: portrait;
+    size: auto;
   }
 }
 

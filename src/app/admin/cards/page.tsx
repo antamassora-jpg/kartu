@@ -18,12 +18,10 @@ import {
   Printer, 
   Download, 
   Eye, 
-  RefreshCw, 
   Search, 
   CheckSquare, 
   Square,
   Loader2,
-  Filter,
   Users
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -126,15 +124,18 @@ export default function CardsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Print Area - Hanya terlihat saat window.print() dipanggil */}
+      {/* Area Cetak Khusus */}
       <div id="print-area">
-        {(selectedIds.size > 0 ? Array.from(selectedIds) : (previewId ? [previewId] : [])).map(id => {
+        {Array.from(selectedIds).map(id => {
           const s = students.find(x => x.id === id);
           return s && settings ? (
             <div key={id} className="page-break">
-              <StudentCardVisual student={s} settings={settings} side="front" template={activeTemplate} />
-              <div className="h-10"></div> {/* Spasi kecil antara depan/belakang jika perlu */}
-              <StudentCardVisual student={s} settings={settings} side="back" template={activeTemplate} />
+              <div className="print-card-gap">
+                <StudentCardVisual student={s} settings={settings} side="front" template={activeTemplate} />
+              </div>
+              <div>
+                <StudentCardVisual student={s} settings={settings} side="back" template={activeTemplate} />
+              </div>
             </div>
           ) : null;
         })}
