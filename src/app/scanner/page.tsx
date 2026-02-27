@@ -1,17 +1,20 @@
+
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { QrCode, CheckCircle2, XCircle, Clock, History, ChevronsLeftRight, GraduationCap, Calendar, Loader2 } from 'lucide-react';
+import { QrCode, CheckCircle2, XCircle, Clock, History, ChevronsLeftRight, GraduationCap, Calendar, Loader2, Camera, CameraOff } from 'lucide-react';
 import { getDB, saveDB } from '@/app/lib/db';
 import { Student, AttendanceLog, ExamEvent } from '@/app/lib/types';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
+import { Html5Qrcode } from 'html5-qrcode';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export default function ScannerPage() {
   const router = useRouter();
@@ -19,18 +22,21 @@ export default function ScannerPage() {
   const [selectedSession, setSelectedSession] = useState('s1');
   const [selectedExamId, setSelectedExamId] = useState<string>('');
   const [isScanning, setIsScanning] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [lastScan, setLastScan] = useState<{ status: 'valid' | 'invalid' | 'duplicate', student?: Student, reason?: string } | null>(null);
   const [todayLogs, setTodayLogs] = useState<AttendanceLog[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [exams, setExams] = useState<ExamEvent[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const audioSuccessRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const db = getDB();
     setStudents(db.students);
     setExams(db.exams);
     
-    // Set default exam if available
     if (db.exams.length > 0) {
       setSelectedExamId(db.exams[0].id);
     }
@@ -38,9 +44,15 @@ export default function ScannerPage() {
     const todayStr = new Date().toISOString().split('T')[0];
     setTodayLogs(db.logs.filter(l => l.date === todayStr));
     setIsMounted(true);
+
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+      }
+    };
   }, []);
 
-  const simulateScan = () => {
+  const startScanner = async () => {
     if (attendanceType === 'ujian' && !selectedExamId) {
       toast({
         variant: "destructive",
@@ -50,90 +62,117 @@ export default function ScannerPage() {
       return;
     }
 
-    if (students.length === 0) {
+    try {
+      setIsScanning(true);
+      setLastScan(null);
+      
+      const html5QrCode = new Html5Qrcode("reader");
+      scannerRef.current = html5QrCode;
+
+      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+          handleProcessScan(decodedText);
+        },
+        (errorMessage) => {
+          // ignore errors during scanning
+        }
+      );
+      setHasCameraPermission(true);
+    } catch (err) {
+      console.error("Camera error:", err);
+      setHasCameraPermission(false);
+      setIsScanning(false);
       toast({
         variant: "destructive",
-        title: "Database Kosong",
-        description: "Tidak ada data siswa untuk dipindai."
+        title: "Akses Kamera Gagal",
+        description: "Pastikan izin kamera sudah diaktifkan di browser Anda."
+      });
+    }
+  };
+
+  const stopScanner = async () => {
+    if (scannerRef.current) {
+      await scannerRef.current.stop();
+      scannerRef.current = null;
+    }
+    setIsScanning(false);
+  };
+
+  const handleProcessScan = (decodedText: string) => {
+    // Support prefix "VERIFY-" or raw card code
+    const cleanCode = decodedText.replace('VERIFY-', '').trim();
+    
+    const db = getDB();
+    const student = db.students.find(s => s.card_code === cleanCode || s.nis === cleanCode);
+    
+    if (!student) {
+      setLastScan({ status: 'invalid', reason: 'Kode Tidak Terdaftar' });
+      return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const sessionId = attendanceType === 'ujian' ? 'exam' : selectedSession;
+    
+    // Duplicate Check
+    const isDuplicate = db.logs.some(l => 
+      l.student_id === student.id && 
+      l.date === todayStr && 
+      l.session_id === sessionId &&
+      (attendanceType === 'ujian' ? l.exam_id === selectedExamId : true)
+    );
+    
+    if (isDuplicate) {
+      setLastScan({ 
+        status: 'duplicate', 
+        student, 
+        reason: 'Sudah absen sebelumnya' 
       });
       return;
     }
 
-    setIsScanning(true);
-    setLastScan(null);
+    const isValid = student.status === 'Aktif';
     
-    // Simulasi proses scanning 1.2 detik
-    setTimeout(() => {
-      setIsScanning(false);
-      
-      // Ambil siswa acak untuk simulasi scan kartu
-      const randomIdx = Math.floor(Math.random() * students.length);
-      const student = students[randomIdx];
-      
-      const db = getDB();
-      const todayStr = new Date().toISOString().split('T')[0];
-      const sessionId = attendanceType === 'ujian' ? 'exam' : selectedSession;
-      
-      // Cek apakah sudah absen (Duplicate Check)
-      const isDuplicate = db.logs.some(l => 
-        l.student_id === student.id && 
-        l.date === todayStr && 
-        l.session_id === sessionId &&
-        (attendanceType === 'ujian' ? l.exam_id === selectedExamId : true)
-      );
-      
-      if (isDuplicate) {
-        setLastScan({ 
-          status: 'duplicate', 
-          student, 
-          reason: attendanceType === 'ujian' ? 'Sudah absen untuk ujian ini hari ini.' : 'Sudah absen di sesi ini.' 
-        });
-        toast({
-          variant: "destructive",
-          title: "Sudah Absen",
-          description: `${student.name} sudah tercatat kehadirannya.`
-        });
-        return;
-      }
+    const newLog: AttendanceLog = {
+      id: Math.random().toString(36).substr(2, 9),
+      student_id: student.id,
+      card_code: student.card_code,
+      date: todayStr,
+      session_id: sessionId,
+      exam_id: attendanceType === 'ujian' ? selectedExamId : undefined,
+      scanned_at: new Date().toISOString(),
+      scanned_by_user_id: 'petugas-real',
+      is_valid: isValid,
+      reason: isValid ? undefined : 'Kartu Tidak Aktif'
+    };
 
-      const isValid = student.status === 'Aktif';
-      
-      const newLog: AttendanceLog = {
-        id: Math.random().toString(36).substr(2, 9),
-        student_id: student.id,
-        card_code: student.card_code,
-        date: todayStr,
-        session_id: sessionId,
-        exam_id: attendanceType === 'ujian' ? selectedExamId : undefined,
-        scanned_at: new Date().toISOString(),
-        scanned_by_user_id: 'petugas-demo',
-        is_valid: isValid,
-        reason: isValid ? undefined : 'Status kartu nonaktif/pindah'
-      };
+    const updatedLogs = [newLog, ...db.logs];
+    db.logs = updatedLogs;
+    saveDB(db);
+    
+    setTodayLogs(updatedLogs.filter(l => l.date === todayStr));
+    setLastScan({ 
+      status: isValid ? 'valid' : 'invalid', 
+      student, 
+      reason: isValid ? undefined : 'Status Nonaktif' 
+    });
 
-      // Simpan ke database lokal
-      const updatedLogs = [newLog, ...db.logs];
-      db.logs = updatedLogs;
-      saveDB(db);
-      
-      // Update state lokal UI
-      setTodayLogs(updatedLogs.filter(l => l.date === todayStr));
-      setLastScan({ 
-        status: isValid ? 'valid' : 'invalid', 
-        student, 
-        reason: isValid ? undefined : 'Kartu Tidak Aktif' 
+    if (isValid) {
+      // Play sound if possible
+      toast({
+        title: "Absensi Berhasil",
+        description: `${student.name} berhasil tercatat.`
       });
-
-      if (isValid) {
-        toast({
-          title: "Berhasil",
-          description: `${student.name} berhasil diabsen.`
-        });
-      }
-    }, 1200);
+    }
   };
 
-  const handleSwitchMode = () => router.push('/mode-selection');
+  const handleSwitchMode = () => {
+    stopScanner();
+    router.push('/mode-selection');
+  };
 
   if (!isMounted) return null;
 
@@ -148,7 +187,7 @@ export default function ScannerPage() {
              <div>
                 <h1 className="text-lg font-bold text-primary font-headline">Scanner Petugas</h1>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">
-                  {attendanceType === 'harian' ? 'ABSENSI HARIAN' : 'ABSENSI EVENT UJIAN'}
+                  Mode Kamera Aktif
                 </p>
              </div>
           </div>
@@ -161,15 +200,18 @@ export default function ScannerPage() {
           <div className={`h-2 ${attendanceType === 'harian' ? 'bg-primary' : 'bg-orange-500'}`}></div>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <QrCode className="h-5 w-5" /> Mode Pemindaian
+              <QrCode className="h-5 w-5" /> Kontrol Pemindaian
             </CardTitle>
-            <CardDescription>Pilih jenis absensi yang sedang berlangsung.</CardDescription>
+            <CardDescription>Pilih jenis absensi dan aktifkan kamera untuk memindai.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Jenis Absensi</Label>
-                <Select value={attendanceType} onValueChange={(val: any) => setAttendanceType(val)}>
+                <Select value={attendanceType} onValueChange={(val: any) => {
+                  setAttendanceType(val);
+                  if (isScanning) stopScanner();
+                }}>
                   <SelectTrigger className="w-full h-11 bg-slate-50 border-none font-bold">
                     <SelectValue />
                   </SelectTrigger>
@@ -212,34 +254,55 @@ export default function ScannerPage() {
               )}
             </div>
 
-            <div 
-              className={`aspect-square w-full max-w-[280px] mx-auto rounded-3xl border-4 flex flex-col items-center justify-center gap-4 transition-all overflow-hidden relative ${
-                isScanning 
-                ? 'border-secondary animate-pulse shadow-[0_0_30px_rgba(79,191,221,0.3)]' 
-                : 'border-dashed border-slate-200 bg-slate-50'
-              }`}
-            >
-               {isScanning ? (
-                 <div className="absolute inset-0 bg-secondary/5 flex flex-col items-center justify-center">
-                   <div className="w-full h-1 bg-secondary absolute animate-[bounce_2s_infinite]"></div>
-                   <Loader2 className="h-16 w-16 text-secondary animate-spin" />
-                   <p className="mt-4 font-black text-[10px] uppercase tracking-[0.3em] text-secondary">Memindai...</p>
-                 </div>
-               ) : (
-                 <>
-                   <div className={`p-6 rounded-full ${attendanceType === 'ujian' ? 'bg-orange-100 text-orange-600' : 'bg-primary/10 text-primary'}`}>
-                      <QrCode className="h-12 w-12" />
+            <div className="relative">
+              <div 
+                id="reader" 
+                className={`aspect-square w-full max-w-[320px] mx-auto rounded-3xl border-4 transition-all overflow-hidden relative ${
+                  isScanning 
+                  ? 'border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)]' 
+                  : 'border-dashed border-slate-200 bg-slate-50'
+                }`}
+              >
+                {!isScanning && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center p-6">
+                    <div className={`p-6 rounded-full ${attendanceType === 'ujian' ? 'bg-orange-100 text-orange-600' : 'bg-primary/10 text-primary'}`}>
+                        <Camera className="h-12 w-12" />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-relaxed">
+                      Kamera Belum Aktif<br/>Klik Tombol Di Bawah Untuk Memulai
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              {isScanning && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
+                   <div className="w-48 h-48 border-2 border-white/50 rounded-2xl relative">
+                      <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-emerald-500 -translate-x-1 -translate-y-1"></div>
+                      <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-emerald-500 translate-x-1 -translate-y-1"></div>
+                      <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-emerald-500 -translate-x-1 translate-y-1"></div>
+                      <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-emerald-500 translate-x-1 translate-y-1"></div>
+                      <div className="absolute top-0 left-0 right-0 h-0.5 bg-emerald-500/50 animate-[scan_2s_linear_infinite]"></div>
                    </div>
-                   <p className="text-[10px] text-muted-foreground text-center px-10 font-bold uppercase tracking-widest leading-relaxed">
-                     Dekatkan kartu ke kamera untuk memindai
-                   </p>
-                 </>
-               )}
+                </div>
+              )}
             </div>
+
+            {hasCameraPermission === false && (
+              <Alert variant="destructive">
+                <CameraOff className="h-4 w-4" />
+                <AlertTitle>Akses Kamera Ditolak</AlertTitle>
+                <AlertDescription>
+                  Berikan izin akses kamera pada pengaturan browser untuk melakukan pemindaian.
+                </AlertDescription>
+              </Alert>
+            )}
 
             {lastScan && (
               <div className={`p-4 rounded-2xl flex items-center gap-4 border-2 animate-in fade-in slide-in-from-bottom-4 duration-500 ${
-                lastScan.status === 'valid' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-red-50 border-red-100 text-red-800'
+                lastScan.status === 'valid' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 
+                lastScan.status === 'duplicate' ? 'bg-orange-50 border-orange-100 text-orange-800' : 
+                'bg-red-50 border-red-100 text-red-800'
               }`}>
                 <div className="w-14 h-18 relative rounded-xl overflow-hidden bg-white shadow-sm flex-shrink-0 border-2 border-white">
                    {lastScan.student?.photo_url ? (
@@ -250,14 +313,20 @@ export default function ScannerPage() {
                 </div>
                 <div className="flex-1 overflow-hidden">
                   <div className="flex items-center gap-2 mb-1">
-                    {lastScan.status === 'valid' ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <XCircle className="h-4 w-4 text-red-600" />}
+                    {lastScan.status === 'valid' ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : 
+                     lastScan.status === 'duplicate' ? <Clock className="h-4 w-4 text-orange-600" /> :
+                     <XCircle className="h-4 w-4 text-red-600" />}
                     <span className="font-black text-[9px] uppercase tracking-widest">
                       {lastScan.status === 'duplicate' ? 'DUPLIKAT' : (lastScan.status === 'valid' ? 'BERHASIL' : 'GAGAL')}
                     </span>
                   </div>
-                  <div className="font-black truncate text-base uppercase leading-tight">{lastScan.student?.name}</div>
-                  <div className="text-[10px] font-bold opacity-70">{lastScan.student?.class} • {lastScan.student?.major}</div>
-                  {lastScan.reason && (
+                  <div className="font-black truncate text-base uppercase leading-tight">
+                    {lastScan.student?.name || 'Data Tidak Dikenal'}
+                  </div>
+                  <div className="text-[10px] font-bold opacity-70">
+                    {lastScan.student ? `${lastScan.student.class} • ${lastScan.student.major}` : lastScan.reason}
+                  </div>
+                  {lastScan.reason && lastScan.student && (
                     <div className="mt-2 text-[10px] bg-white/50 px-2 py-1 rounded inline-block font-bold">
                       {lastScan.reason}
                     </div>
@@ -267,23 +336,30 @@ export default function ScannerPage() {
             )}
           </CardContent>
           <CardFooter className="bg-slate-50 p-6">
-            <Button 
-              className={`w-full h-14 text-lg font-black uppercase tracking-widest gap-3 shadow-lg ${
-                attendanceType === 'ujian' 
-                ? 'bg-orange-600 hover:bg-orange-700 shadow-orange-500/20' 
-                : 'bg-primary hover:bg-primary/90 shadow-primary/20'
-              }`} 
-              size="lg" 
-              onClick={simulateScan} 
-              disabled={isScanning}
-            >
-              {isScanning ? (
+            {!isScanning ? (
+              <Button 
+                className={`w-full h-14 text-lg font-black uppercase tracking-widest gap-3 shadow-lg ${
+                  attendanceType === 'ujian' 
+                  ? 'bg-orange-600 hover:bg-orange-700 shadow-orange-500/20' 
+                  : 'bg-primary hover:bg-primary/90 shadow-primary/20'
+                }`} 
+                size="lg" 
+                onClick={startScanner}
+              >
+                <Camera className="h-6 w-6" />
+                AKTIFKAN SCANNER
+              </Button>
+            ) : (
+              <Button 
+                variant="destructive"
+                className="w-full h-14 text-lg font-black uppercase tracking-widest gap-3 shadow-lg" 
+                size="lg" 
+                onClick={stopScanner}
+              >
                 <Loader2 className="h-6 w-6 animate-spin" />
-              ) : (
-                attendanceType === 'ujian' ? <GraduationCap className="h-6 w-6" /> : <QrCode className="h-6 w-6" />
-              )}
-              {isScanning ? 'MENGOLAH...' : (attendanceType === 'ujian' ? 'SIMULASI SCAN UJIAN' : 'SIMULASI SCAN ABSEN')}
-            </Button>
+                MATIKAN SCANNER
+              </Button>
+            )}
           </CardFooter>
         </Card>
 
@@ -340,14 +416,20 @@ export default function ScannerPage() {
               </div>
             )}
           </div>
-          
-          {todayLogs.length > 5 && (
-            <Button variant="ghost" className="w-full text-[10px] font-black uppercase tracking-widest text-slate-400" onClick={() => router.push('/admin/attendance')}>
-              Lihat Semua Log di Panel Admin
-            </Button>
-          )}
         </div>
       </div>
+      
+      <style jsx global>{`
+        @keyframes scan {
+          0% { top: 0; }
+          50% { top: 100%; }
+          100% { top: 0; }
+        }
+        #reader video {
+          border-radius: 1.5rem;
+          object-fit: cover;
+        }
+      `}</style>
     </div>
   );
 }
