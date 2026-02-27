@@ -26,7 +26,8 @@ import {
   AlignCenter,
   AlignLeft,
   AlignRight,
-  Type as FontIcon
+  Type as FontIcon,
+  PenTool
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { StudentCardVisual } from '@/components/student-card-visual';
@@ -74,7 +75,7 @@ const FONT_OPTIONS = [
 const DEFAULT_ELEMENTS = {
   photo: { x: 15, y: 70, w: 60, h: 80 },
   qr: { x: 15, y: 155, w: 48, h: 48 },
-  info: { x: 90, y: 70, align: 'left', fontSize: 10 },
+  info: { x: 90, y: 70, align: 'left', fontSize: 10, width: 180 },
   sigBlock: { x: 240, y: 160, scale: 0.75 }
 };
 
@@ -209,7 +210,7 @@ export default function TemplatesPage() {
     saveDB(db);
     setTemplates(db.templates);
     setIsConfigOpen(false);
-    toast({ title: "Visual Disimpan", description: "Kustomisasi warna, font, dan background telah diperbarui." });
+    toast({ title: "Visual Disimpan", description: "Kustomisasi warna, font, dan posisi elemen telah diperbarui." });
   };
 
   const handleBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -374,29 +375,43 @@ export default function TemplatesPage() {
                     {/* Dimensi & Ukuran */}
                     <div className="space-y-6">
                       <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary flex items-center gap-2">
-                         <Maximize2 className="h-3 w-3" /> Dimensi Elemen
+                         <Maximize2 className="h-3 w-3" /> Dimensi & Ukuran
                       </Label>
                       <div className="space-y-6 bg-slate-50 p-6 rounded-3xl border border-slate-100">
                         <div className="space-y-3">
                           <div className="flex justify-between text-[9px] font-black uppercase">
                             <span>Lebar Foto Siswa</span>
-                            <span className="text-primary">{localConfig[side].elements.photo.w}px</span>
+                            <span className="text-primary font-bold">{localConfig[side].elements.photo.w}px</span>
                           </div>
                           <Slider value={[localConfig[side].elements.photo.w]} min={40} max={120} step={1} onValueChange={([v]) => updateElement('photo', { w: v, h: v * 1.33 })} />
                         </div>
                         <div className="space-y-3">
                           <div className="flex justify-between text-[9px] font-black uppercase">
                             <span>Ukuran QR Code</span>
-                            <span className="text-primary">{localConfig[side].elements.qr.w}px</span>
+                            <span className="text-primary font-bold">{localConfig[side].elements.qr.w}px</span>
                           </div>
                           <Slider value={[localConfig[side].elements.qr.w]} min={30} max={100} step={1} onValueChange={([v]) => updateElement('qr', { w: v, h: v })} />
                         </div>
                         <div className="space-y-3">
                           <div className="flex justify-between text-[9px] font-black uppercase">
-                            <span>Ukuran Font Identitas</span>
-                            <span className="text-primary">{localConfig[side].elements.info.fontSize}px</span>
+                            <span>Lebar Blok Identitas</span>
+                            <span className="text-primary font-bold">{localConfig[side].elements.info.width}px</span>
+                          </div>
+                          <Slider value={[localConfig[side].elements.info.width]} min={100} max={250} step={1} onValueChange={([v]) => updateElement('info', { width: v })} />
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex justify-between text-[9px] font-black uppercase">
+                            <span>Ukuran Font Teks</span>
+                            <span className="text-primary font-bold">{localConfig[side].elements.info.fontSize}px</span>
                           </div>
                           <Slider value={[localConfig[side].elements.info.fontSize]} min={6} max={16} step={0.5} onValueChange={([v]) => updateElement('info', { fontSize: v })} />
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex justify-between text-[9px] font-black uppercase">
+                            <span>Skala Tanda Tangan & Stempel</span>
+                            <span className="text-primary font-bold">{Math.round((localConfig[side].elements.sigBlock.scale || 0.75) * 100)}%</span>
+                          </div>
+                          <Slider value={[(localConfig[side].elements.sigBlock.scale || 0.75) * 100]} min={40} max={120} step={1} onValueChange={([v]) => updateElement('sigBlock', { scale: v / 100 })} />
                         </div>
                       </div>
                     </div>
@@ -453,11 +468,6 @@ export default function TemplatesPage() {
               </div>
 
               <div className="relative scale-150 origin-center transition-all duration-500 hover:scale-[1.55]">
-                {/* Overlay Interaktif */}
-                <div className="absolute inset-0 z-50 pointer-events-none">
-                   {/* Kita tidak bisa mengubah komponen visual, tapi kita bisa menangkap event dragging di atasnya */}
-                </div>
-
                 <InteractiveLayoutWrapper 
                   config={localConfig[activeSide]} 
                   updateConfig={(elements: any) => setLocalConfig({ ...localConfig, [activeSide]: { ...localConfig[activeSide], elements } })}
@@ -481,7 +491,7 @@ export default function TemplatesPage() {
                     <div>
                        <h4 className="text-xs font-black uppercase text-slate-800 tracking-tight">Kustomisasi Tata Letak</h4>
                        <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
-                         Setiap varian desain dapat memiliki tata letak yang berbeda. Gunakan panel kiri untuk ukuran presisi, atau geser langsung elemen pada kartu untuk posisi visual terbaik.
+                         Geser elemen langsung pada kartu untuk menentukan posisi terbaik. Gunakan slider di panel kiri untuk mengubah ukuran foto, barcode, teks, dan skala legalitas secara presisi.
                        </p>
                     </div>
                  </div>
@@ -572,9 +582,7 @@ function InteractiveLayoutWrapper({ children, config, updateConfig }: { children
 
   const handleMouseUp = () => setDragging(null);
 
-  // Ukuran dasar kartu
-  const cardW = 340;
-  const cardH = 215;
+  const els = config.elements;
 
   return (
     <div 
@@ -592,28 +600,46 @@ function InteractiveLayoutWrapper({ children, config, updateConfig }: { children
       <div className="absolute inset-0 z-50 pointer-events-none">
         {/* Photo Handle */}
         <div 
-          className={cn("absolute border-2 border-primary bg-primary/10 cursor-move pointer-events-auto", dragging === 'photo' && 'border-dashed')}
-          style={{ left: config.elements.photo.x, top: config.elements.photo.y, width: config.elements.photo.w, height: config.elements.photo.h }}
+          className={cn("absolute border-2 border-primary bg-primary/10 cursor-move pointer-events-auto group", dragging === 'photo' && 'border-dashed border-4')}
+          style={{ left: els.photo.x, top: els.photo.y, width: els.photo.w, height: els.photo.h }}
           onMouseDown={(e) => handleMouseDown('photo', e)}
-        />
+        >
+           <div className="hidden group-hover:block absolute -top-6 left-0 bg-primary text-white text-[8px] font-black px-2 py-0.5 rounded uppercase">Foto Siswa</div>
+        </div>
+
         {/* QR Handle */}
         <div 
-          className={cn("absolute border-2 border-primary bg-primary/10 cursor-move pointer-events-auto", dragging === 'qr' && 'border-dashed')}
-          style={{ left: config.elements.qr.x, top: config.elements.qr.y, width: config.elements.qr.w, height: config.elements.qr.h }}
+          className={cn("absolute border-2 border-primary bg-primary/10 cursor-move pointer-events-auto group", dragging === 'qr' && 'border-dashed border-4')}
+          style={{ left: els.qr.x, top: els.qr.y, width: els.qr.w, height: els.qr.h }}
           onMouseDown={(e) => handleMouseDown('qr', e)}
-        />
+        >
+           <div className="hidden group-hover:block absolute -top-6 left-0 bg-primary text-white text-[8px] font-black px-2 py-0.5 rounded uppercase">QR Code</div>
+        </div>
+
         {/* Info Handle */}
         <div 
-          className={cn("absolute border-2 border-secondary bg-secondary/10 cursor-move pointer-events-auto", dragging === 'info' && 'border-dashed')}
-          style={{ left: config.elements.info.x, top: config.elements.info.y - 5, width: 120, height: 60 }}
+          className={cn("absolute border-2 border-secondary bg-secondary/10 cursor-move pointer-events-auto group", dragging === 'info' && 'border-dashed border-4')}
+          style={{ left: els.info.x, top: els.info.y, width: els.info.width || 180, height: 80 }}
           onMouseDown={(e) => handleMouseDown('info', e)}
-        />
+        >
+           <div className="hidden group-hover:block absolute -top-6 left-0 bg-secondary text-white text-[8px] font-black px-2 py-0.5 rounded uppercase">Blok Identitas</div>
+        </div>
+
         {/* Signature Handle */}
         <div 
-          className={cn("absolute border-2 border-orange-500 bg-orange-500/10 cursor-move pointer-events-auto", dragging === 'sigBlock' && 'border-dashed')}
-          style={{ left: config.elements.sigBlock.x, top: config.elements.sigBlock.y - 20, width: 80, height: 50 }}
+          className={cn("absolute border-2 border-orange-500 bg-orange-500/10 cursor-move pointer-events-auto group", dragging === 'sigBlock' && 'border-dashed border-4')}
+          style={{ 
+            left: els.sigBlock.x, 
+            top: els.sigBlock.y, 
+            width: 100, 
+            height: 60,
+            transform: `scale(${els.sigBlock.scale || 0.75})`,
+            transformOrigin: 'top left'
+          }}
           onMouseDown={(e) => handleMouseDown('sigBlock', e)}
-        />
+        >
+           <div className="hidden group-hover:block absolute -top-6 left-0 bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded uppercase">Legalitas</div>
+        </div>
       </div>
     </div>
   );

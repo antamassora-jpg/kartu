@@ -7,7 +7,7 @@ import Image from 'next/image';
 const DEFAULT_ELEMENTS = {
   photo: { x: 15, y: 70, w: 60, h: 80 },
   qr: { x: 15, y: 155, w: 48, h: 48 },
-  info: { x: 90, y: 70, align: 'left', fontSize: 10 },
+  info: { x: 90, y: 70, align: 'left', fontSize: 10, width: 180 },
   sigBlock: { x: 240, y: 160, scale: 0.75 }
 };
 
@@ -116,25 +116,25 @@ export function StudentCardVisual({
           style={{ 
             left: els.info.x, 
             top: els.info.y, 
-            width: 'auto',
+            width: `${els.info.width || 180}px`,
             textAlign: els.info.align || 'left',
             alignItems: els.info.align === 'center' ? 'center' : (els.info.align === 'right' ? 'flex-end' : 'flex-start')
           }}
         >
-          <div>
+          <div className="w-full">
             <span className="opacity-60 text-[6px] uppercase font-black block">Nama Lengkap</span>
             <span className="font-black uppercase leading-none block" style={{ fontSize: (els.info.fontSize || 10) + 1 }}>{student.name}</span>
           </div>
-          <div>
+          <div className="w-full">
             <span className="opacity-60 text-[6px] uppercase font-black block">NIS / NISN</span>
             <span className="font-bold block leading-none" style={{ fontSize: els.info.fontSize || 10 }}>{student.nis} / {student.nisn || '-'}</span>
           </div>
-          <div>
+          <div className="w-full">
             <span className="opacity-60 text-[6px] uppercase font-black block">Kelas & Jurusan</span>
             <span className="font-bold uppercase block leading-tight" style={{ fontSize: (els.info.fontSize || 10) - 1 }}>{student.class} - {student.major}</span>
           </div>
           {showValid && (
-            <div className="mt-1">
+            <div className="mt-1 w-full">
               <span className="opacity-60 text-[6px] uppercase font-black block">Masa Berlaku</span>
               <span className="font-black block leading-none" style={{ fontSize: (els.info.fontSize || 10) - 1, color: current.headerBg }}>{student.valid_until}</span>
             </div>
@@ -143,13 +143,12 @@ export function StudentCardVisual({
       )}
 
       {side === 'back' && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[180px] text-center">
-           <div className="flex items-center justify-center gap-2 mb-2">
-              <div className="h-[1px] flex-1 bg-slate-300"></div>
-              <span className="text-[8px] font-black uppercase tracking-[0.2em] whitespace-nowrap">Ketentuan Pengguna</span>
-              <div className="h-[1px] flex-1 bg-slate-300"></div>
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[280px] text-center">
+           <div className="flex items-center justify-center gap-3 mb-3 relative py-1">
+              <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-300 -z-10"></div>
+              <span className="text-[8px] font-black uppercase tracking-[0.2em] bg-white px-3 relative z-10 border border-slate-100 rounded-full">Ketentuan Pengguna</span>
            </div>
-           <p className="text-[7px] italic text-slate-500 leading-tight whitespace-pre-line text-left">
+           <p className="text-[7.5px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-4">
              {settings.terms_student}
            </p>
         </div>
@@ -162,7 +161,7 @@ export function StudentCardVisual({
             left: els.sigBlock.x, 
             top: els.sigBlock.y, 
             transform: `scale(${els.sigBlock.scale || 0.75})`,
-            transformOrigin: 'bottom right'
+            transformOrigin: 'top left'
           }}
         >
           {showStamp && settings.stamp_image && (
