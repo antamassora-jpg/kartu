@@ -144,9 +144,12 @@ export function IdCardVisual({
       </div>
 
       <div className="flex-1 w-full relative z-10">
-         <h4 className="text-[10px] font-black uppercase tracking-widest border-b pb-1.5 text-slate-700 mb-3">
-           Ketentuan Pengguna
-         </h4>
+         <div className="relative h-8 w-full flex items-center justify-center mb-3">
+           <div className="absolute left-0 right-0 h-[1px] bg-slate-200 z-0"></div>
+           <h4 className="relative z-10 bg-[#f8fafc] px-4 text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">
+             Ketentuan Pengguna
+           </h4>
+         </div>
          <div className="text-[9px] opacity-80 leading-relaxed italic text-slate-700 text-left whitespace-pre-line">
             {settings.terms_id}
          </div>
@@ -158,17 +161,19 @@ export function IdCardVisual({
           </div>
           {(showSig || showStamp) && (
             <div className="text-center relative">
-               {showStamp && settings.stamp_id && (
-                  <div className="absolute -left-12 top-0 w-20 h-10 pointer-events-none">
-                     <Image src={settings.stamp_id} alt="Stamp" fill className="object-contain opacity-60" unoptimized />
-                  </div>
-               )}
-               {showSig && settings.signature_id && (
-                 <div className="w-20 h-10 relative mb-1">
-                    <Image src={settings.signature_id} alt="Sig" fill className="object-contain" unoptimized />
-                 </div>
-               )}
-               <p className="text-[8px] font-bold uppercase text-slate-800 leading-none">{settings.principal_name}</p>
+               <div className="relative h-12 flex items-center justify-center">
+                 {showStamp && settings.stamp_id && (
+                    <div className="absolute left-[-20px] top-0 w-20 h-10 pointer-events-none opacity-60">
+                       <Image src={settings.stamp_id} alt="Stamp" fill className="object-contain" unoptimized />
+                    </div>
+                 )}
+                 {showSig && settings.signature_id && (
+                   <div className="w-20 h-10 relative z-10">
+                      <Image src={settings.signature_id} alt="Sig" fill className="object-contain" unoptimized />
+                   </div>
+                 )}
+               </div>
+               <p className="text-[8px] font-black uppercase text-slate-800 leading-none mt-1">{settings.principal_name}</p>
                <p className="text-[5px] opacity-60 mt-0.5">NIP: {settings.principal_nip}</p>
             </div>
           )}

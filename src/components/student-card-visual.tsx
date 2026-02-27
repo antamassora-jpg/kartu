@@ -128,52 +128,57 @@ export function StudentCardVisual({
   }
 
   return (
-    <div style={cardStyle} className="rounded-xl shadow-lg border text-[10px] select-none p-6 flex flex-col">
-      <div className="relative z-10 border-b-2 pb-1 mb-3 flex items-center justify-between" style={{ borderColor: current.headerBg }}>
-        {showLogoLeft && settings.logo_left && (
-          <div className="w-8 h-8 relative shrink-0 mr-2">
-            <Image src={settings.logo_left} alt="Logo" fill className="object-contain" unoptimized />
-          </div>
-        )}
-        <h4 className="font-bold text-[11px] uppercase tracking-widest flex-1 text-center" style={{ color: current.headerBg }}>Ketentuan Pengguna</h4>
-        {showLogoRight && settings.logo_right && (
-          <div className="w-8 h-8 relative shrink-0 ml-2">
-            <Image src={settings.logo_right} alt="Logo R" fill className="object-contain" unoptimized />
-          </div>
-        )}
+    <div style={cardStyle} className="rounded-xl shadow-lg border text-[10px] select-none p-0 flex flex-col">
+      <div className="relative z-10 h-14 w-full flex items-center justify-center px-6">
+        <div className="absolute left-6 right-6 h-[2px] z-0" style={{ backgroundColor: current.headerBg }}></div>
+        <div className="relative z-10 bg-white px-4 flex items-center gap-3">
+          {showLogoLeft && settings.logo_left && (
+            <div className="w-6 h-6 relative shrink-0">
+              <Image src={settings.logo_left} alt="Logo" fill className="object-contain" unoptimized />
+            </div>
+          )}
+          <h4 className="font-black text-[10px] uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg }}>Ketentuan Pengguna</h4>
+          {showLogoRight && settings.logo_right && (
+            <div className="w-6 h-6 relative shrink-0">
+              <Image src={settings.logo_right} alt="Logo R" fill className="object-contain" unoptimized />
+            </div>
+          )}
+        </div>
       </div>
       
-      <div className="flex relative z-10 items-start">
-        <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[7.5px] leading-relaxed pr-4">
+      <div className="flex-1 px-8 pt-2 flex items-start">
+        <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[7.5px] leading-relaxed pr-6">
           {settings.terms_student}
         </div>
-        <div className="w-16 flex flex-col items-center">
-           <div className="w-14 h-14 bg-white p-1 rounded border shadow-sm relative mb-1">
+        <div className="w-20 flex flex-col items-center">
+           <div className="w-16 h-16 bg-white p-1 rounded border shadow-sm relative mb-1.5">
              <Image 
-               src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=VERIFY-${student.card_code}`}
+               src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
                alt="QR" fill className="object-contain" unoptimized
              />
            </div>
-           <div className="text-[6px] font-bold text-center text-slate-400 uppercase tracking-tighter">{student.card_code}</div>
+           <div className="text-[6px] font-black text-center text-slate-400 uppercase tracking-widest">{student.card_code}</div>
         </div>
       </div>
 
       {(showSig || showStamp) && (
-        <div className="mt-auto flex justify-end items-end relative z-10">
+        <div className="p-8 pt-0 mt-auto flex justify-end items-end relative z-10">
            <div className="text-center relative">
-              <p className="text-[6px] font-bold text-slate-500 uppercase mb-1">Kepala Sekolah,</p>
-              {showStamp && settings.stamp_image && (
-                <div className="absolute -left-6 top-3 w-12 h-12 pointer-events-none opacity-80">
-                  <Image src={settings.stamp_image} alt="STAMP" fill className="object-contain" unoptimized />
-                </div>
-              )}
-              {showSig && settings.signature_image && (
-                <div className="w-16 h-8 relative mx-auto mb-1">
-                   <Image src={settings.signature_image} alt="TTD" fill className="object-contain" unoptimized />
-                </div>
-              )}
-              <p className="text-[7px] font-bold border-t pt-1 leading-none" style={{ color: current.headerBg }}>{settings.principal_name}</p>
-              <p className="text-[5px] opacity-70 mt-0.5">NIP: {settings.principal_nip}</p>
+              <p className="text-[6px] font-bold text-slate-400 uppercase mb-1">Kepala Sekolah,</p>
+              <div className="relative h-12 flex items-center justify-center">
+                {showStamp && settings.stamp_image && (
+                  <div className="absolute left-[-15px] top-0 w-12 h-12 pointer-events-none opacity-80">
+                    <Image src={settings.stamp_image} alt="STAMP" fill className="object-contain" unoptimized />
+                  </div>
+                )}
+                {showSig && settings.signature_image && (
+                  <div className="w-16 h-8 relative z-10">
+                    <Image src={settings.signature_image} alt="TTD" fill className="object-contain" unoptimized />
+                  </div>
+                )}
+              </div>
+              <p className="text-[7px] font-black border-t pt-1 leading-none mt-1" style={{ color: current.headerBg, borderColor: '#e2e8f0' }}>{settings.principal_name}</p>
+              <p className="text-[5px] opacity-60 mt-0.5">NIP: {settings.principal_nip}</p>
            </div>
         </div>
       )}
