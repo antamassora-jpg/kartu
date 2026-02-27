@@ -127,17 +127,28 @@ export default function IDCardsPage() {
 
         if (i > 0) pdf.addPage([73, 111], 'portrait');
         
-        const canvasFront = await html2canvas(front, { scale: 2, useCORS: true });
+        await new Promise(r => setTimeout(r, 100));
+        
+        const canvasFront = await html2canvas(front, { 
+          scale: 2, 
+          useCORS: true,
+          logging: false 
+        });
         pdf.addImage(canvasFront.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 73, 111);
         
         pdf.addPage([73, 111], 'portrait');
-        const canvasBack = await html2canvas(back, { scale: 2, useCORS: true });
+        const canvasBack = await html2canvas(back, { 
+          scale: 2, 
+          useCORS: true,
+          logging: false 
+        });
         pdf.addImage(canvasBack.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 73, 111);
       }
 
       pdf.save(`Bulk_ID_Cards_${new Date().getTime()}.pdf`);
       toast({ title: "Berhasil", description: "Dokumen PDF massal telah diunduh." });
     } catch (error) {
+      console.error('Download Bulk Error:', error);
       toast({ variant: "destructive", title: "Gagal", description: "Terjadi kesalahan saat membuat PDF massal." });
     } finally {
       setIsBulkDownloading(false);

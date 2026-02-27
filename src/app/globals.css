@@ -100,6 +100,7 @@
     top: 0 !important;
     left: 0 !important;
     z-index: 9999 !important;
+    opacity: 1 !important;
   }
 
   #print-area * {
@@ -141,12 +142,17 @@
 /* 
  * Sembunyikan area cetak di layar biasa tanpa display: none 
  * agar html2canvas tetap dapat menangkap elemen di dalamnya.
+ * Menggunakan opacity: 0 dan pointer-events: none adalah cara paling aman.
  */
 #print-area {
-  position: absolute;
-  left: -9999px;
+  position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
+  height: auto;
+  opacity: 0;
   pointer-events: none;
+  z-index: -9999;
+  background: white;
   overflow: hidden;
 }
