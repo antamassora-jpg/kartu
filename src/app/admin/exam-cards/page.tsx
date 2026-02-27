@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -113,9 +112,9 @@ export default function ExamCardsPage() {
       const canvasBack = await html2canvas(cardRefBack.current, { scale: 3, useCORS: true });
 
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85.6, 54] });
-      pdf.addImage(canvasFront.toDataURL('image/png'), 'PNG', 0, 0, 85.6, 54);
+      pdf.addImage(canvasFront.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 85.6, 54);
       pdf.addPage([85.6, 54], 'landscape');
-      pdf.addImage(canvasBack.toDataURL('image/png'), 'PNG', 0, 0, 85.6, 54);
+      pdf.addImage(canvasBack.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 85.6, 54);
 
       pdf.save(`Kartu_Ujian_${previewStudent.name.replace(/\s+/g, '_')}.pdf`);
       toast({ title: "Berhasil", description: "PDF Kartu Ujian telah diunduh." });
@@ -140,14 +139,16 @@ export default function ExamCardsPage() {
         const front = set.querySelector('.visual-front') as HTMLElement;
         const back = set.querySelector('.visual-back') as HTMLElement;
 
+        if (!front || !back) continue;
+
         if (i > 0) pdf.addPage([85.6, 54], 'landscape');
         
         const canvasFront = await html2canvas(front, { scale: 2, useCORS: true });
-        pdf.addImage(canvasFront.toDataURL('image/png'), 'PNG', 0, 0, 85.6, 54);
+        pdf.addImage(canvasFront.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 85.6, 54);
         
         pdf.addPage([85.6, 54], 'landscape');
         const canvasBack = await html2canvas(back, { scale: 2, useCORS: true });
-        pdf.addImage(canvasBack.toDataURL('image/png'), 'PNG', 0, 0, 85.6, 54);
+        pdf.addImage(canvasBack.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 85.6, 54);
       }
 
       pdf.save(`Bulk_Kartu_Ujian_${new Date().getTime()}.pdf`);

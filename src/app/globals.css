@@ -138,7 +138,15 @@
   }
 }
 
-/* Sembunyikan area cetak di layar biasa */
+/* 
+ * Sembunyikan area cetak di layar biasa tanpa display: none 
+ * agar html2canvas tetap dapat menangkap elemen di dalamnya.
+ */
 #print-area {
-  display: none;
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 100%;
+  pointer-events: none;
+  overflow: hidden;
 }

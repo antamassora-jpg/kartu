@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -97,9 +96,9 @@ export default function IDCardsPage() {
         format: [73, 111] 
       });
       
-      pdf.addImage(canvasFront.toDataURL('image/png'), 'PNG', 0, 0, 73, 111);
+      pdf.addImage(canvasFront.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 73, 111);
       pdf.addPage([73, 111], 'portrait');
-      pdf.addImage(canvasBack.toDataURL('image/png'), 'PNG', 0, 0, 73, 111);
+      pdf.addImage(canvasBack.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 73, 111);
       
       pdf.save(`ID_Card_${previewStudent.name.replace(/\s+/g, '_')}.pdf`);
       toast({ title: "Berhasil", description: "ID Card telah diunduh." });
@@ -124,14 +123,16 @@ export default function IDCardsPage() {
         const front = set.querySelector('.visual-front') as HTMLElement;
         const back = set.querySelector('.visual-back') as HTMLElement;
 
+        if (!front || !back) continue;
+
         if (i > 0) pdf.addPage([73, 111], 'portrait');
         
         const canvasFront = await html2canvas(front, { scale: 2, useCORS: true });
-        pdf.addImage(canvasFront.toDataURL('image/png'), 'PNG', 0, 0, 73, 111);
+        pdf.addImage(canvasFront.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 73, 111);
         
         pdf.addPage([73, 111], 'portrait');
         const canvasBack = await html2canvas(back, { scale: 2, useCORS: true });
-        pdf.addImage(canvasBack.toDataURL('image/png'), 'PNG', 0, 0, 73, 111);
+        pdf.addImage(canvasBack.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 73, 111);
       }
 
       pdf.save(`Bulk_ID_Cards_${new Date().getTime()}.pdf`);
