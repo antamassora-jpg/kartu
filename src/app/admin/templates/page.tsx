@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getDB, saveDB } from '@/app/lib/db';
 import { CardTemplate, SchoolSettings, Student, TemplateType } from '@/app/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,7 +16,10 @@ import {
   Trash2,
   Loader2,
   Type,
-  Eye
+  Eye,
+  Image as ImageIcon,
+  Upload,
+  X
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { StudentCardVisual } from '@/components/student-card-visual';
@@ -51,6 +54,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import Image from 'next/image';
 
 const FONT_OPTIONS = [
   { name: 'Inter (Default)', value: 'Inter, sans-serif' },
@@ -80,16 +84,17 @@ export default function TemplatesPage() {
   const [newTemplateType, setNewTemplateType] = useState<TemplateType>('STUDENT_CARD');
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [currentSideForUpload, setCurrentSideForUpload] = useState<'front' | 'back'>('front');
+
   const refreshData = () => {
     const db = getDB();
     setTemplates(db.templates);
     setSettings(db.school_settings);
     
-    // Ambil siswa pertama dari database riil untuk pratinjau yang akurat
     if (db.students && db.students.length > 0) {
       setPreviewStudent(db.students[0]);
     } else {
-      // Data dummy fallback yang lengkap
       setPreviewStudent({
         id: 'demo-1',
         name: 'SIMULASI NAMA SISWA LENGKAP',
@@ -144,7 +149,7 @@ export default function TemplatesPage() {
     setTemplates([...db.templates]);
     setIsAddOpen(false);
     setNewTemplateName('');
-    toast({ title: "Template Berhasil Dibuat", description: "Varian desain baru telah ditambahkan ke daftar." });
+    toast({ title: "Template Berhasil Dibuat", description: "Varian desain baru telah ditambahkan." });
   };
 
   const handleToggleActive = (id: string) => {
@@ -184,7 +189,26 @@ export default function TemplatesPage() {
     saveDB(db);
     setTemplates(db.templates);
     setIsConfigOpen(false);
-    toast({ title: "Visual Disimpan", description: "Kustomisasi warna dan font telah diperbarui." });
+    toast({ title: "Visual Disimpan", description: "Kustomisasi warna, font, dan background telah diperbarui." });
+  };
+
+  const handleBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      setLocalConfig({
+        ...localConfig,
+        [currentSideForUpload]: {
+          ...localConfig[currentSideForUpload],
+          bgImage: result
+        }
+      });
+      toast({ title: "Background Dimuat", description: "Gambar latar belakang siap diaplikasikan." });
+    };
+    reader.readAsDataURL(file);
   };
 
   if (!isMounted || !settings) return (
@@ -197,8 +221,8 @@ export default function TemplatesPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-black font-headline text-primary tracking-tighter uppercase">Visual Templates</h1>
-          <p className="text-muted-foreground font-medium">Kustomisasi desain kartu berbasis data riil dari database.</p>
+          <h1 className="text-3xl font-black font-headline text-primary tracking-tighter uppercase">Template Desain</h1>
+          <p className="text-muted-foreground font-medium">Kustomisasi aspek visual kartu menggunakan data dari Settings.</p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" size="sm" onClick={refreshData} className="gap-2 h-11 px-6 rounded-2xl font-bold uppercase text-[10px] border-2">
@@ -224,7 +248,7 @@ export default function TemplatesPage() {
                     <SelectContent>
                       <SelectItem value="STUDENT_CARD">Kartu Pelajar Digital</SelectItem>
                       <SelectItem value="EXAM_CARD">Kartu Tanda Peserta Ujian</SelectItem>
-                      <SelectItem value="ID_CARD">ID Card Karyawan/Umum</SelectItem>
+                      <SelectItem value="ID_CARD">ID Card Umum</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -289,12 +313,11 @@ export default function TemplatesPage() {
         ))}
       </div>
 
-      {/* Delete Confirmation */}
       <AlertDialog open={!!templateToDelete} onOpenChange={o => !o && setTemplateToDelete(null)}>
         <AlertDialogContent className="rounded-[2.5rem] p-10">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight">Hapus Template?</AlertDialogTitle>
-            <AlertDialogDescription className="font-medium text-slate-500">Konfigurasi visual dan pemilihan warna pada template ini akan hilang permanen dari database.</AlertDialogDescription>
+            <AlertDialogDescription className="font-medium text-slate-500">Konfigurasi visual pada template ini akan hilang permanen.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 gap-3">
             <AlertDialogCancel className="rounded-2xl h-12 px-8 font-bold uppercase text-[10px] tracking-widest border-2">BATAL</AlertDialogCancel>
@@ -303,14 +326,13 @@ export default function TemplatesPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Editor Modal */}
       <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
         <DialogContent className="max-w-7xl rounded-[4rem] p-0 overflow-hidden border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)]">
           <div className="bg-slate-900 p-10 text-white flex justify-between items-center relative overflow-hidden">
                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full"></div>
                <div className="relative z-10">
                   <h2 className="text-3xl font-black uppercase tracking-tighter">Visual Editor: {editingTemplate?.name}</h2>
-                  <p className="text-xs text-white/50 font-black uppercase tracking-[0.4em] mt-1">Live Customization • Data-Driven Preview</p>
+                  <p className="text-xs text-white/50 font-black uppercase tracking-[0.4em] mt-1">Customization • Template Settings</p>
                </div>
                <Button variant="ghost" size="sm" onClick={() => setLocalConfig(DEFAULT_CONFIG)} className="gap-2 text-white/40 hover:text-white hover:bg-white/10 h-12 px-8 rounded-full font-black text-[10px] uppercase tracking-widest border border-white/10">
                  <RotateCcw className="h-4 w-4" /> RESET DESAIN
@@ -319,6 +341,8 @@ export default function TemplatesPage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             <div className="p-12 space-y-10 bg-white border-r max-h-[72vh] overflow-y-auto scrollbar-none">
+              <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleBgUpload} />
+              
               <Tabs defaultValue="front">
                 <TabsList className="grid w-full grid-cols-2 h-16 bg-slate-100 p-1.5 rounded-[2rem]">
                   <TabsTrigger value="front" className="rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">TAMPAK DEPAN</TabsTrigger>
@@ -336,6 +360,30 @@ export default function TemplatesPage() {
                           {FONT_OPTIONS.map(f => <SelectItem key={f.value} value={f.value} style={{fontFamily: f.value}}>{f.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    <div className="space-y-4">
+                      <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
+                         <ImageIcon className="h-3 w-3" /> Background Khusus
+                      </Label>
+                      <div className="bg-slate-50 p-6 rounded-[2rem] border-2 border-dashed border-slate-200 flex flex-col items-center gap-4">
+                         {localConfig[side].bgImage ? (
+                           <div className="relative w-full aspect-video rounded-xl overflow-hidden border-4 border-white shadow-lg">
+                              <Image src={localConfig[side].bgImage} alt="Background" fill className="object-cover" unoptimized />
+                              <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg" onClick={() => setLocalConfig({...localConfig, [side]: {...localConfig[side], bgImage: ''}})}>
+                                <X className="h-4 w-4" />
+                              </Button>
+                           </div>
+                         ) : (
+                           <Button variant="outline" className="h-14 w-full rounded-2xl gap-3 border-2" onClick={() => {
+                             setCurrentSideForUpload(side as 'front' | 'back');
+                             fileInputRef.current?.click();
+                           }}>
+                             <Upload className="h-5 w-5" /> UNGGAH BACKGROUND
+                           </Button>
+                         )}
+                         <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Rekomendasi: 1011x638 px (landscape)</p>
+                      </div>
                     </div>
                     
                     <div className="space-y-4">
@@ -355,7 +403,7 @@ export default function TemplatesPage() {
             <div className="bg-slate-100/50 flex flex-col items-center justify-center p-16 border-l gap-12 relative">
               <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
                   <Eye className="h-4 w-4 text-slate-300" />
-                  <span className="text-[10px] font-black uppercase text-slate-300 tracking-[0.6em]">Live Interactive Preview</span>
+                  <span className="text-[10px] font-black uppercase text-slate-300 tracking-[0.6em]">Live Visual Preview</span>
               </div>
               <div className="flex flex-col gap-12 scale-[0.88] origin-center shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] rounded-3xl p-6 bg-white/50">
                  {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && (

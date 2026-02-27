@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Save, Upload, Camera, Loader2, Link as LinkIcon, RefreshCw, Palette } from 'lucide-react';
+import { Save, Upload, Camera, Loader2, Link as LinkIcon, RefreshCw } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,7 +38,7 @@ export default function SettingsPage() {
       
       toast({ 
         title: "Konfigurasi Disimpan", 
-        description: "Aset visual dan pengaturan hukum telah diperbarui untuk semua jenis kartu.",
+        description: "Aset institusi dan data legalitas telah diperbarui.",
       });
     } catch (error) {
       toast({ 
@@ -82,7 +83,7 @@ export default function SettingsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-black font-headline text-primary tracking-tight uppercase">Settings Center</h1>
-          <p className="text-muted-foreground font-medium">Manajemen aset visual, legalitas, dan aturan kartu secara global.</p>
+          <p className="text-muted-foreground font-medium">Manajemen konten, aset institusi, dan legalitas kartu.</p>
         </div>
         <Button 
           onClick={handleSave} 
@@ -99,7 +100,7 @@ export default function SettingsPage() {
           <Card className="border-none shadow-sm rounded-3xl overflow-hidden ring-1 ring-slate-100">
             <CardHeader className="bg-slate-50/50 border-b">
               <CardTitle className="text-lg font-black uppercase tracking-tight">Identitas & Legalitas Sekolah</CardTitle>
-              <CardDescription>Informasi utama institusi dan data Kepala Sekolah untuk tanda tangan.</CardDescription>
+              <CardDescription>Informasi utama institusi dan data Kepala Sekolah.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
               <div className="space-y-2">
@@ -184,7 +185,7 @@ export default function SettingsPage() {
         <div className="space-y-6">
           <Card className="border-none shadow-sm rounded-3xl overflow-hidden ring-1 ring-slate-100">
             <CardHeader className="bg-primary/5 border-b">
-              <CardTitle className="text-lg font-black uppercase tracking-tight">Aset & Identitas Visual</CardTitle>
+              <CardTitle className="text-lg font-black uppercase tracking-tight">Aset Institusi</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <Tabs defaultValue="pelajar" className="w-full">
@@ -216,7 +217,7 @@ export default function SettingsPage() {
                     onShowBackChange={v => updateSetting('student_show_logo_right_back', v)}
                   />
                   <AssetUploader 
-                    label="Tanda Tangan (Kepsek)" 
+                    label="Tanda Tangan" 
                     image={settings.signature_image} 
                     onUpload={e => handleFileUpload('signature_image', e)} 
                     onUrlChange={url => handleUrlChange('signature_image', url)}
@@ -227,7 +228,7 @@ export default function SettingsPage() {
                     onShowBackChange={v => updateSetting('student_show_sig_back', v)}
                   />
                   <AssetUploader 
-                    label="Stempel Sekolah" 
+                    label="Stempel" 
                     image={settings.stamp_image} 
                     onUpload={e => handleFileUpload('stamp_image', e)} 
                     onUrlChange={url => handleUrlChange('stamp_image', url)}
@@ -240,7 +241,7 @@ export default function SettingsPage() {
 
                 <TabsContent value="ujian" className="p-6 space-y-6 mt-0">
                   <AssetUploader 
-                    label="Logo Sekolah (Ujian)" 
+                    label="Logo (Ujian)" 
                     image={settings.logo_left_exam} 
                     onUpload={e => handleFileUpload('logo_left_exam', e)} 
                     onUrlChange={url => handleUrlChange('logo_left_exam', url)}
@@ -250,17 +251,7 @@ export default function SettingsPage() {
                     onShowBackChange={v => updateSetting('exam_show_logo_back', v)}
                   />
                   <AssetUploader 
-                    label="Logo Kanan (Ujian)" 
-                    image={settings.logo_right_exam} 
-                    onUpload={e => handleFileUpload('logo_right_exam', e)} 
-                    onUrlChange={url => handleUrlChange('logo_right_exam', url)}
-                    showFront={settings.exam_show_logo_right_front}
-                    onShowFrontChange={v => updateSetting('exam_show_logo_right_front', v)}
-                    showBack={settings.exam_show_logo_right_back}
-                    onShowBackChange={v => updateSetting('exam_show_logo_right_back', v)}
-                  />
-                  <AssetUploader 
-                    label="Tanda Tangan (Ujian)" 
+                    label="Tanda Tangan" 
                     image={settings.signature_exam} 
                     onUpload={e => handleFileUpload('signature_exam', e)} 
                     onUrlChange={url => handleUrlChange('signature_exam', url)}
@@ -271,7 +262,7 @@ export default function SettingsPage() {
                     onShowBackChange={v => updateSetting('exam_show_sig_back', v)}
                   />
                   <AssetUploader 
-                    label="Stempel (Ujian)" 
+                    label="Stempel" 
                     image={settings.stamp_exam} 
                     onUpload={e => handleFileUpload('stamp_exam', e)} 
                     onUrlChange={url => handleUrlChange('stamp_exam', url)}
@@ -294,7 +285,7 @@ export default function SettingsPage() {
                     onShowBackChange={v => updateSetting('id_show_logo_back', v)}
                   />
                   <AssetUploader 
-                    label="Tanda Tangan (ID Card)" 
+                    label="Tanda Tangan" 
                     image={settings.signature_id} 
                     onUpload={e => handleFileUpload('signature_id', e)} 
                     onUrlChange={url => handleUrlChange('signature_id', url)}
@@ -305,7 +296,7 @@ export default function SettingsPage() {
                     onShowBackChange={v => updateSetting('id_show_sig_back', v)}
                   />
                   <AssetUploader 
-                    label="Stempel (ID Card)" 
+                    label="Stempel" 
                     image={settings.stamp_id} 
                     onUpload={e => handleFileUpload('stamp_id', e)} 
                     onUrlChange={url => handleUrlChange('stamp_id', url)}
