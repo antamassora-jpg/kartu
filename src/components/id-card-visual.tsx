@@ -16,7 +16,11 @@ const DEFAULT_WATERMARK = {
   text: 'SMKN 2 TANA TORAJA',
   opacity: 0.1,
   size: 10,
-  angle: -30
+  angle: -30,
+  imageEnabled: false,
+  imageUrl: '',
+  imageOpacity: 0.1,
+  imageSize: 150
 };
 
 export function IdCardVisual({ 
@@ -108,6 +112,17 @@ export function IdCardVisual({
           className="absolute inset-0 pointer-events-none z-0" 
           style={{ backgroundImage: watermarkDataUri, backgroundRepeat: 'repeat' }}
         ></div>
+      )}
+
+      {wm.imageEnabled && wm.imageUrl && (
+        <div 
+          className="absolute inset-0 pointer-events-none flex items-center justify-center z-0"
+          style={{ opacity: wm.imageOpacity }}
+        >
+          <div className="relative" style={{ width: wm.imageSize, height: wm.imageSize }}>
+            <Image src={wm.imageUrl} alt="Watermark Image" fill className="object-contain" priority unoptimized />
+          </div>
+        </div>
       )}
 
       {/* Header */}

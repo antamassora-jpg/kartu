@@ -28,7 +28,8 @@ import {
   AlignRight,
   Type as FontIcon,
   PenTool,
-  ShieldCheck
+  ShieldCheck,
+  Link as LinkIcon
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { StudentCardVisual } from '@/components/student-card-visual';
@@ -93,7 +94,11 @@ const DEFAULT_WATERMARK = {
   text: 'SMKN 2 TANA TORAJA',
   opacity: 0.1,
   size: 10,
-  angle: -30
+  angle: -30,
+  imageEnabled: false,
+  imageUrl: '',
+  imageOpacity: 0.1,
+  imageSize: 150
 };
 
 export default function TemplatesPage() {
@@ -113,6 +118,7 @@ export default function TemplatesPage() {
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const wmImageInputRef = useRef<HTMLInputElement>(null);
 
   const refreshData = () => {
     const db = getDB();
@@ -268,6 +274,19 @@ export default function TemplatesPage() {
         }
       });
       toast({ title: "Background Dimuat", description: "Gambar latar belakang siap diaplikasikan." });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleWmImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      updateWatermark({ imageUrl: result, imageEnabled: true });
+      toast({ title: "Watermark Dimuat", description: "Gambar watermark siap diaplikasikan." });
     };
     reader.readAsDataURL(file);
   };
@@ -449,11 +468,11 @@ export default function TemplatesPage() {
 
                         <div className="space-y-6">
                           <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary flex items-center gap-2">
-                             <ShieldCheck className="h-3 w-3" /> Watermark Bayangan
+                             <ShieldCheck className="h-3 w-3" /> Watermark Teks (Repeating)
                           </Label>
                           <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-6">
                             <div className="flex items-center justify-between">
-                               <Label className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Aktifkan Efek</Label>
+                               <Label className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Aktifkan Teks</Label>
                                <Switch checked={localConfig[side].watermark?.enabled || false} onCheckedChange={v => updateWatermark({ enabled: v })} />
                             </div>
                             {localConfig[side].watermark?.enabled && (
@@ -495,7 +514,65 @@ export default function TemplatesPage() {
 
                         <div className="space-y-6">
                           <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary flex items-center gap-2">
-                             <Maximize2 className="h-3 w-3" /> Dimensi & Ukuran
+                             <ImageIcon className="h-3 w-3" /> Watermark Gambar (Logo)
+                          </Label>
+                          <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-6">
+                            <div className="flex items-center justify-between">
+                               <Label className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Aktifkan Gambar</Label>
+                               <Switch checked={localConfig[side].watermark?.imageEnabled || false} onCheckedChange={v => updateWatermark({ imageEnabled: v })} />
+                            </div>
+                            
+                            {localConfig[side].watermark?.imageEnabled && (
+                              <div className="space-y-6">
+                                <div className="bg-white p-4 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center gap-3">
+                                  {localConfig[side].watermark?.imageUrl ? (
+                                    <div className="relative w-20 h-20 group">
+                                      <Image src={localConfig[side].watermark.imageUrl} alt="WM" fill className="object-contain opacity-50" unoptimized />
+                                      <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => updateWatermark({ imageUrl: '' })}>
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <Button variant="outline" size="sm" className="h-10 w-full rounded-xl gap-2 text-[10px] font-bold" onClick={() => wmImageInputRef.current?.click()}>
+                                      <Upload className="h-3.5 w-3.5" /> UNGGAH LOGO
+                                    </Button>
+                                  )}
+                                  <input type="file" ref={wmImageInputRef} className="hidden" accept="image/*" onChange={handleWmImageUpload} />
+                                  
+                                  <div className="w-full relative">
+                                    <LinkIcon className="absolute left-2.5 top-2.5 h-3 w-3 text-muted-foreground" />
+                                    <Input 
+                                      placeholder="Atau Tempel URL Gambar" 
+                                      className="h-8 pl-8 text-[9px] rounded-lg"
+                                      value={localConfig[side].watermark?.imageUrl?.startsWith('data:') ? '' : (localConfig[side].watermark?.imageUrl || '')}
+                                      onChange={e => updateWatermark({ imageUrl: e.target.value })}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                  <div className="flex justify-between text-[9px] font-black uppercase">
+                                    <span>Transparansi</span>
+                                    <span className="text-primary">{Math.round((localConfig[side].watermark?.imageOpacity || 0.1) * 100)}%</span>
+                                  </div>
+                                  <Slider value={[(localConfig[side].watermark?.imageOpacity || 0.1) * 100]} min={5} max={50} step={1} onValueChange={([v]) => updateWatermark({ imageOpacity: v / 100 })} />
+                                </div>
+
+                                <div className="space-y-3">
+                                  <div className="flex justify-between text-[9px] font-black uppercase">
+                                    <span>Ukuran Logo</span>
+                                    <span className="text-primary">{localConfig[side].watermark?.imageSize || 150}px</span>
+                                  </div>
+                                  <Slider value={[localConfig[side].watermark?.imageSize || 150]} min={50} max={300} step={5} onValueChange={([v]) => updateWatermark({ imageSize: v })} />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary flex items-center gap-2">
+                             <Maximize2 className="h-3 w-3" /> Dimensi & Ukuran Elemen
                           </Label>
                           <div className="space-y-6 bg-slate-50 p-6 rounded-3xl border border-slate-100">
                             <div className="space-y-3">
