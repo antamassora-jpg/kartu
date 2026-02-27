@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -155,7 +156,7 @@ export default function LogDatabasePage() {
                       <TableRow key={log.id}>
                         <TableCell className="text-[11px]">
                           <div className="font-bold">{log.date}</div>
-                          <div className="text-muted-foreground">{new Date(log.scanned_at).toLocaleTimeString()}</div>
+                          <div className="text-muted-foreground">{isMounted ? new Date(log.scanned_at).toLocaleTimeString() : '--:--'}</div>
                         </TableCell>
                         <TableCell>
                           <div className="font-bold">{s?.name || 'Unknown'}</div>
@@ -215,7 +216,7 @@ export default function LogDatabasePage() {
                       <TableRow key={log.id}>
                         <TableCell className="text-[11px]">
                           <div className="font-bold">{log.date}</div>
-                          <div className="text-muted-foreground">{new Date(log.scanned_at).toLocaleTimeString()}</div>
+                          <div className="text-muted-foreground">{isMounted ? new Date(log.scanned_at).toLocaleTimeString() : '--:--'}</div>
                         </TableCell>
                         <TableCell>
                           <div className="font-bold">{s?.name || 'Unknown'}</div>

@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 export default function ScannerPage() {
   const router = useRouter();
@@ -30,7 +31,6 @@ export default function ScannerPage() {
   const [isMounted, setIsMounted] = useState(false);
   
   const scannerRef = useRef<Html5Qrcode | null>(null);
-  const audioSuccessRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const db = getDB();
@@ -47,7 +47,7 @@ export default function ScannerPage() {
 
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
+        scannerRef.current.stop().catch((e) => console.error("Scanner stop error on unmount:", e));
       }
     };
   }, []);
@@ -63,13 +63,18 @@ export default function ScannerPage() {
     }
 
     try {
+      if (scannerRef.current) {
+        await scannerRef.current.stop().catch(() => {});
+        scannerRef.current = null;
+      }
+
       setIsScanning(true);
       setLastScan(null);
       
       const html5QrCode = new Html5Qrcode("reader");
       scannerRef.current = html5QrCode;
 
-      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+      const config = { fps: 15, qrbox: { width: 250, height: 250 } };
 
       await html5QrCode.start(
         { facingMode: "environment" },
@@ -77,7 +82,7 @@ export default function ScannerPage() {
         (decodedText) => {
           handleProcessScan(decodedText);
         },
-        (errorMessage) => {
+        () => {
           // ignore errors during scanning
         }
       );
@@ -96,16 +101,18 @@ export default function ScannerPage() {
 
   const stopScanner = async () => {
     if (scannerRef.current) {
-      await scannerRef.current.stop();
+      try {
+        await scannerRef.current.stop();
+      } catch (e) {
+        console.error("Stop error:", e);
+      }
       scannerRef.current = null;
     }
     setIsScanning(false);
   };
 
   const handleProcessScan = (decodedText: string) => {
-    // Support prefix "VERIFY-" or raw card code
     const cleanCode = decodedText.replace('VERIFY-', '').trim();
-    
     const db = getDB();
     const student = db.students.find(s => s.card_code === cleanCode || s.nis === cleanCode);
     
@@ -117,7 +124,6 @@ export default function ScannerPage() {
     const todayStr = new Date().toISOString().split('T')[0];
     const sessionId = attendanceType === 'ujian' ? 'exam' : selectedSession;
     
-    // Duplicate Check
     const isDuplicate = db.logs.some(l => 
       l.student_id === student.id && 
       l.date === todayStr && 
@@ -161,7 +167,6 @@ export default function ScannerPage() {
     });
 
     if (isValid) {
-      // Play sound if possible
       toast({
         title: "Absensi Berhasil",
         description: `${student.name} berhasil tercatat.`
@@ -170,8 +175,9 @@ export default function ScannerPage() {
   };
 
   const handleSwitchMode = () => {
-    stopScanner();
-    router.push('/mode-selection');
+    stopScanner().then(() => {
+      router.push('/mode-selection');
+    });
   };
 
   if (!isMounted) return null;
@@ -196,8 +202,11 @@ export default function ScannerPage() {
           </Button>
         </div>
 
-        <Card className={`overflow-hidden border-none shadow-xl ${attendanceType === 'harian' ? 'ring-2 ring-primary/20' : 'ring-2 ring-orange-500/20'}`}>
-          <div className={`h-2 ${attendanceType === 'harian' ? 'bg-primary' : 'bg-orange-500'}`}></div>
+        <Card className={cn(
+          "overflow-hidden border-none shadow-xl transition-all",
+          attendanceType === 'harian' ? 'ring-2 ring-primary/20' : 'ring-2 ring-orange-500/20'
+        )}>
+          <div className={cn("h-2", attendanceType === 'harian' ? 'bg-primary' : 'bg-orange-500')}></div>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <QrCode className="h-5 w-5" /> Kontrol Pemindaian
@@ -255,17 +264,17 @@ export default function ScannerPage() {
             </div>
 
             <div className="relative">
-              <div 
-                id="reader" 
-                className={`aspect-square w-full max-w-[320px] mx-auto rounded-3xl border-4 transition-all overflow-hidden relative ${
-                  isScanning 
-                  ? 'border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)]' 
-                  : 'border-dashed border-slate-200 bg-slate-50'
-                }`}
-              >
+              {/* Dedicated scanner container - React will not touch children of #reader */}
+              <div className={cn(
+                "aspect-square w-full max-w-[320px] mx-auto rounded-3xl border-4 transition-all overflow-hidden bg-slate-50 relative",
+                isScanning ? "border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)]" : "border-dashed border-slate-200"
+              )}>
+                <div id="reader" className="w-full h-full" />
+                
+                {/* Overlay placeholder - sibling to #reader to avoid DOM conflicts */}
                 {!isScanning && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center p-6">
-                    <div className={`p-6 rounded-full ${attendanceType === 'ujian' ? 'bg-orange-100 text-orange-600' : 'bg-primary/10 text-primary'}`}>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center p-6 bg-slate-50 z-10 pointer-events-none">
+                    <div className={cn("p-6 rounded-full", attendanceType === 'ujian' ? 'bg-orange-100 text-orange-600' : 'bg-primary/10 text-primary')}>
                         <Camera className="h-12 w-12" />
                     </div>
                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-relaxed">
@@ -273,19 +282,19 @@ export default function ScannerPage() {
                     </p>
                   </div>
                 )}
+
+                {isScanning && (
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20">
+                     <div className="w-48 h-48 border-2 border-white/50 rounded-2xl relative">
+                        <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-emerald-500 -translate-x-1 -translate-y-1"></div>
+                        <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-emerald-500 translate-x-1 -translate-y-1"></div>
+                        <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-emerald-500 -translate-x-1 translate-y-1"></div>
+                        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-emerald-500 translate-x-1 translate-y-1"></div>
+                        <div className="absolute top-0 left-0 right-0 h-0.5 bg-emerald-500/50 animate-[scan_2s_linear_infinite]"></div>
+                     </div>
+                  </div>
+                )}
               </div>
-              
-              {isScanning && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
-                   <div className="w-48 h-48 border-2 border-white/50 rounded-2xl relative">
-                      <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-emerald-500 -translate-x-1 -translate-y-1"></div>
-                      <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-emerald-500 translate-x-1 -translate-y-1"></div>
-                      <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-emerald-500 -translate-x-1 translate-y-1"></div>
-                      <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-emerald-500 translate-x-1 translate-y-1"></div>
-                      <div className="absolute top-0 left-0 right-0 h-0.5 bg-emerald-500/50 animate-[scan_2s_linear_infinite]"></div>
-                   </div>
-                </div>
-              )}
             </div>
 
             {hasCameraPermission === false && (
@@ -299,11 +308,12 @@ export default function ScannerPage() {
             )}
 
             {lastScan && (
-              <div className={`p-4 rounded-2xl flex items-center gap-4 border-2 animate-in fade-in slide-in-from-bottom-4 duration-500 ${
+              <div className={cn(
+                "p-4 rounded-2xl flex items-center gap-4 border-2 animate-in fade-in slide-in-from-bottom-4 duration-500",
                 lastScan.status === 'valid' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 
                 lastScan.status === 'duplicate' ? 'bg-orange-50 border-orange-100 text-orange-800' : 
                 'bg-red-50 border-red-100 text-red-800'
-              }`}>
+              )}>
                 <div className="w-14 h-18 relative rounded-xl overflow-hidden bg-white shadow-sm flex-shrink-0 border-2 border-white">
                    {lastScan.student?.photo_url ? (
                      <Image src={lastScan.student.photo_url} alt="Foto" fill className="object-cover" unoptimized />
@@ -338,11 +348,12 @@ export default function ScannerPage() {
           <CardFooter className="bg-slate-50 p-6">
             {!isScanning ? (
               <Button 
-                className={`w-full h-14 text-lg font-black uppercase tracking-widest gap-3 shadow-lg ${
+                className={cn(
+                  "w-full h-14 text-lg font-black uppercase tracking-widest gap-3 shadow-lg",
                   attendanceType === 'ujian' 
                   ? 'bg-orange-600 hover:bg-orange-700 shadow-orange-500/20' 
                   : 'bg-primary hover:bg-primary/90 shadow-primary/20'
-                }`} 
+                )} 
                 size="lg" 
                 onClick={startScanner}
               >
@@ -381,9 +392,10 @@ export default function ScannerPage() {
               return (
                 <div 
                   key={log.id} 
-                  className={`bg-white p-4 rounded-2xl border flex items-center justify-between shadow-sm transition-all hover:shadow-md ${
+                  className={cn(
+                    "bg-white p-4 rounded-2xl border flex items-center justify-between shadow-sm transition-all hover:shadow-md",
                     isExam ? 'border-l-4 border-l-orange-500' : 'border-l-4 border-l-primary'
-                  }`}
+                  )}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white shadow-inner flex items-center justify-center text-[10px] font-bold overflow-hidden relative">
@@ -419,17 +431,19 @@ export default function ScannerPage() {
         </div>
       </div>
       
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes scan {
           0% { top: 0; }
           50% { top: 100%; }
           100% { top: 0; }
         }
         #reader video {
-          border-radius: 1.5rem;
-          object-fit: cover;
+          border-radius: 1.5rem !important;
+          object-fit: cover !important;
+          width: 100% !important;
+          height: 100% !important;
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }
