@@ -50,7 +50,6 @@ export function StudentCardVisual({
   const showSig = side === 'front' ? settings.student_show_sig_front : settings.student_show_sig_back;
   const showStamp = side === 'front' ? settings.student_show_stamp_front : settings.student_show_stamp_back;
   
-  // Placement Settings
   const showPhoto = side === 'front' ? settings.student_show_photo_front : settings.student_show_photo_back;
   const showInfo = side === 'front' ? settings.student_show_info_front : settings.student_show_info_back;
   const showQr = side === 'front' ? settings.student_show_qr_front : settings.student_show_qr_back;
@@ -77,19 +76,30 @@ export function StudentCardVisual({
         </div>
 
         <div className="flex h-[calc(100%-56px)] relative z-10">
-          {showPhoto && (
-            <div className="w-[110px] flex flex-col items-center justify-center p-3 border-r border-dashed border-muted/50">
-              <div className="w-[80px] h-[100px] bg-muted relative rounded-md overflow-hidden border-2 border-white shadow-md">
-                {student.photo_url ? (
-                  <Image src={student.photo_url} alt={student.name} fill className="object-cover" priority unoptimized />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-100 text-[8px] text-slate-400 uppercase">FOTO SISWA</div>
-                )}
-              </div>
+          {/* SISI KIRI: Foto & Barcode (Stack Vertikal) */}
+          {(showPhoto || showQr) && (
+            <div className="w-[100px] flex flex-col items-center justify-center p-2 border-r border-dashed border-muted/50 gap-2">
+              {showPhoto && (
+                <div className="w-[75px] h-[95px] bg-muted relative rounded-md overflow-hidden border-2 border-white shadow-md shrink-0">
+                  {student.photo_url ? (
+                    <Image src={student.photo_url} alt={student.name} fill className="object-cover" priority unoptimized />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-slate-100 text-[8px] text-slate-400 uppercase">FOTO</div>
+                  )}
+                </div>
+              )}
+              {showQr && (
+                <div className="w-[55px] h-[55px] bg-white p-1 rounded border shadow-sm relative shrink-0">
+                  <Image 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
+                    alt="QR" fill className="object-contain" unoptimized
+                  />
+                </div>
+              )}
             </div>
           )}
 
-          <div className={`flex-1 py-3 px-4 flex flex-col justify-center relative ${!showPhoto ? 'items-center text-center' : ''}`}>
+          <div className={`flex-1 py-3 px-4 flex flex-col justify-center relative ${(!showPhoto && !showQr) ? 'items-center text-center' : ''}`}>
             <div style={{ color: current.textColor }}>
               {showInfo && (
                 <>
@@ -111,14 +121,6 @@ export function StudentCardVisual({
                 <div className="mb-1">
                   <span className="opacity-60 text-[6px] uppercase font-bold tracking-wider block mb-0.5">Berlaku Sampai</span>
                   <span className="font-bold text-[8px] block leading-none" style={{ color: current.headerBg }}>{student.valid_until}</span>
-                </div>
-              )}
-              {showQr && (
-                <div className="mt-2 w-16 h-16 bg-white p-1 rounded border shadow-sm relative">
-                  <Image 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
-                    alt="QR" fill className="object-contain" unoptimized
-                  />
                 </div>
               )}
             </div>
@@ -159,8 +161,15 @@ export function StudentCardVisual({
         <div className="flex-1 h-[2px]" style={{ backgroundColor: current.headerBg }}></div>
       </div>
       
-      <div className="flex-1 px-10 pt-2 flex items-start">
-        <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[7.5px] leading-relaxed pr-6">
+      <div className="flex-1 px-6 pt-2 flex items-start gap-4">
+        {/* Foto di Kiri (Jika diaktifkan di belakang) */}
+        {showPhoto && (
+          <div className="w-[70px] h-[90px] relative rounded border overflow-hidden shadow-sm shrink-0 bg-slate-50">
+             <Image src={student.photo_url || ''} alt="Foto" fill className="object-cover" unoptimized />
+          </div>
+        )}
+
+        <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[7.5px] leading-relaxed">
           {settings.terms_student}
           {showInfo && (
             <div className="mt-2 pt-2 border-t border-slate-200">
@@ -169,22 +178,19 @@ export function StudentCardVisual({
             </div>
           )}
         </div>
-        <div className="w-20 flex flex-col items-center">
-           {showPhoto && (
-              <div className="w-16 h-20 relative rounded border mb-2 overflow-hidden shadow-sm">
-                 <Image src={student.photo_url || ''} alt="Foto" fill className="object-cover" unoptimized />
-              </div>
-           )}
-           {showQr && (
-             <div className="w-16 h-16 bg-white p-1 rounded border shadow-sm relative mb-1.5">
+
+        {/* Barcode di Kanan (Jika diaktifkan di belakang) */}
+        {showQr && (
+          <div className="w-[60px] flex flex-col items-center gap-1 shrink-0">
+             <div className="w-[55px] h-[55px] bg-white p-1 rounded border shadow-sm relative">
                <Image 
                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
                  alt="QR" fill className="object-contain" unoptimized
                />
              </div>
-           )}
-           <div className="text-[6px] font-black text-center text-slate-400 uppercase tracking-widest">{student.card_code}</div>
-        </div>
+             <div className="text-[6px] font-black text-center text-slate-400 uppercase tracking-widest">{student.card_code}</div>
+          </div>
+        )}
       </div>
 
       {(showSig || showStamp) && (

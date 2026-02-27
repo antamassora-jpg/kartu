@@ -50,7 +50,6 @@ export function IdCardVisual({
   const showSig = side === 'front' ? settings.id_show_sig_front : settings.id_show_sig_back;
   const showStamp = side === 'front' ? settings.id_show_stamp_front : settings.id_show_stamp_back;
   
-  // Placement Settings
   const showPhoto = side === 'front' ? settings.id_show_photo_front : settings.id_show_photo_back;
   const showInfo = side === 'front' ? settings.id_show_info_front : settings.id_show_info_back;
   const showQr = side === 'front' ? settings.id_show_qr_front : settings.id_show_qr_back;
@@ -80,7 +79,7 @@ export function IdCardVisual({
 
         <div className="flex-1 relative z-10 flex flex-col items-center justify-center p-8">
           {showPhoto && (
-            <div className="w-full aspect-[3/4] rounded-2xl border-4 border-white shadow-2xl relative overflow-hidden bg-slate-100">
+            <div className="w-full aspect-[3/4] rounded-2xl border-4 border-white shadow-2xl relative overflow-hidden bg-slate-100 mb-4">
               {student.photo_url ? (
                 <Image src={student.photo_url} alt={student.name} fill className="object-cover object-top" priority unoptimized />
               ) : (
@@ -89,7 +88,15 @@ export function IdCardVisual({
             </div>
           )}
           
-          <div className="w-full mt-6 text-center">
+          <div className="w-full text-center">
+            {showQr && (
+              <div className="mb-4 w-16 h-16 bg-white p-1 rounded border shadow-sm relative mx-auto">
+                <Image 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
+                  alt="QR" fill className="object-contain" unoptimized
+                />
+              </div>
+            )}
             {showInfo && (
               <>
                 <h1 className="text-2xl font-black uppercase tracking-tight leading-none text-slate-800 mb-2">
@@ -99,14 +106,6 @@ export function IdCardVisual({
                   {student.major}
                 </div>
               </>
-            )}
-            {showQr && (
-              <div className="mt-4 w-16 h-16 bg-white p-1 rounded border shadow-sm relative mx-auto">
-                <Image 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
-                  alt="QR" fill className="object-contain" unoptimized
-                />
-              </div>
             )}
           </div>
         </div>
@@ -172,25 +171,6 @@ export function IdCardVisual({
         </h3>
       </div>
 
-      <div className="flex flex-col items-center mb-8 relative z-10">
-        {showPhoto && (
-          <div className="w-24 h-32 relative rounded-xl overflow-hidden border-2 border-white shadow-lg mb-4">
-             <Image src={student.photo_url || ''} alt="Foto" fill className="object-cover" unoptimized />
-          </div>
-        )}
-        {showQr && (
-          <div className="bg-white p-3 rounded-2xl shadow-2xl border-4 border-slate-50">
-             <div className="relative w-32 h-32">
-               <Image 
-                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=VERIFY-${student.card_code}`}
-                 alt="QR" fill className="object-contain" unoptimized
-               />
-             </div>
-          </div>
-        )}
-        <div className="mt-2 text-[6px] font-bold text-slate-400 uppercase tracking-widest">{student.card_code}</div>
-      </div>
-
       <div className="flex-1 w-full relative z-10">
          <div className="h-8 w-full flex items-center justify-center gap-4 mb-3">
            <div className="flex-1 h-[1px] bg-slate-200"></div>
@@ -199,13 +179,36 @@ export function IdCardVisual({
            </h4>
            <div className="flex-1 h-[1px] bg-slate-200"></div>
          </div>
-         <div className="text-[9px] opacity-80 leading-relaxed italic text-slate-700 text-left whitespace-pre-line">
+         <div className="text-[9px] opacity-80 leading-relaxed italic text-slate-700 text-left whitespace-pre-line mb-6">
             {settings.terms_id}
-            {showInfo && (
-               <div className="mt-4 pt-2 border-t border-slate-200 not-italic">
-                  <p className="font-bold text-[10px] text-slate-800">{student.name}</p>
-                  <p className="text-[8px] text-slate-500 uppercase">{student.nis} • {student.major}</p>
-               </div>
+         </div>
+
+         <div className="flex items-center justify-between gap-4 mt-auto">
+            {showPhoto && (
+              <div className="w-[70px] h-[90px] relative rounded border overflow-hidden shadow-sm bg-slate-50 shrink-0">
+                 <Image src={student.photo_url || ''} alt="Foto" fill className="object-cover" unoptimized />
+              </div>
+            )}
+            
+            <div className="flex-1">
+               {showInfo && (
+                 <div className="not-italic">
+                    <p className="font-bold text-[10px] text-slate-800">{student.name}</p>
+                    <p className="text-[8px] text-slate-500 uppercase">{student.nis} • {student.major}</p>
+                 </div>
+               )}
+            </div>
+
+            {showQr && (
+              <div className="w-[65px] flex flex-col items-center gap-1 shrink-0">
+                 <div className="w-[60px] h-[60px] bg-white p-1 rounded border shadow-sm relative">
+                   <Image 
+                     src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=VERIFY-${student.card_code}`}
+                     alt="QR" fill className="object-contain" unoptimized
+                   />
+                 </div>
+                 <div className="text-[6px] font-bold text-slate-400 uppercase tracking-widest">{student.card_code}</div>
+              </div>
             )}
          </div>
       </div>
