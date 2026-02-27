@@ -271,68 +271,78 @@ export default function TemplatesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {templates.map((template) => (
-          <Card key={template.id} className={cn(
-            "overflow-hidden border-4 transition-all group relative flex flex-col rounded-[3rem] shadow-sm hover:shadow-2xl hover:scale-[1.01]",
-            template.is_active ? "border-primary bg-primary/5" : "border-transparent bg-white"
-          )}>
-            <CardHeader className="pb-4 p-8">
-              <div className="flex justify-between items-center">
-                <div className={cn("p-4 rounded-2xl text-white shadow-lg", template.preview_color || 'bg-slate-400')}>
-                  <Layout className="h-6 w-6" />
-                </div>
-                <div className="flex gap-2">
-                   {!template.is_active && (
-                     <Button variant="ghost" size="icon" className="h-11 w-11 text-destructive hover:bg-destructive/10 opacity-30 group-hover:opacity-100 transition-opacity" onClick={() => setTemplateToDelete(template.id)}>
-                       <Trash2 className="h-5 w-5" />
-                     </Button>
-                   )}
-                   {template.is_active && <Badge className="bg-primary text-white uppercase text-[9px] px-4 rounded-full">AKTIF</Badge>}
-                </div>
-              </div>
-              <CardTitle className="mt-6 font-black uppercase tracking-tight text-xl">{template.name}</CardTitle>
-              <CardDescription className="uppercase text-[9px] font-black tracking-[0.3em] text-muted-foreground mt-1">
-                {template.type.replace('_', ' ')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col gap-8 p-8 pt-0">
-              {/* Dual Preview Container (Front & Back) */}
-              <div className={cn(
-                "bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-dashed border-slate-200 overflow-hidden relative p-4 gap-2",
-                template.type === 'ID_CARD' ? "aspect-[1/1.8]" : "aspect-[1/1.3]"
-              )}>
-                {/* Front Preview */}
-                <div className="flex flex-col items-center w-full">
-                  <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest mb-1">Tampak Depan</span>
-                  <div className="transition-transform scale-[0.35] origin-top h-auto mb-[-125px]">
-                     {template.type === 'STUDENT_CARD' && previewStudent && <StudentCardVisual student={previewStudent} settings={settings} side="front" template={template} />}
-                     {template.type === 'EXAM_CARD' && previewStudent && <ExamCardVisual student={previewStudent} settings={settings} side="front" template={template} />}
-                     {template.type === 'ID_CARD' && previewStudent && <IdCardVisual student={previewStudent} settings={settings} side="front" template={template} />}
+        {templates.map((template) => {
+          const isID = template.type === 'ID_CARD';
+          
+          return (
+            <Card key={template.id} className={cn(
+              "overflow-hidden border-4 transition-all group relative flex flex-col rounded-[3rem] shadow-sm hover:shadow-2xl hover:scale-[1.01]",
+              template.is_active ? "border-primary bg-primary/5" : "border-transparent bg-white"
+            )}>
+              <CardHeader className="pb-4 p-8">
+                <div className="flex justify-between items-center">
+                  <div className={cn("p-4 rounded-2xl text-white shadow-lg", template.preview_color || 'bg-slate-400')}>
+                    <Layout className="h-6 w-6" />
+                  </div>
+                  <div className="flex gap-2">
+                     {!template.is_active && (
+                       <Button variant="ghost" size="icon" className="h-11 w-11 text-destructive hover:bg-destructive/10 opacity-30 group-hover:opacity-100 transition-opacity" onClick={() => setTemplateToDelete(template.id)}>
+                         <Trash2 className="h-5 w-5" />
+                       </Button>
+                     )}
+                     {template.is_active && <Badge className="bg-primary text-white uppercase text-[9px] px-4 rounded-full">AKTIF</Badge>}
                   </div>
                 </div>
-                
-                {/* Back Preview */}
-                <div className="flex flex-col items-center w-full pt-4 border-t border-slate-200/50">
-                  <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest mb-1">Tampak Belakang</span>
-                  <div className="transition-transform scale-[0.35] origin-top h-auto mb-[-125px]">
-                     {template.type === 'STUDENT_CARD' && previewStudent && <StudentCardVisual student={previewStudent} settings={settings} side="back" template={template} />}
-                     {template.type === 'EXAM_CARD' && previewStudent && <ExamCardVisual student={previewStudent} settings={settings} side="back" template={template} />}
-                     {template.type === 'ID_CARD' && previewStudent && <IdCardVisual student={previewStudent} settings={settings} side="back" template={template} />}
+                <CardTitle className="mt-6 font-black uppercase tracking-tight text-xl">{template.name}</CardTitle>
+                <CardDescription className="uppercase text-[9px] font-black tracking-[0.3em] text-muted-foreground mt-1">
+                  {template.type.replace('_', ' ')}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col gap-8 p-8 pt-0">
+                {/* Dual Preview Container (Front & Back) */}
+                <div className={cn(
+                  "bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-start border-2 border-dashed border-slate-200 overflow-hidden relative p-6 gap-8",
+                  isID ? "min-h-[500px]" : "aspect-[1/1.3]"
+                )}>
+                  {/* Front Preview */}
+                  <div className="flex flex-col items-center w-full">
+                    <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest mb-3">Tampak Depan</span>
+                    <div className={cn(
+                      "transition-transform origin-top",
+                      isID ? "scale-[0.45]" : "scale-[0.35]"
+                    )}>
+                       {template.type === 'STUDENT_CARD' && previewStudent && <StudentCardVisual student={previewStudent} settings={settings} side="front" template={template} />}
+                       {template.type === 'EXAM_CARD' && previewStudent && <ExamCardVisual student={previewStudent} settings={settings} side="front" template={template} />}
+                       {template.type === 'ID_CARD' && previewStudent && <IdCardVisual student={previewStudent} settings={settings} side="front" template={template} />}
+                    </div>
+                  </div>
+                  
+                  {/* Back Preview */}
+                  <div className="flex flex-col items-center w-full pt-6 border-t border-slate-200/50">
+                    <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest mb-3">Tampak Belakang</span>
+                    <div className={cn(
+                      "transition-transform origin-top",
+                      isID ? "scale-[0.45]" : "scale-[0.35]"
+                    )}>
+                       {template.type === 'STUDENT_CARD' && previewStudent && <StudentCardVisual student={previewStudent} settings={settings} side="back" template={template} />}
+                       {template.type === 'EXAM_CARD' && previewStudent && <ExamCardVisual student={previewStudent} settings={settings} side="back" template={template} />}
+                       {template.type === 'ID_CARD' && previewStudent && <IdCardVisual student={previewStudent} settings={settings} side="back" template={template} />}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex gap-3">
-                <Button className="flex-1 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-lg" onClick={() => handleToggleActive(template.id)} disabled={template.is_active}>
-                  {template.is_active ? 'AKTIF' : 'AKTIFKAN'}
-                </Button>
-                <Button variant="outline" className="h-14 w-14 rounded-2xl border-2" onClick={() => openConfig(template)}>
-                  <Palette className="h-6 w-6 text-primary" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                <div className="flex gap-3 mt-auto">
+                  <Button className="flex-1 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-lg" onClick={() => handleToggleActive(template.id)} disabled={template.is_active}>
+                    {template.is_active ? 'AKTIF' : 'AKTIFKAN'}
+                  </Button>
+                  <Button variant="outline" className="h-14 w-14 rounded-2xl border-2" onClick={() => openConfig(template)}>
+                    <Palette className="h-6 w-6 text-primary" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
