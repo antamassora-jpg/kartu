@@ -488,18 +488,19 @@ export default function TemplatesPage() {
             </div>
 
             {/* Area Pratinjau Kanan (Interactive Editor) */}
-            <div className="flex-1 bg-slate-100 overflow-hidden flex flex-col items-center justify-center p-10 relative">
-              <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
+            <div className="flex-1 bg-slate-100 overflow-auto flex flex-col items-center justify-start py-20 px-10 relative">
+              <div className="sticky top-0 z-20 flex flex-col items-center gap-2 mb-10">
                   <Badge className="bg-white/80 text-primary border-primary/20 backdrop-blur-md px-6 py-2 rounded-full shadow-xl animate-pulse">
                     <Move className="h-3 w-3 mr-2" /> MODE EDITOR: DRAG UNTUK PINDAHKAN ELEMEN
                   </Badge>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Klik dan geser elemen di dalam kartu</span>
               </div>
 
-              <div className="relative scale-150 origin-center transition-all duration-500 hover:scale-[1.55]">
+              <div className="relative scale-150 origin-top transition-all duration-500 hover:scale-[1.55]">
                 <InteractiveLayoutWrapper 
                   config={localConfig[activeSide]} 
                   updateConfig={(elements: any) => setLocalConfig({ ...localConfig, [activeSide]: { ...localConfig[activeSide], elements } })}
+                  scale={1.5}
                 >
                   {editingTemplate?.type === 'STUDENT_CARD' && previewStudent && (
                     <StudentCardVisual student={previewStudent} settings={settings!} side={activeSide} template={currentTemplateWithLocalConfig} />
@@ -514,7 +515,7 @@ export default function TemplatesPage() {
               </div>
 
               {/* Petunjuk Editor */}
-              <div className="mt-20 max-w-md bg-white p-6 rounded-[2rem] shadow-2xl border border-slate-100">
+              <div className="mt-40 max-w-md bg-white p-6 rounded-[2rem] shadow-2xl border border-slate-100 mb-20">
                  <div className="flex gap-4 items-start">
                     <div className="p-3 bg-primary/10 rounded-2xl text-primary"><FontIcon className="h-5 w-5" /></div>
                     <div>
@@ -587,8 +588,7 @@ function ColorField({ label, value, onChange }: { label: string, value: string, 
   );
 }
 
-function InteractiveLayoutWrapper({ children, config, updateConfig }: { children: React.ReactNode, config: any, updateConfig: (els: any) => void }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+function InteractiveLayoutWrapper({ children, config, updateConfig, scale = 1 }: { children: React.ReactNode, config: any, updateConfig: (els: any) => void, scale?: number }) {
   const [dragging, setDragging] = useState<string | null>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
@@ -596,13 +596,20 @@ function InteractiveLayoutWrapper({ children, config, updateConfig }: { children
     e.preventDefault();
     setDragging(id);
     const element = config.elements[id];
-    setOffset({ x: e.clientX - element.x, y: e.clientY - element.y });
+    // Simpan posisi awal mouse relatif terhadap posisi elemen saat ini
+    setOffset({ 
+      x: e.clientX - (element.x * scale), 
+      y: e.clientY - (element.y * scale) 
+    });
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!dragging) return;
-    const newX = e.clientX - offset.x;
-    const newY = e.clientY - offset.y;
+    
+    // Hitung posisi baru dan bagi dengan skala untuk sinkronisasi dengan koordinat model
+    const newX = (e.clientX - offset.x) / scale;
+    const newY = (e.clientY - offset.y) / scale;
+    
     updateConfig({
       ...config.elements,
       [dragging]: { ...config.elements[dragging], x: Math.round(newX), y: Math.round(newY) }
@@ -615,17 +622,16 @@ function InteractiveLayoutWrapper({ children, config, updateConfig }: { children
 
   return (
     <div 
-      className="relative cursor-default select-none"
+      className="relative cursor-default select-none w-fit mx-auto"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      ref={containerRef}
     >
       <div className="relative z-10 opacity-100 pointer-events-auto">
         {children}
       </div>
 
-      {/* Layer Interaktif untuk Dragging */}
+      {/* Layer Interaktif untuk Dragging - Pastikan menempel tepat di atas children */}
       <div className="absolute inset-0 z-50 pointer-events-none">
         {/* Photo Handle */}
         <div 
@@ -633,7 +639,7 @@ function InteractiveLayoutWrapper({ children, config, updateConfig }: { children
           style={{ left: els.photo.x, top: els.photo.y, width: els.photo.w, height: els.photo.h }}
           onMouseDown={(e) => handleMouseDown('photo', e)}
         >
-           <div className="hidden group-hover:block absolute -top-6 left-0 bg-primary text-white text-[8px] font-black px-2 py-0.5 rounded uppercase">Foto Siswa</div>
+           <div className="hidden group-hover:block absolute -top-6 left-0 bg-primary text-white text-[8px] font-black px-2 py-0.5 rounded uppercase whitespace-nowrap">Foto Siswa</div>
         </div>
 
         {/* QR Handle */}
@@ -642,7 +648,7 @@ function InteractiveLayoutWrapper({ children, config, updateConfig }: { children
           style={{ left: els.qr.x, top: els.qr.y, width: els.qr.w, height: els.qr.h }}
           onMouseDown={(e) => handleMouseDown('qr', e)}
         >
-           <div className="hidden group-hover:block absolute -top-6 left-0 bg-primary text-white text-[8px] font-black px-2 py-0.5 rounded uppercase">QR Code</div>
+           <div className="hidden group-hover:block absolute -top-6 left-0 bg-primary text-white text-[8px] font-black px-2 py-0.5 rounded uppercase whitespace-nowrap">QR Code</div>
         </div>
 
         {/* Info Handle */}
@@ -651,7 +657,7 @@ function InteractiveLayoutWrapper({ children, config, updateConfig }: { children
           style={{ left: els.info.x, top: els.info.y, width: els.info.width || 180, height: 80 }}
           onMouseDown={(e) => handleMouseDown('info', e)}
         >
-           <div className="hidden group-hover:block absolute -top-6 left-0 bg-secondary text-white text-[8px] font-black px-2 py-0.5 rounded uppercase">Blok Identitas</div>
+           <div className="hidden group-hover:block absolute -top-6 left-0 bg-secondary text-white text-[8px] font-black px-2 py-0.5 rounded uppercase whitespace-nowrap">Blok Identitas</div>
         </div>
 
         {/* Signature Handle */}
@@ -667,7 +673,7 @@ function InteractiveLayoutWrapper({ children, config, updateConfig }: { children
           }}
           onMouseDown={(e) => handleMouseDown('sigBlock', e)}
         >
-           <div className="hidden group-hover:block absolute -top-6 left-0 bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded uppercase">Legalitas</div>
+           <div className="hidden group-hover:block absolute -top-6 left-0 bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded uppercase whitespace-nowrap">Legalitas</div>
         </div>
       </div>
     </div>
