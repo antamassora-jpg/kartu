@@ -11,6 +11,14 @@ const DEFAULT_ELEMENTS = {
   sigBlock: { x: 240, y: 160, scale: 0.75 }
 };
 
+const DEFAULT_WATERMARK = {
+  enabled: false,
+  text: 'SMKN 2 TANA TORAJA',
+  opacity: 0.1,
+  size: 10,
+  angle: -30
+};
+
 export function StudentCardVisual({ 
   student, 
   settings, 
@@ -23,8 +31,16 @@ export function StudentCardVisual({
   template?: CardTemplate | null
 }) {
   const DEFAULT_CONFIG = {
-    front: { headerBg: '#2E50B8', bodyBg: '#ffffff', footerBg: '#4FBFDD', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif', elements: { ...DEFAULT_ELEMENTS } },
-    back: { headerBg: '#2E50B8', bodyBg: '#ffffff', footerBg: '#4FBFDD', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif', elements: { ...DEFAULT_ELEMENTS, photo: { ...DEFAULT_ELEMENTS.photo, x: 15 }, info: { ...DEFAULT_ELEMENTS.info, x: 90 }, qr: { ...DEFAULT_ELEMENTS.qr, x: 275 } } }
+    front: { 
+      headerBg: '#2E50B8', bodyBg: '#ffffff', footerBg: '#4FBFDD', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif', 
+      elements: { ...DEFAULT_ELEMENTS },
+      watermark: { ...DEFAULT_WATERMARK }
+    },
+    back: { 
+      headerBg: '#2E50B8', bodyBg: '#ffffff', footerBg: '#4FBFDD', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif', 
+      elements: { ...DEFAULT_ELEMENTS, photo: { ...DEFAULT_ELEMENTS.photo, x: 15 }, info: { ...DEFAULT_ELEMENTS.info, x: 90 }, qr: { ...DEFAULT_ELEMENTS.qr, x: 275 } },
+      watermark: { ...DEFAULT_WATERMARK }
+    }
   };
 
   let config = DEFAULT_CONFIG;
@@ -40,6 +56,7 @@ export function StudentCardVisual({
 
   const current = side === 'front' ? config.front : config.back;
   const els = current.elements || DEFAULT_ELEMENTS;
+  const wm = current.watermark || DEFAULT_WATERMARK;
 
   const cardStyle = {
     width: '340px',
@@ -54,11 +71,30 @@ export function StudentCardVisual({
     overflow: 'hidden'
   };
 
+  const watermarkSvg = wm.enabled ? `
+    <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150">
+      <text 
+        x="50%" 
+        y="50%" 
+        font-family="${current.fontFamily.split(',')[0]}" 
+        font-size="${wm.size}px" 
+        font-weight="900"
+        fill="black" 
+        fill-opacity="${wm.opacity}" 
+        text-anchor="middle" 
+        transform="rotate(${wm.angle}, 75, 75)"
+      >
+        ${wm.text}
+      </text>
+    </svg>
+  ` : '';
+
+  const watermarkDataUri = wm.enabled ? `url("data:image/svg+xml;base64,${btoa(watermarkSvg)}")` : 'none';
+
   const showLogoLeft = side === 'front' ? settings.student_show_logo_front : settings.student_show_logo_back;
   const showLogoRight = side === 'front' ? settings.student_show_logo_right_front : settings.student_show_logo_right_back;
   const showSig = side === 'front' ? settings.student_show_sig_front : settings.student_show_sig_back;
   const showStamp = side === 'front' ? settings.student_show_stamp_front : settings.student_show_stamp_back;
-  
   const showPhoto = side === 'front' ? settings.student_show_photo_front : settings.student_show_photo_back;
   const showInfo = side === 'front' ? settings.student_show_info_front : settings.student_show_info_back;
   const showQr = side === 'front' ? settings.student_show_qr_front : settings.student_show_qr_back;
@@ -66,7 +102,15 @@ export function StudentCardVisual({
 
   return (
     <div style={cardStyle} className="rounded-xl shadow-lg border text-[10px] select-none">
-      {/* Header Statis */}
+      {/* Watermark Layer */}
+      {wm.enabled && (
+        <div 
+          className="absolute inset-0 pointer-events-none z-0" 
+          style={{ backgroundImage: watermarkDataUri, backgroundRepeat: 'repeat' }}
+        ></div>
+      )}
+
+      {/* Header */}
       <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 relative z-10 border-b">
         {showLogoLeft && settings.logo_left && (
           <div className="w-10 h-10 relative bg-white rounded-md p-1 shrink-0 mr-3">
@@ -84,10 +128,10 @@ export function StudentCardVisual({
         )}
       </div>
 
-      {/* Konten dengan Absolute Positioning dari Config */}
+      {/* Photo */}
       {showPhoto && (
         <div 
-          className="absolute bg-muted rounded-md overflow-hidden border-2 border-white shadow-md"
+          className="absolute bg-muted rounded-md overflow-hidden border-2 border-white shadow-md z-10"
           style={{ left: els.photo.x, top: els.photo.y, width: els.photo.w, height: els.photo.h }}
         >
           {student.photo_url ? (
@@ -98,9 +142,10 @@ export function StudentCardVisual({
         </div>
       )}
 
+      {/* QR Code */}
       {showQr && (
         <div 
-          className="absolute bg-white p-1 rounded border shadow-sm"
+          className="absolute bg-white p-1 rounded border shadow-sm z-10"
           style={{ left: els.qr.x, top: els.qr.y, width: els.qr.w, height: els.qr.h }}
         >
           <Image 
@@ -110,9 +155,10 @@ export function StudentCardVisual({
         </div>
       )}
 
+      {/* Info Block */}
       {showInfo && (
         <div 
-          className="absolute px-2 flex flex-col gap-1.5"
+          className="absolute px-2 flex flex-col gap-1.5 z-10"
           style={{ 
             left: els.info.x, 
             top: els.info.y, 
@@ -143,7 +189,7 @@ export function StudentCardVisual({
       )}
 
       {side === 'back' && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[280px] text-center">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[280px] text-center z-10">
            <div className="flex items-center justify-center gap-3 mb-3 relative py-1">
               <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-300 -z-10"></div>
               <span className="text-[8px] font-black uppercase tracking-[0.2em] bg-white px-3 relative z-10 border border-slate-100 rounded-full">Ketentuan Pengguna</span>
@@ -156,7 +202,7 @@ export function StudentCardVisual({
 
       {(showSig || showStamp) && (
         <div 
-          className="absolute flex items-end"
+          className="absolute flex items-end z-10"
           style={{ 
             left: els.sigBlock.x, 
             top: els.sigBlock.y, 
@@ -181,7 +227,7 @@ export function StudentCardVisual({
         </div>
       )}
 
-      <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1.5"></div>
+      <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1.5 z-10"></div>
     </div>
   );
 }
