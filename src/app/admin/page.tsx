@@ -14,7 +14,8 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  Legend
 } from 'recharts';
 
 export default function AdminDashboard() {
@@ -24,6 +25,7 @@ export default function AdminDashboard() {
     activeExams: 0,
     activeCards: 0
   });
+  const [majorData, setMajorData] = useState<any[]>([]);
 
   useEffect(() => {
     const db = getDB();
@@ -33,24 +35,31 @@ export default function AdminDashboard() {
       activeExams: db.exams.length,
       activeCards: db.students.filter(s => s.status === 'Aktif').length
     });
+
+    // Hitung distribusi jurusan secara dinamis
+    const counts = db.students.reduce((acc: Record<string, number>, s) => {
+      const major = s.major || 'Lainnya';
+      acc[major] = (acc[major] || 0) + 1;
+      return acc;
+    }, {});
+
+    const pieData = Object.entries(counts).map(([name, value]) => ({
+      name,
+      value
+    }));
+    
+    setMajorData(pieData);
   }, []);
 
-  const data = [
-    { name: 'Sen', hadir: 45, absen: 5 },
-    { name: 'Sel', hadir: 52, absen: 2 },
-    { name: 'Rab', hadir: 48, absen: 4 },
-    { name: 'Kam', hadir: 50, absen: 3 },
-    { name: 'Jum', hadir: 47, absen: 6 },
+  const barData = [
+    { name: 'Sen', hadir: Math.round(stats.totalStudents * 0.9), absen: Math.round(stats.totalStudents * 0.1) },
+    { name: 'Sel', hadir: Math.round(stats.totalStudents * 0.95), absen: Math.round(stats.totalStudents * 0.05) },
+    { name: 'Rab', hadir: Math.round(stats.totalStudents * 0.92), absen: Math.round(stats.totalStudents * 0.08) },
+    { name: 'Kam', hadir: Math.round(stats.totalStudents * 0.94), absen: Math.round(stats.totalStudents * 0.06) },
+    { name: 'Jum', hadir: Math.round(stats.totalStudents * 0.88), absen: Math.round(stats.totalStudents * 0.12) },
   ];
 
-  const pieData = [
-    { name: 'TKJ', value: 400 },
-    { name: 'Otomotif', value: 300 },
-    { name: 'Elektro', value: 300 },
-    { name: 'Bangunan', value: 200 },
-  ];
-
-  const COLORS = ['#2E50B8', '#4FBFDD', '#FFBB28', '#FF8042'];
+  const COLORS = ['#2E50B8', '#4FBFDD', '#FFBB28', '#FF8042', '#10B981', '#F43F5E', '#8B5CF6'];
 
   return (
     <div className="space-y-6">
@@ -69,47 +78,61 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="border-none shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg">Kehadiran Pekan Ini</CardTitle>
+            <CardTitle className="text-lg font-bold">Kehadiran Pekan Ini</CardTitle>
           </CardHeader>
-          <CardContent className="h-[300px]">
+          <CardContent className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Bar dataKey="hadir" fill="#2E50B8" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="absen" fill="#F43F5E" radius={[4, 4, 0, 0]} />
+              <BarChart data={barData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} />
+                <YAxis axisLine={false} tickLine={false} fontSize={12} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                />
+                <Bar dataKey="hadir" name="Hadir" fill="#2E50B8" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="absen" name="Absen" fill="#F43F5E" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-none shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg">Distribusi Siswa per Jurusan</CardTitle>
+            <CardTitle className="text-lg font-bold">Distribusi Siswa per Jurusan</CardTitle>
           </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+          <CardContent className="h-[350px] flex flex-col items-center justify-center">
+            {majorData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={majorData}
+                    cx="50%"
+                    cy="45%"
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                    animationBegin={0}
+                    animationDuration={1500}
+                  >
+                    {majorData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="none" />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Legend verticalAlign="bottom" align="center" layout="horizontal" iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-muted-foreground italic h-full">
+                <Users className="h-12 w-12 opacity-10 mb-2" />
+                <span>Belum ada data siswa</span>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -119,14 +142,14 @@ export default function AdminDashboard() {
 
 function StatCard({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: string }) {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden border-none shadow-sm">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <h3 className="text-2xl font-bold mt-1">{value}</h3>
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{title}</p>
+            <h3 className="text-3xl font-black mt-1 text-slate-900">{value}</h3>
           </div>
-          <div className={`p-3 rounded-xl text-white ${color}`}>
+          <div className={`p-4 rounded-2xl text-white shadow-lg ${color}`}>
             <Icon className="h-6 w-6" />
           </div>
         </div>
