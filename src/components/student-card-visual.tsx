@@ -76,9 +76,8 @@ export function StudentCardVisual({
         </div>
 
         <div className="flex h-[calc(100%-56px)] relative z-10">
-          {/* SISI KIRI: Foto & Barcode (Stack Vertikal) */}
           {(showPhoto || showQr) && (
-            <div className="w-[100px] flex flex-col items-center justify-center p-2 border-r border-dashed border-muted/50 gap-1.5">
+            <div className="w-[90px] flex flex-col items-center pt-4 pb-2 border-r border-dashed border-muted/50 gap-2 ml-1">
               {showPhoto && (
                 <div className="w-[60px] h-[80px] bg-muted relative rounded-md overflow-hidden border-2 border-white shadow-md shrink-0">
                   {student.photo_url ? (
@@ -99,26 +98,26 @@ export function StudentCardVisual({
             </div>
           )}
 
-          <div className={`flex-1 py-3 px-4 flex flex-col justify-center relative ${(!showPhoto && !showQr) ? 'items-center text-center' : ''}`}>
-            <div style={{ color: current.textColor }}>
+          <div className={`flex-1 pt-4 pb-3 px-4 flex flex-col justify-start relative ${(!showPhoto && !showQr) ? 'items-center text-center' : ''}`}>
+            <div style={{ color: current.textColor }} className="space-y-2">
               {showInfo && (
                 <>
-                  <div className="mb-2">
+                  <div>
                     <span className="opacity-60 text-[6px] uppercase font-bold tracking-wider block mb-0.5">Nama Lengkap</span>
-                    <span className="font-extrabold text-[11px] uppercase leading-none block">{student.name}</span>
+                    <span className="font-extrabold text-[11px] uppercase leading-tight block">{student.name}</span>
                   </div>
-                  <div className="mb-2">
+                  <div>
                     <span className="opacity-60 text-[6px] uppercase font-bold tracking-wider block mb-0.5">NIS / NISN</span>
                     <span className="font-bold text-[9px] block leading-none">{student.nis} / {student.nisn || '-'}</span>
                   </div>
-                  <div className="mb-2">
+                  <div>
                     <span className="opacity-60 text-[6px] uppercase font-bold tracking-wider block mb-0.5">Kelas & Jurusan</span>
-                    <span className="font-bold text-[8px] uppercase block leading-none">{student.class} - {student.major}</span>
+                    <span className="font-bold text-[8px] uppercase block leading-tight">{student.class} - {student.major}</span>
                   </div>
                 </>
               )}
               {showValid && (
-                <div className="mb-1">
+                <div>
                   <span className="opacity-60 text-[6px] uppercase font-bold tracking-wider block mb-0.5">Berlaku Sampai</span>
                   <span className="font-bold text-[8px] block leading-none" style={{ color: current.headerBg }}>{student.valid_until}</span>
                 </div>
@@ -153,23 +152,23 @@ export function StudentCardVisual({
 
   return (
     <div style={cardStyle} className="rounded-xl shadow-lg border text-[10px] select-none p-0 flex flex-col">
-      <div className="h-14 w-full flex items-center justify-center px-10 gap-4">
-        <div className="flex-1 h-[2px]" style={{ backgroundColor: current.headerBg }}></div>
-        <h4 className="font-black text-[10px] uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg }}>
-          Ketentuan Pengguna
-        </h4>
-        <div className="flex-1 h-[2px]" style={{ backgroundColor: current.headerBg }}></div>
+      <div className="h-14 w-full flex items-center justify-center px-6 relative">
+        <div className="absolute inset-x-6 h-[1px] bg-slate-200 top-1/2 -translate-y-1/2"></div>
+        <div className="relative bg-white px-4">
+          <h4 className="font-black text-[10px] uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg }}>
+            Ketentuan Pengguna
+          </h4>
+        </div>
       </div>
       
       <div className="flex-1 px-6 pt-2 flex items-start gap-4">
-        {/* Foto di Kiri (Jika diaktifkan di belakang) */}
         {showPhoto && (
-          <div className="w-[60px] h-[80px] relative rounded border overflow-hidden shadow-sm shrink-0 bg-slate-50">
+          <div className="w-[60px] h-[80px] relative rounded border overflow-hidden shadow-sm shrink-0 bg-slate-50 mt-1">
              <Image src={student.photo_url || ''} alt="Foto" fill className="object-cover" unoptimized />
           </div>
         )}
 
-        <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[7.5px] leading-relaxed">
+        <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[7.5px] leading-relaxed pt-1">
           {settings.terms_student}
           {showInfo && (
             <div className="mt-2 pt-2 border-t border-slate-200">
@@ -179,9 +178,8 @@ export function StudentCardVisual({
           )}
         </div>
 
-        {/* Barcode di Kanan (Jika diaktifkan di belakang) */}
         {showQr && (
-          <div className="w-[60px] flex flex-col items-center gap-1 shrink-0">
+          <div className="w-[60px] flex flex-col items-center gap-1 shrink-0 mt-1">
              <div className="w-[48px] h-[48px] bg-white p-1 rounded border shadow-sm relative">
                <Image 
                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}

@@ -78,9 +78,8 @@ export function ExamCardVisual({
         </div>
 
         <div className="flex h-[calc(100%-56px)] relative z-10">
-          {/* SISI KIRI: Foto & Barcode (Stack Vertikal) */}
           {(showPhoto || showQr) && (
-            <div className="w-[100px] flex flex-col items-center justify-center p-2 border-r border-slate-100 gap-1.5">
+            <div className="w-[90px] flex flex-col items-center pt-4 pb-2 border-r border-slate-100 gap-2 ml-1">
               {showPhoto && (
                 <div className="w-[60px] h-[80px] bg-slate-50 relative rounded-md overflow-hidden border border-slate-200 shadow-sm shrink-0">
                   {student.photo_url ? (
@@ -101,25 +100,25 @@ export function ExamCardVisual({
             </div>
           )}
 
-          <div className={`flex-1 py-4 px-3 relative ${(!showPhoto && !showQr) ? 'items-center text-center' : ''}`} style={{ color: current.textColor }}>
+          <div className={`flex-1 pt-4 pb-4 px-4 relative flex flex-col justify-start ${(!showPhoto && !showQr) ? 'items-center text-center' : ''}`} style={{ color: current.textColor }}>
             {showInfo && (
-              <>
-                <div className="mb-1.5">
+              <div className="space-y-2">
+                <div>
                   <span className="opacity-60 text-[6px] uppercase font-bold block mb-0.5">Nama Peserta</span>
-                  <span className="font-bold text-[11px] uppercase leading-none block">{student.name}</span>
+                  <span className="font-bold text-[11px] uppercase leading-tight block">{student.name}</span>
                 </div>
-                <div className="mb-1.5">
+                <div>
                   <span className="opacity-60 text-[6px] uppercase font-bold block mb-0.5">NIS / NISN</span>
                   <span className="font-bold text-[9px] block leading-none">{student.nis} / {student.nisn || '-'}</span>
                 </div>
-                <div className="mb-1.5">
+                <div>
                   <span className="opacity-60 text-[6px] uppercase font-bold block mb-0.5">Event Ujian</span>
-                  <span className="font-bold text-[8px] uppercase block leading-none">{exam?.name || 'UJIAN AKHIR SEKOLAH'}</span>
+                  <span className="font-bold text-[8px] uppercase block leading-tight">{exam?.name || 'UJIAN AKHIR SEKOLAH'}</span>
                 </div>
-              </>
+              </div>
             )}
             {showValid && (
-              <div className="mb-1">
+              <div className="mt-2">
                 <span className="opacity-60 text-[6px] uppercase font-bold block mb-0.5">Masa Berlaku</span>
                 <span className="font-bold text-[8px] block leading-none" style={{ color: current.footerBg }}>{student.valid_until}</span>
               </div>
@@ -152,23 +151,23 @@ export function ExamCardVisual({
 
   return (
     <div style={cardStyle} className="rounded-xl shadow-lg border text-[9px] select-none p-0 flex flex-col">
-      <div className="h-14 w-full flex items-center justify-center px-10 gap-4">
-        <div className="flex-1 h-[2px]" style={{ backgroundColor: current.headerBg }}></div>
-        <h4 className="font-black text-[10px] uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg }}>
-          Tata Tertib Ujian
-        </h4>
-        <div className="flex-1 h-[2px]" style={{ backgroundColor: current.headerBg }}></div>
+      <div className="h-14 w-full flex items-center justify-center px-6 relative">
+        <div className="absolute inset-x-6 h-[1px] bg-slate-200 top-1/2 -translate-y-1/2"></div>
+        <div className="relative bg-white px-4">
+          <h4 className="font-black text-[10px] uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg }}>
+            Tata Tertib Ujian
+          </h4>
+        </div>
       </div>
 
       <div className="flex-1 px-6 pt-2 flex items-start gap-4">
-        {/* Foto di Kiri */}
         {showPhoto && (
-          <div className="w-[60px] h-[80px] relative rounded border overflow-hidden shadow-sm shrink-0 bg-slate-50">
+          <div className="w-[60px] h-[80px] relative rounded border overflow-hidden shadow-sm shrink-0 bg-slate-50 mt-1">
              <Image src={student.photo_url || ''} alt="Foto" fill className="object-cover" unoptimized />
           </div>
         )}
 
-        <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[7.5px] leading-relaxed">
+        <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[7.5px] leading-relaxed pt-1">
           {settings.terms_exam}
           {showInfo && (
             <div className="mt-3 pt-2 border-t border-slate-200 not-italic">
@@ -178,9 +177,8 @@ export function ExamCardVisual({
           )}
         </div>
 
-        {/* Barcode di Kanan */}
         {showQr && (
-          <div className="w-[60px] flex flex-col items-center gap-1 shrink-0">
+          <div className="w-[60px] flex flex-col items-center gap-1 shrink-0 mt-1">
              <div className="w-[48px] h-[48px] bg-white p-1 rounded border shadow-sm relative">
                <Image 
                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}

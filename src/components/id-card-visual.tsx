@@ -172,35 +172,36 @@ export function IdCardVisual({
       </div>
 
       <div className="flex-1 w-full relative z-10">
-         <div className="h-8 w-full flex items-center justify-center gap-4 mb-3">
-           <div className="flex-1 h-[1px] bg-slate-200"></div>
-           <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
-             Ketentuan Pengguna
-           </h4>
-           <div className="flex-1 h-[1px] bg-slate-200"></div>
+         <div className="h-8 w-full flex items-center justify-center relative mb-3">
+           <div className="absolute inset-x-0 h-[1px] bg-slate-200 top-1/2 -translate-y-1/2"></div>
+           <div className="relative bg-white px-3">
+             <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
+               Ketentuan Pengguna
+             </h4>
+           </div>
          </div>
          <div className="text-[9px] opacity-80 leading-relaxed italic text-slate-700 text-left whitespace-pre-line mb-6">
             {settings.terms_id}
          </div>
 
-         <div className="flex items-center justify-between gap-4 mt-auto">
+         <div className="flex items-start justify-between gap-4 mt-auto">
             {showPhoto && (
               <div className="w-[60px] h-[80px] relative rounded border overflow-hidden shadow-sm bg-slate-50 shrink-0">
                  <Image src={student.photo_url || ''} alt="Foto" fill className="object-cover" unoptimized />
               </div>
             )}
             
-            <div className="flex-1">
+            <div className="flex-1 pt-1">
                {showInfo && (
-                 <div className="not-italic">
-                    <p className="font-bold text-[10px] text-slate-800">{student.name}</p>
+                 <div className="not-italic space-y-1">
+                    <p className="font-bold text-[10px] text-slate-800 uppercase leading-tight">{student.name}</p>
                     <p className="text-[8px] text-slate-500 uppercase">{student.nis} • {student.major}</p>
                  </div>
                )}
             </div>
 
             {showQr && (
-              <div className="w-[65px] flex flex-col items-center gap-1 shrink-0">
+              <div className="w-[65px] flex flex-col items-center gap-1 shrink-0 pt-1">
                  <div className="w-[48px] h-[48px] bg-white p-1 rounded border shadow-sm relative">
                    <Image 
                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=VERIFY-${student.card_code}`}
