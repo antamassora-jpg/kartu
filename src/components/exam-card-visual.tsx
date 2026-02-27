@@ -127,14 +127,11 @@ export function ExamCardVisual({
 
   return (
     <div style={cardStyle} className="rounded-xl shadow-lg border text-[9px] select-none p-0 flex flex-col">
-      <div className="relative z-10 h-14 w-full flex items-center justify-center px-8">
-        <div className="flex items-center gap-4 w-full">
-          <div className="flex-1 h-[2px]" style={{ backgroundColor: current.headerBg }}></div>
-          <h4 className="font-black text-[10px] uppercase tracking-[0.2em] whitespace-nowrap text-center" style={{ color: current.headerBg }}>
-            Tata Tertib Ujian
-          </h4>
-          <div className="flex-1 h-[2px]" style={{ backgroundColor: current.headerBg }}></div>
-        </div>
+      <div className="relative z-10 h-14 w-full flex items-center justify-center px-10">
+        <div className="absolute left-10 right-10 h-[2.5px] top-1/2 -translate-y-1/2" style={{ backgroundColor: current.headerBg }}></div>
+        <h4 className="relative z-10 px-4 font-black text-[10px] uppercase tracking-[0.2em] whitespace-nowrap text-center" style={{ color: current.headerBg, backgroundColor: current.bodyBg }}>
+          Tata Tertib Ujian
+        </h4>
       </div>
 
       <div className="flex-1 px-10 pt-2 flex items-start">
