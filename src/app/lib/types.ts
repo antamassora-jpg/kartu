@@ -79,6 +79,8 @@ export interface SchoolSettings {
   // ID Layout Config
   id_show_logo_front: boolean;
   id_show_logo_back: boolean;
+  id_show_logo_right_front: boolean;
+  id_show_logo_right_back: boolean;
   id_show_sig_front: boolean;
   id_show_sig_back: boolean;
   id_show_stamp_front: boolean;

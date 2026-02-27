@@ -76,6 +76,8 @@ const DEFAULT_SETTINGS: SchoolSettings = {
   terms_id: '1. Kartu identitas resmi SMKN 2 Tana Toraja.\n2. Wajib dikenakan selama jam dinas/operasional.\n3. Penyalahgunaan kartu akan dikenakan sanksi.\n4. Temukan kartu? Hubungi admin sekolah.',
   id_show_logo_front: true,
   id_show_logo_back: true,
+  id_show_logo_right_front: false,
+  id_show_logo_right_back: false,
   id_show_sig_front: false,
   id_show_sig_back: true,
   id_show_stamp_front: false,

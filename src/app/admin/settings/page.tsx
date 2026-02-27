@@ -142,7 +142,7 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          {/* Aturan & Tata Tertib (NEWLY RESTORED) */}
+          {/* Aturan & Tata Tertib */}
           <Card className="border-none shadow-sm rounded-3xl overflow-hidden ring-1 ring-slate-100">
             <CardHeader className="bg-slate-50/50 border-b">
               <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
@@ -297,7 +297,7 @@ export default function SettingsPage() {
 
                 <TabsContent value="ujian" className="p-6 space-y-6 mt-0">
                   <AssetUploader 
-                    label="Logo (Ujian)" 
+                    label="Logo Kiri (Ujian)" 
                     image={settings.logo_left_exam} 
                     onUpload={e => handleFileUpload('logo_left_exam', e)} 
                     onUrlChange={url => handleUrlChange('logo_left_exam', url)}
@@ -305,6 +305,16 @@ export default function SettingsPage() {
                     onShowFrontChange={v => updateSetting('exam_show_logo_front', v)}
                     showBack={settings.exam_show_logo_back}
                     onShowBackChange={v => updateSetting('exam_show_logo_back', v)}
+                  />
+                  <AssetUploader 
+                    label="Logo Kanan (Ujian)" 
+                    image={settings.logo_right_exam} 
+                    onUpload={e => handleFileUpload('logo_right_exam', e)} 
+                    onUrlChange={url => handleUrlChange('logo_right_exam', url)}
+                    showFront={settings.exam_show_logo_right_front}
+                    onShowFrontChange={v => updateSetting('exam_show_logo_right_front', v)}
+                    showBack={settings.exam_show_logo_right_back}
+                    onShowBackChange={v => updateSetting('exam_show_logo_right_back', v)}
                   />
                   <AssetUploader 
                     label="Tanda Tangan" 
@@ -331,7 +341,7 @@ export default function SettingsPage() {
 
                 <TabsContent value="idcard" className="p-6 space-y-6 mt-0">
                   <AssetUploader 
-                    label="Logo (ID Card)" 
+                    label="Logo Kiri (ID Card)" 
                     image={settings.logo_left_id} 
                     onUpload={e => handleFileUpload('logo_left_id', e)} 
                     onUrlChange={url => handleUrlChange('logo_left_id', url)}
@@ -339,6 +349,16 @@ export default function SettingsPage() {
                     onShowFrontChange={v => updateSetting('id_show_logo_front', v)}
                     showBack={settings.id_show_logo_back}
                     onShowBackChange={v => updateSetting('id_show_logo_back', v)}
+                  />
+                  <AssetUploader 
+                    label="Logo Kanan (ID Card)" 
+                    image={settings.logo_right_id} 
+                    onUpload={e => handleFileUpload('logo_right_id', e)} 
+                    onUrlChange={url => handleUrlChange('logo_right_id', url)}
+                    showFront={settings.id_show_logo_right_front}
+                    onShowFrontChange={v => updateSetting('id_show_logo_right_front', v)}
+                    showBack={settings.id_show_logo_right_back}
+                    onShowBackChange={v => updateSetting('id_show_logo_right_back', v)}
                   />
                   <AssetUploader 
                     label="Tanda Tangan" 

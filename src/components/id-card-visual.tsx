@@ -46,6 +46,7 @@ export function IdCardVisual({
   };
 
   const showLogo = side === 'front' ? settings.id_show_logo_front : settings.id_show_logo_back;
+  const showLogoRight = side === 'front' ? settings.id_show_logo_right_front : settings.id_show_logo_right_back;
   const showSig = side === 'front' ? settings.id_show_sig_front : settings.id_show_sig_back;
   const showStamp = side === 'front' ? settings.id_show_stamp_front : settings.id_show_stamp_back;
   
@@ -69,6 +70,11 @@ export function IdCardVisual({
               <h2 className="font-black text-[11px] uppercase leading-tight tracking-tight">{settings.school_name}</h2>
               <h2 className="font-bold text-[8px] uppercase opacity-70 mt-1 block">Digital Identity</h2>
             </div>
+            {showLogoRight && settings.logo_right_id && (
+              <div className="w-12 h-12 relative bg-white rounded-xl p-2 shrink-0 ml-4 shadow-inner">
+                <Image src={settings.logo_right_id} alt="Logo R" fill className="object-contain" priority unoptimized />
+              </div>
+            )}
           </div>
         </div>
 
@@ -149,12 +155,19 @@ export function IdCardVisual({
   return (
     <div style={cardStyle} className="rounded-2xl shadow-2xl border select-none flex flex-col p-8">
       <div className="relative z-10 flex flex-col items-center text-center mb-6">
-        {showLogo && settings.logo_left_id && (
-          <div className="w-14 h-14 relative mb-3">
-             <Image src={settings.logo_left_id} alt="Logo" fill className="object-contain" unoptimized />
-          </div>
-        )}
-        <h3 className="font-black text-[12px] uppercase tracking-tight text-slate-800 mb-1">
+        <div className="flex items-center gap-4">
+          {showLogo && settings.logo_left_id && (
+            <div className="w-14 h-14 relative">
+               <Image src={settings.logo_left_id} alt="Logo L" fill className="object-contain" unoptimized />
+            </div>
+          )}
+          {showLogoRight && settings.logo_right_id && (
+            <div className="w-14 h-14 relative">
+               <Image src={settings.logo_right_id} alt="Logo R" fill className="object-contain" unoptimized />
+            </div>
+          )}
+        </div>
+        <h3 className="font-black text-[12px] uppercase tracking-tight text-slate-800 mt-3 mb-1">
           {settings.school_name}
         </h3>
       </div>
