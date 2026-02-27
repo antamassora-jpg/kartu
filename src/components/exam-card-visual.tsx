@@ -127,24 +127,17 @@ export function ExamCardVisual({
 
   return (
     <div style={cardStyle} className="rounded-xl shadow-lg border text-[9px] select-none p-0 flex flex-col">
-      <div className="relative z-10 h-14 w-full flex items-center justify-center px-6">
-        <div className="absolute left-6 right-6 h-[2px] z-0" style={{ backgroundColor: current.headerBg }}></div>
-        <div className="relative z-10 bg-white px-4 flex items-center gap-3">
-          {showLogoLeft && settings.logo_left_exam && (
-            <div className="w-6 h-6 relative shrink-0">
-              <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" unoptimized />
-            </div>
-          )}
-          <h4 className="font-black text-[10px] uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg }}>Tata Tertib Ujian</h4>
-          {showLogoRight && settings.logo_right_exam && (
-            <div className="w-6 h-6 relative shrink-0">
-              <Image src={settings.logo_right_exam} alt="Logo R" fill className="object-contain" unoptimized />
-            </div>
-          )}
+      <div className="relative z-10 h-14 w-full flex items-center justify-center px-8">
+        <div className="flex items-center gap-4 w-full">
+          <div className="flex-1 h-[2px]" style={{ backgroundColor: current.headerBg }}></div>
+          <h4 className="font-black text-[10px] uppercase tracking-[0.2em] whitespace-nowrap text-center" style={{ color: current.headerBg }}>
+            Tata Tertib Ujian
+          </h4>
+          <div className="flex-1 h-[2px]" style={{ backgroundColor: current.headerBg }}></div>
         </div>
       </div>
 
-      <div className="flex-1 px-8 pt-2 flex items-start">
+      <div className="flex-1 px-10 pt-2 flex items-start">
         <div className="flex-1 whitespace-pre-line text-slate-700 italic text-[7.5px] leading-relaxed pr-6">
           {settings.terms_exam}
         </div>
