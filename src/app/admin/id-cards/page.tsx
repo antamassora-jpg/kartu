@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -14,7 +15,8 @@ import {
   CheckSquare, 
   Square,
   Loader2,
-  Users
+  Users,
+  FileDown
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -38,10 +40,12 @@ export default function IDCardsPage() {
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isBulkDownloading, setIsBulkDownloading] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   
   const cardRefFront = useRef<HTMLDivElement>(null);
   const cardRefBack = useRef<HTMLDivElement>(null);
+  const bulkContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const db = getDB();
@@ -106,6 +110,39 @@ export default function IDCardsPage() {
     }
   };
 
+  const handleDownloadBulk = async () => {
+    if (selectedIds.size === 0 || !bulkContainerRef.current) return;
+    setIsBulkDownloading(true);
+    toast({ title: "Memulai Proses", description: `Menyiapkan ${selectedIds.size} ID Card dalam satu PDF...` });
+
+    try {
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [73, 111] });
+      const cardElements = bulkContainerRef.current.querySelectorAll('.page-break');
+      
+      for (let i = 0; i < cardElements.length; i++) {
+        const set = cardElements[i];
+        const front = set.querySelector('.visual-front') as HTMLElement;
+        const back = set.querySelector('.visual-back') as HTMLElement;
+
+        if (i > 0) pdf.addPage([73, 111], 'portrait');
+        
+        const canvasFront = await html2canvas(front, { scale: 2, useCORS: true });
+        pdf.addImage(canvasFront.toDataURL('image/png'), 'PNG', 0, 0, 73, 111);
+        
+        pdf.addPage([73, 111], 'portrait');
+        const canvasBack = await html2canvas(back, { scale: 2, useCORS: true });
+        pdf.addImage(canvasBack.toDataURL('image/png'), 'PNG', 0, 0, 73, 111);
+      }
+
+      pdf.save(`Bulk_ID_Cards_${new Date().getTime()}.pdf`);
+      toast({ title: "Berhasil", description: "Dokumen PDF massal telah diunduh." });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Gagal", description: "Terjadi kesalahan saat membuat PDF massal." });
+    } finally {
+      setIsBulkDownloading(false);
+    }
+  };
+
   const handlePrint = () => {
     setIsPrintModalOpen(false);
     setTimeout(() => {
@@ -116,15 +153,15 @@ export default function IDCardsPage() {
   return (
     <div className="space-y-6">
       {/* Area Cetak Khusus */}
-      <div id="print-area">
+      <div id="print-area" ref={bulkContainerRef}>
         {Array.from(selectedIds).map(id => {
           const s = students.find(x => x.id === id);
           return s && settings ? (
             <div key={id} className="page-break">
-              <div className="print-card-gap">
+              <div className="print-card-gap visual-front">
                 <IdCardVisual student={s} settings={settings} side="front" template={activeTemplate} />
               </div>
-              <div>
+              <div className="visual-back">
                 <IdCardVisual student={s} settings={settings} side="back" template={activeTemplate} />
               </div>
             </div>
@@ -138,7 +175,11 @@ export default function IDCardsPage() {
           <p className="text-muted-foreground">Cetak kartu identitas eksklusif dengan ukuran 7.3 x 11.1 cm.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2 shadow-sm" onClick={() => setIsPrintModalOpen(true)} disabled={selectedIds.size === 0}>
+          <Button variant="outline" className="gap-2 shadow-sm border-2" onClick={handleDownloadBulk} disabled={selectedIds.size === 0 || isBulkDownloading}>
+            {isBulkDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
+            Unduh PDF Massal ({selectedIds.size})
+          </Button>
+          <Button className="gap-2 shadow-sm" onClick={() => setIsPrintModalOpen(true)} disabled={selectedIds.size === 0}>
             <Printer className="h-4 w-4" /> Cetak Massal ({selectedIds.size})
           </Button>
         </div>

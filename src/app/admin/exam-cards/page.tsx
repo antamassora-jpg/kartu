@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -23,7 +24,8 @@ import {
   Loader2,
   FileText,
   AlertCircle,
-  GraduationCap
+  GraduationCap,
+  FileDown
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -50,10 +52,12 @@ export default function ExamCardsPage() {
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isBulkDownloading, setIsBulkDownloading] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   
   const cardRefFront = useRef<HTMLDivElement>(null);
   const cardRefBack = useRef<HTMLDivElement>(null);
+  const bulkContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const db = getDB();
@@ -122,6 +126,39 @@ export default function ExamCardsPage() {
     }
   };
 
+  const handleDownloadBulk = async () => {
+    if (selectedIds.size === 0 || !bulkContainerRef.current) return;
+    setIsBulkDownloading(true);
+    toast({ title: "Memulai Proses", description: `Menyiapkan ${selectedIds.size} kartu ujian...` });
+
+    try {
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85.6, 54] });
+      const cardElements = bulkContainerRef.current.querySelectorAll('.page-break');
+      
+      for (let i = 0; i < cardElements.length; i++) {
+        const set = cardElements[i];
+        const front = set.querySelector('.visual-front') as HTMLElement;
+        const back = set.querySelector('.visual-back') as HTMLElement;
+
+        if (i > 0) pdf.addPage([85.6, 54], 'landscape');
+        
+        const canvasFront = await html2canvas(front, { scale: 2, useCORS: true });
+        pdf.addImage(canvasFront.toDataURL('image/png'), 'PNG', 0, 0, 85.6, 54);
+        
+        pdf.addPage([85.6, 54], 'landscape');
+        const canvasBack = await html2canvas(back, { scale: 2, useCORS: true });
+        pdf.addImage(canvasBack.toDataURL('image/png'), 'PNG', 0, 0, 85.6, 54);
+      }
+
+      pdf.save(`Bulk_Kartu_Ujian_${new Date().getTime()}.pdf`);
+      toast({ title: "Berhasil", description: "Dokumen PDF massal telah diunduh." });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Gagal", description: "Terjadi kesalahan saat membuat PDF massal." });
+    } finally {
+      setIsBulkDownloading(false);
+    }
+  };
+
   const handlePrint = () => {
     if (!selectedExamId) {
       toast({ variant: "destructive", title: "Pilih Ujian", description: "Silahkan pilih event ujian terlebih dahulu." });
@@ -136,15 +173,15 @@ export default function ExamCardsPage() {
   return (
     <div className="space-y-6">
       {/* Area Cetak Khusus */}
-      <div id="print-area">
+      <div id="print-area" ref={bulkContainerRef}>
         {Array.from(selectedIds).map(id => {
           const s = students.find(x => x.id === id);
           return s && settings ? (
             <div key={id} className="page-break">
-              <div className="print-card-gap">
+              <div className="print-card-gap visual-front">
                 <ExamCardVisual student={s} settings={settings} exam={selectedExam} side="front" template={activeTemplate} />
               </div>
-              <div>
+              <div className="visual-back">
                 <ExamCardVisual student={s} settings={settings} exam={selectedExam} side="back" template={activeTemplate} />
               </div>
             </div>
@@ -158,6 +195,10 @@ export default function ExamCardsPage() {
           <p className="text-muted-foreground">Cetak kartu tanda peserta ujian untuk siswa.</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" className="gap-2 shadow-sm border-2 border-orange-200 text-orange-700 hover:bg-orange-50" onClick={handleDownloadBulk} disabled={selectedIds.size === 0 || isBulkDownloading}>
+            {isBulkDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
+            Unduh PDF Massal ({selectedIds.size})
+          </Button>
           <Button className="gap-2 shadow-lg shadow-orange-500/20 bg-orange-600 hover:bg-orange-700" onClick={() => setIsPrintModalOpen(true)} disabled={selectedIds.size === 0}>
             <Printer className="h-4 w-4" /> Cetak Massal ({selectedIds.size})
           </Button>
