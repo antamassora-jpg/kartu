@@ -106,13 +106,15 @@ export default function TemplatesPage() {
       photo: { x: 68, y: 100, w: 140, h: 180 },
       qr: { x: 110, y: 320, w: 56, h: 56 },
       info: { x: 20, y: 285, align: 'center', fontSize: 12, width: 236 },
-      sigBlock: { x: 150, y: 380, scale: 0.8 },
+      signature: { x: 150, y: 380, scale: 0.8 },
+      stamp: { x: 130, y: 380, scale: 0.8 },
       terms: { x: 18, y: 120, width: 240 }
     } : {
       photo: { x: 15, y: 70, w: 60, h: 80 },
       qr: { x: 15, y: 155, w: 48, h: 48 },
       info: { x: 90, y: 70, align: 'left', fontSize: 10, width: 180 },
-      sigBlock: { x: 240, y: 160, scale: 0.75 },
+      signature: { x: 240, y: 160, scale: 0.75 },
+      stamp: { x: 220, y: 160, scale: 0.75 },
       terms: { x: 30, y: 60, width: 280 }
     };
 
@@ -404,13 +406,15 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
         photo: { x: 68, y: 100, w: 140, h: 180 },
         qr: { x: 110, y: 320, w: 56, h: 56 },
         info: { x: 20, y: 285, align: 'center', fontSize: 12, width: 236 },
-        sigBlock: { x: 150, y: 380, scale: 0.8 },
+        signature: { x: 150, y: 380, scale: 0.8 },
+        stamp: { x: 130, y: 380, scale: 0.8 },
         terms: { x: 18, y: 120, width: 240 }
       } : { 
         photo: { x: 15, y: 70, w: 60, h: 80 }, 
         qr: { x: 15, y: 155, w: 48, h: 48 }, 
         info: { x: 90, y: 70, align: 'left', fontSize: 10, width: 180 }, 
-        sigBlock: { x: 240, y: 160, scale: 0.75 },
+        signature: { x: 240, y: 160, scale: 0.75 },
+        stamp: { x: 220, y: 160, scale: 0.75 },
         terms: { x: 30, y: 60, width: 280 }
       };
 
@@ -611,7 +615,8 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
               <DimensionSlider label="Ukuran QR Code" value={current.elements.qr.w} max={100} min={20} onChange={(v) => { updateElement(activeSide, 'qr', 'w', v); updateElement(activeSide, 'qr', 'h', v); }} unit="px" />
               <DimensionSlider label="Lebar Blok Identitas" value={current.elements.info.width} max={300} min={100} onChange={(v) => updateElement(activeSide, 'info', 'width', v)} unit="px" />
               <DimensionSlider label="Ukuran Font Teks" value={current.elements.info.fontSize} max={24} min={6} onChange={(v) => updateElement(activeSide, 'info', 'fontSize', v)} unit="px" />
-              <DimensionSlider label="Skala Tanda Tangan & Stempel" value={Math.round(current.elements.sigBlock.scale * 100)} max={150} min={30} onChange={(v) => updateElement(activeSide, 'sigBlock', 'scale', v/100)} unit="%" />
+              <DimensionSlider label="Skala Tanda Tangan" value={Math.round((current.elements.signature?.scale || 0.75) * 100)} max={150} min={30} onChange={(v) => updateElement(activeSide, 'signature', 'scale', v/100)} unit="%" />
+              <DimensionSlider label="Skala Stempel" value={Math.round((current.elements.stamp?.scale || 0.75) * 100)} max={150} min={30} onChange={(v) => updateElement(activeSide, 'stamp', 'scale', v/100)} unit="%" />
               
               {activeSide === 'back' && (
                 <DimensionSlider label="Lebar Teks Ketentuan" value={current.elements.terms?.width || 240} max={320} min={100} onChange={(v) => updateElement(activeSide, 'terms', 'width', v)} unit="px" />
@@ -661,7 +666,8 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
                 <EditorHotspot x={current.elements.photo.x} y={current.elements.photo.y} w={current.elements.photo.w} h={current.elements.photo.h} onDown={(e) => handlePointerDown(e, 'photo')} isActive={draggingElement === 'photo'} label="FOTO" />
                 <EditorHotspot x={current.elements.qr.x} y={current.elements.qr.y} w={current.elements.qr.w} h={current.elements.qr.h} onDown={(e) => handlePointerDown(e, 'qr')} isActive={draggingElement === 'qr'} label="QR" />
                 <EditorHotspot x={current.elements.info.x} y={current.elements.info.y} w={current.elements.info.width} h={60} onDown={(e) => handlePointerDown(e, 'info')} isActive={draggingElement === 'info'} label="INFO SISWA" />
-                <EditorHotspot x={current.elements.sigBlock.x} y={current.elements.sigBlock.y} w={80} h={40} onDown={(e) => handlePointerDown(e, 'sigBlock')} isActive={draggingElement === 'sigBlock'} label="LEGALITAS" />
+                <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 160} w={60} h={30} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="TTD" />
+                <EditorHotspot x={current.elements.stamp?.x || 220} y={current.elements.stamp?.y || 160} w={40} h={40} onDown={(e) => handlePointerDown(e, 'stamp')} isActive={draggingElement === 'stamp'} label="STEMPEL" />
                 
                 {activeSide === 'back' && current.elements.terms && (
                   <EditorHotspot 

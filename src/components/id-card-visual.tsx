@@ -8,7 +8,8 @@ const DEFAULT_ELEMENTS = {
   photo: { x: 68, y: 100, w: 140, h: 180 },
   qr: { x: 110, y: 320, w: 56, h: 56 },
   info: { x: 20, y: 285, align: 'center', fontSize: 12, width: 236 },
-  sigBlock: { x: 150, y: 380, scale: 0.8 },
+  signature: { x: 150, y: 380, scale: 0.8 },
+  stamp: { x: 130, y: 380, scale: 0.8 },
   terms: { x: 18, y: 120, width: 240 }
 };
 
@@ -197,32 +198,41 @@ export function IdCardVisual({
         </div>
       )}
 
-      {(showSig || showStamp) && (
+      {showStamp && settings.stamp_id && (
         <div 
-          className="absolute flex items-end z-10"
+          className="absolute z-10"
           style={{ 
-            left: els.sigBlock.x, 
-            top: els.sigBlock.y,
-            transform: `scale(${els.sigBlock.scale || 0.8})`,
+            left: els.stamp?.x || 130, 
+            top: els.stamp?.y || 380, 
+            width: '40px',
+            height: '40px',
+            transform: `scale(${els.stamp?.scale || 0.8})`,
             transformOrigin: 'top left'
           }}
         >
-          {showStamp && settings.stamp_id && (
-            <div className="w-12 h-12 relative mr-2">
-              <Image src={settings.stamp_id} alt="Stamp" fill className="object-contain" unoptimized />
-            </div>
-          )}
-          <div className="text-left">
-            {showSig && settings.signature_id && (
-              <div className="w-16 h-8 relative mb-1">
-                <Image src={settings.signature_id} alt="Sig" fill className="object-contain" unoptimized />
-              </div>
-            )}
-            <p className="text-[7px] font-bold uppercase opacity-80 leading-none border-t border-slate-300 pt-1">{settings.principal_name}</p>
-            <p className="text-[5px] opacity-60">NIP: {settings.principal_nip}</p>
-          </div>
+          <Image src={settings.stamp_id} alt="Stamp" fill className="object-contain" unoptimized />
         </div>
       )}
+
+      <div 
+        className="absolute z-10"
+        style={{ 
+          left: els.signature?.x || 150, 
+          top: els.signature?.y || 380,
+          transform: `scale(${els.signature?.scale || 0.8})`,
+          transformOrigin: 'top left'
+        }}
+      >
+        <div className="text-left">
+          {showSig && settings.signature_id && (
+            <div className="w-16 h-8 relative mb-1">
+              <Image src={settings.signature_id} alt="Sig" fill className="object-contain" unoptimized />
+            </div>
+          )}
+          <p className="text-[7px] font-bold uppercase opacity-80 leading-none border-t border-slate-300 pt-1">{settings.principal_name}</p>
+          <p className="text-[5px] opacity-60">NIP: {settings.principal_nip}</p>
+        </div>
+      </div>
 
       {side === 'back' && (
         <div 
