@@ -224,7 +224,7 @@ export function IdCardVisual({
       )}
 
       {side === 'back' && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[240px] text-center z-10">
+        <div className="absolute top-32 left-1/2 -translate-x-1/2 w-[240px] text-center z-10">
            <div className="flex items-center justify-center gap-3 mb-4 relative py-1">
               <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-300 -z-10"></div>
               <span className="text-[8px] font-black uppercase tracking-[0.2em] bg-white px-3 relative z-10 border border-slate-100 rounded-full">Ketentuan ID Card</span>
