@@ -47,7 +47,7 @@ import {
   XAxis, 
   YAxis, 
   CartesianGrid, 
-  Tooltip as RechartsTooltip, 
+  RechartsTooltip, 
   ResponsiveContainer 
 } from 'recharts';
 import html2canvas from 'html2canvas';
@@ -55,9 +55,15 @@ import { jsPDF } from 'jspdf';
 import { StudentCardVisual } from '@/components/student-card-visual';
 import { ExamCardVisual } from '@/components/exam-card-visual';
 import { IdCardVisual } from '@/components/id-card-visual';
+import { useAuth, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { collection } from 'firebase/firestore';
 
 export default function LandingPage() {
   const router = useRouter();
+  const auth = useAuth();
+  const db = useFirestore();
+  
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState<Student | null>(null);
@@ -65,11 +71,16 @@ export default function LandingPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [settings, setSettings] = useState<SchoolSettings | null>(null);
-  const [templates, setTemplates] = useState<CardTemplate[]>([]);
-  const [exams, setExams] = useState<ExamEvent[]>([]);
+
+  // Firestore Queries
+  const templatesQuery = useMemoFirebase(() => db ? collection(db, 'templates') : null, [db]);
+  const { data: templates = [] } = useCollection(templatesQuery);
+  
+  const examsQuery = useMemoFirebase(() => db ? collection(db, 'exams') : null, [db]);
+  const { data: exams = [] } = useCollection(examsQuery);
 
   // Login States
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -84,10 +95,8 @@ export default function LandingPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const db = getDB();
-    setSettings(db.school_settings);
-    setTemplates(db.templates);
-    setExams(db.exams);
+    const localDb = getDB();
+    setSettings(localDb.school_settings);
     setIsMounted(true);
   }, []);
 
@@ -98,10 +107,10 @@ export default function LandingPage() {
     setHasSearched(false);
     
     setTimeout(() => {
-      const db = getDB();
+      const localDb = getDB();
       const cleanQuery = query.replace('VERIFY-', '').trim();
       
-      const found = db.students.find(s => 
+      const found = localDb.students.find(s => 
         s.nis === cleanQuery || 
         s.nisn === cleanQuery || 
         s.card_code === cleanQuery ||
@@ -110,8 +119,7 @@ export default function LandingPage() {
       );
       
       if (found) {
-        // Hitung statistik kehadiran dari logs
-        const studentLogs = db.logs.filter(l => l.student_id === found.id && l.is_valid);
+        const studentLogs = localDb.logs.filter(l => l.student_id === found.id && l.is_valid);
         const now = new Date();
         const thisMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         const logsThisMonth = studentLogs.filter(l => l.date.startsWith(thisMonthStr));
@@ -136,21 +144,24 @@ export default function LandingPage() {
     }, 800);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
     setLoginError('');
 
-    setTimeout(() => {
-      if (username === 'admin123' && password === 'password123') {
-        localStorage.setItem('isLoggedIn', 'true');
-        toast({ title: "Akses Diberikan", description: "Selamat datang di panel kontrol EduCard Sync." });
-        router.push('/mode-selection');
-      } else {
-        setLoginError('Kredensial tidak valid. Silahkan hubungi IT sekolah.');
-        setIsLoggingIn(false);
-      }
-    }, 1200);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      localStorage.setItem('isLoggedIn', 'true');
+      // Perkiraan role, nantinya bisa dicek via DBAC
+      localStorage.setItem('userRole', email.includes('admin') ? 'admin' : 'scanner');
+      
+      toast({ title: "Akses Berhasil", description: "Selamat datang kembali." });
+      router.push('/mode-selection');
+    } catch (err: any) {
+      console.error(err);
+      setLoginError('Kredensial salah atau akun tidak ditemukan. Silahkan hubungi IT.');
+      setIsLoggingIn(false);
+    }
   };
 
   const startScanner = async () => {
@@ -163,9 +174,9 @@ export default function LandingPage() {
       }
       
       setTimeout(() => {
-        const db = getDB();
-        if (db.students.length > 0) {
-          const randomStudent = db.students[0];
+        const localDb = getDB();
+        if (localDb.students.length > 0) {
+          const randomStudent = localDb.students[0];
           setSearchQuery(randomStudent.card_code);
           stopScanner();
           handleSearch(randomStudent.card_code);
@@ -291,8 +302,8 @@ export default function LandingPage() {
               <form onSubmit={handleLogin} className="p-10 space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Username</Label>
-                    <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Masukkan ID Anda" required className="h-12 rounded-xl border-slate-200 bg-slate-50" />
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email / Username</Label>
+                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@sekolah.sch.id" required className="h-12 rounded-xl border-slate-200 bg-slate-50" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Password</Label>
@@ -338,7 +349,6 @@ export default function LandingPage() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                     <XAxis dataKey="name" fontSize={10} axisLine={false} tickLine={false} />
                     <YAxis fontSize={10} axisLine={false} tickLine={false} />
-                    <RechartsTooltip />
                     <Bar dataKey="rate" fill="#2E50B8" radius={[6, 6, 0, 0]} barSize={40} />
                  </BarChart>
                </ResponsiveContainer>
@@ -408,7 +418,6 @@ export default function LandingPage() {
                         </div>
                       </div>
 
-                      {/* Ringkasan Kehadiran */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50 rounded-[2rem] border-2 border-slate-100">
                         <div className="flex items-center gap-4">
                            <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">

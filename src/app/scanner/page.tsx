@@ -28,20 +28,20 @@ export default function ScannerPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [lastScan, setLastScan] = useState<{ status: 'valid' | 'invalid' | 'duplicate', student?: Student, reason?: string } | null>(null);
   
-  const studentsQuery = useMemoFirebase(() => collection(db, 'students'), [db]);
+  const studentsQuery = useMemoFirebase(() => db ? collection(db, 'students') : null, [db]);
   const { data: students = [] } = useCollection(studentsQuery);
   
-  const examsQuery = useMemoFirebase(() => collection(db, 'exam_events'), [db]);
+  const examsQuery = useMemoFirebase(() => db ? collection(db, 'exams') : null, [db]);
   const { data: exams = [] } = useCollection(examsQuery);
   
   const todayStr = new Date().toISOString().split('T')[0];
   const logsQuery = useMemoFirebase(() => 
-    query(
+    db ? query(
       collection(db, 'attendance_logs'),
       where('date', '==', todayStr),
       orderBy('scanned_at', 'desc'),
       limit(10)
-    ), [db, todayStr]
+    ) : null, [db, todayStr]
   );
   const { data: todayLogs = [] } = useCollection(logsQuery);
 

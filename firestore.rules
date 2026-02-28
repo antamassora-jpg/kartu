@@ -1,203 +1,89 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * CORE PHILOSOPHY
-     * This ruleset enforces a strict role-based access model using Database-Backed Access Control (DBAC).
-     * By utilizing dedicated collections for roles (/roles_admin and /roles_scanner), we achieve 
-     * Authorization Independence, allowing for atomic, performant rules that do not require 
-     * expensive get() calls on user profile documents.
-     *
-     * DATA STRUCTURE
-     * Data is organized into top-level collections. Master records (Students, Exams, Settings) 
-     * are strictly controlled, while denormalized "Public" collections provide limited, 
-     * safe access for unauthenticated features like card verification.
-     *
-     * KEY SECURITY DECISIONS
-     * 1. DBAC over Profile-based roles: Existence of a UID in a role collection defines permission.
-     * 2. Structural Segregation: Public and Private data are kept in separate collections to 
-     *    prevent accidental data exposure and simplify list operation security.
-     * 3. Ownership Denormalization: Attendance logs contain the scanner's UID to allow 
-     *    instant authorization without joins.
-     * 4. Public Access Control: Public collections allow 'get' by document ID (cardCode) 
-     *    but strictly forbid 'list' to prevent database scraping.
-     */
-
     // --- Global Helper Functions ---
 
-    /** @description Checks if the request is from an authenticated user. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /** @description Checks if the user has the Admin role via DBAC. */
     function isAdmin() {
       return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
     }
 
-    /** @description Checks if the user has the Scanner role via DBAC. */
     function isScanner() {
       return isSignedIn() && exists(/databases/$(database)/documents/roles_scanner/$(request.auth.uid));
     }
 
-    /** @description Checks if the authenticated user matches the provided ID. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /** @description Checks ownership and ensures the document exists for updates/deletes. */
-    function isExistingOwner(userId) {
-      return resource != null && isOwner(userId);
-    }
-
-    /** @description Verifies the document exists. */
-    function existsAt(path) {
-      return exists(/databases/$(database)/documents/$(path));
-    }
-
     // --- Collection Rules ---
 
-    /**
-     * @description Individual user profile management.
-     * @path /user_profiles/{userId}
-     * @allow (get) User accessing their own profile; (create) Admin creating any profile.
-     * @deny (list) Anonymous users or Scanners listing all profiles.
-     * @principle Enforces path-based ownership for users and administrative control.
-     */
     match /user_profiles/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
-      allow create: if isAdmin() || (isOwner(userId) && !existsAt('roles_admin/' + userId));
-      allow update: if isAdmin() || isExistingOwner(userId);
+      allow create: if isSignedIn();
+      allow update: if isAdmin() || isOwner(userId);
       allow delete: if isAdmin();
     }
 
-    /**
-     * @description DBAC collections for role assignment.
-     * @path /roles_admin/{userId}, /roles_scanner/{userId}
-     * @allow (get) Signed-in users checking roles; (write) Admins managing permissions.
-     * @deny (write) Non-admins attempting to escalate privileges.
-     * @principle Uses document existence to define global roles securely and performantly.
-     */
     match /roles_admin/{userId} {
       allow get: if isSignedIn();
       allow list: if isAdmin();
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
 
     match /roles_scanner/{userId} {
       allow get: if isSignedIn();
       allow list: if isAdmin();
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
 
-    /**
-     * @description Master student records containing sensitive data.
-     * @path /students/{studentId}
-     * @allow (get, list, create, update, delete) Admins only.
-     * @deny (read/write) Any non-admin user or public request.
-     * @principle Restricts full student PII to authorized administrative staff.
-     */
     match /students/{studentId} {
-      allow get, list, create, update, delete: if isAdmin();
+      allow read: if isAdmin() || isScanner();
+      allow write: if isAdmin();
     }
 
-    /**
-     * @description Public-facing student data for card verification.
-     * @path /public_student_verifications/{cardCode}
-     * @allow (get) Anyone with a valid cardCode (e.g., via QR scan).
-     * @deny (list) Anyone (prevents scraping student lists); (write) All (managed via Functions).
-     * @principle Supports unauthenticated verification while preventing data harvesting.
-     */
     match /public_student_verifications/{cardCode} {
       allow get: if true;
       allow list: if false;
-      allow create, update, delete: if false;
     }
 
-    /**
-     * @description Global school settings and branding.
-     * @path /school_settings/default
-     * @allow (read/write) Admins only.
-     * @deny (read) Non-admins (use the /public_school_settings path instead).
-     * @principle Protects administrative configuration settings.
-     */
     match /school_settings/{settingId} {
-      allow get, list, create, update, delete: if isAdmin();
-    }
-
-    /**
-     * @description Publicly accessible school branding and terms.
-     * @path /public_school_settings/default
-     * @allow (get) Anyone (public read).
-     * @deny (list, write) Prevents modification or discovery.
-     * @principle Exposes only safe branding information to the public.
-     */
-    match /public_school_settings/{settingId} {
       allow get: if true;
-      allow list: if false;
-      allow create, update, delete: if false;
+      allow list: if isAdmin();
+      allow write: if isAdmin();
     }
 
-    /**
-     * @description Card layout and design templates.
-     * @path /templates/{templateId}
-     * @allow (read/write) Admins only.
-     * @deny (read) Scanners or public users.
-     * @principle Centralizes card design control with administrators.
-     */
     match /templates/{templateId} {
-      allow get, list, create, update, delete: if isAdmin();
+      allow read: if isAdmin() || isScanner();
+      allow write: if isAdmin();
     }
 
-    /**
-     * @description Examination event definitions.
-     * @path /exams/{examId}
-     * @allow (read/write) Admins only.
-     * @deny (write) Scanners.
-     * @principle Ensures exam parameters are only modified by authorized personnel.
-     */
     match /exams/{examId} {
-      allow get, list, create, update, delete: if isAdmin();
+      allow read: if isAdmin() || isScanner();
+      allow write: if isAdmin();
     }
 
-    /**
-     * @description Individual exam cards for students.
-     * @path /exam_cards/{examCardId}
-     * @allow (read/write) Admins only.
-     * @deny (read) Public or Scanners.
-     * @principle Protects exam-specific student assignments.
-     */
     match /exam_cards/{examCardId} {
-      allow get, list, create, update, delete: if isAdmin();
+      allow read: if isAdmin() || isScanner();
+      allow write: if isAdmin();
     }
 
-    /**
-     * @description Attendance session types (e.g., Morning, Afternoon).
-     * @path /attendance_sessions/{sessionId}
-     * @allow (get, list) Admins and Scanners; (write) Admins only.
-     * @deny (write) Scanners.
-     * @principle Allows staff to see active sessions while restricting configuration to Admins.
-     */
     match /attendance_sessions/{sessionId} {
-      allow get, list: if isAdmin() || isScanner();
-      allow create, update, delete: if isAdmin();
+      allow get, list: if isSignedIn();
+      allow write: if isAdmin();
     }
 
-    /**
-     * @description Logs of attendance scans.
-     * @path /attendance_logs/{logId}
-     * @allow (create) Scanner if they are the designated scanner in data; (get/list) Owner scanner or Admin.
-     * @deny (update/delete) Scanners (logs are immutable for scanners).
-     * @principle Enforces operational integrity through scanner-linked ownership.
-     */
     match /attendance_logs/{logId} {
-      allow get: if isAdmin() || (isScanner() && resource.data.scannedByUserId == request.auth.uid);
+      allow get: if isAdmin() || (isSignedIn() && resource.data.scannedByUserId == request.auth.uid);
       allow list: if isAdmin() || isScanner();
-      allow create: if isAdmin() || (isScanner() && request.resource.data.scannedByUserId == request.auth.uid);
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
     }
   }
 }

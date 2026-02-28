@@ -37,7 +37,7 @@ export default function AdminDashboard() {
   const { data: logs = [], isLoading: loadingLogs } = useCollection(logsQuery);
 
   const examsQuery = useMemoFirebase(() => 
-    db ? collection(db, 'exam_events') : null, 
+    db ? collection(db, 'exams') : null, 
     [db]
   );
   const { data: exams = [] } = useCollection(examsQuery);
