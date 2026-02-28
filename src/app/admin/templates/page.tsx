@@ -23,7 +23,8 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { 
   Dialog, 
-  DialogContent, 
+  DialogContent,
+  DialogDescription,
   DialogHeader, 
   DialogTitle, 
   DialogFooter, 
@@ -374,6 +375,11 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[1100px] p-0 rounded-[2rem] overflow-hidden border-none shadow-2xl bg-white">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Visual Editor & Layout Hub</DialogTitle>
+          <DialogDescription>Sesuaikan warna, font, dan posisi elemen secara presisi untuk template {template.name}</DialogDescription>
+        </DialogHeader>
+        
         <div className="bg-[#1e293b] p-8 text-white flex justify-between items-center">
           <div className="flex flex-col">
             <h2 className="text-2xl font-black uppercase tracking-tighter">Visual Editor & Layout Hub</h2>
