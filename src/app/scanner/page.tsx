@@ -7,16 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { QrCode, CheckCircle2, XCircle, Clock, History, ChevronsLeftRight, GraduationCap, Calendar, Loader2, Camera, CameraOff } from 'lucide-react';
-import { Student, AttendanceLog, ExamEvent } from '@/app/lib/types';
+import { QrCode, CheckCircle2, XCircle, Clock, History, ChevronsLeftRight, Camera, Loader2 } from 'lucide-react';
+import { Student } from '@/app/lib/types';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Html5Qrcode } from 'html5-qrcode';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
-import { useFirestore, useCollection, useAuth } from '@/firebase';
-import { collection, addDoc, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { useFirestore, useCollection, useAuth, useMemoFirebase } from '@/firebase';
+import { collection, addDoc, query, where, orderBy, limit } from 'firebase/firestore';
 
 export default function ScannerPage() {
   const router = useRouter();
@@ -27,30 +26,32 @@ export default function ScannerPage() {
   const [selectedSession, setSelectedSession] = useState('s1');
   const [selectedExamId, setSelectedExamId] = useState<string>('');
   const [isScanning, setIsScanning] = useState(false);
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [lastScan, setLastScan] = useState<{ status: 'valid' | 'invalid' | 'duplicate', student?: Student, reason?: string } | null>(null);
   
-  // Real-time collections
-  const { data: students = [] } = useCollection(db ? collection(db, 'students') : null);
-  const { data: exams = [] } = useCollection(db ? collection(db, 'exam_events') : null);
+  const studentsQuery = useMemoFirebase(() => collection(db, 'students'), [db]);
+  const { data: students = [] } = useCollection(studentsQuery);
+  
+  const examsQuery = useMemoFirebase(() => collection(db, 'exam_events'), [db]);
+  const { data: exams = [] } = useCollection(examsQuery);
   
   const todayStr = new Date().toISOString().split('T')[0];
-  const { data: todayLogs = [] } = useCollection(
-    db ? query(
+  const logsQuery = useMemoFirebase(() => 
+    query(
       collection(db, 'attendance_logs'),
       where('date', '==', todayStr),
       orderBy('scanned_at', 'desc'),
       limit(10)
-    ) : null
+    ), [db, todayStr]
   );
+  const { data: todayLogs = [] } = useCollection(logsQuery);
 
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
-    if (exams.length > 0 && !selectedExamId) {
+    if (exams && exams.length > 0 && !selectedExamId) {
       setSelectedExamId(exams[0].id);
     }
-  }, [exams]);
+  }, [exams, selectedExamId]);
 
   const startScanner = async () => {
     if (attendanceType === 'ujian' && !selectedExamId) {
@@ -61,7 +62,6 @@ export default function ScannerPage() {
     try {
       if (scannerRef.current) {
         await scannerRef.current.stop().catch(() => {});
-        scannerRef.current = null;
       }
 
       setIsScanning(true);
@@ -80,10 +80,10 @@ export default function ScannerPage() {
         },
         () => {}
       );
-      setHasCameraPermission(true);
     } catch (err) {
-      setHasCameraPermission(false);
+      console.error(err);
       setIsScanning(false);
+      toast({ variant: "destructive", title: "Kamera Gagal", description: "Pastikan izin kamera telah diberikan." });
     }
   };
 
@@ -99,7 +99,7 @@ export default function ScannerPage() {
 
   const handleProcessScan = async (decodedText: string) => {
     const cleanCode = decodedText.replace('VERIFY-', '').trim();
-    const student = students.find((s: any) => s.card_code === cleanCode || s.nis === cleanCode);
+    const student = students?.find((s: any) => s.card_code === cleanCode || s.nis === cleanCode);
     
     if (!student) {
       setLastScan({ status: 'invalid', reason: 'Kode Tidak Terdaftar' });
@@ -107,9 +107,7 @@ export default function ScannerPage() {
     }
 
     const sessionId = attendanceType === 'ujian' ? 'exam' : selectedSession;
-    
-    // Cek duplikat di Firestore (perlu fetch real-time atau cek dari todayLogs lokal)
-    const isDuplicate = todayLogs.some((l: any) => 
+    const isDuplicate = todayLogs?.some((l: any) => 
       l.student_id === student.id && 
       l.session_id === sessionId &&
       (attendanceType === 'ujian' ? l.exam_id === selectedExamId : true)
@@ -134,10 +132,7 @@ export default function ScannerPage() {
       reason: isValid ? null : 'Kartu Tidak Aktif'
     };
 
-    // Tulis ke Firestore
-    if (db) {
-      addDoc(collection(db, 'attendance_logs'), newLog);
-    }
+    addDoc(collection(db, 'attendance_logs'), newLog);
     
     setLastScan({ 
       status: isValid ? 'valid' : 'invalid', 
@@ -168,7 +163,7 @@ export default function ScannerPage() {
           </Button>
         </div>
 
-        <Card className={cn("overflow-hidden border-none shadow-xl transition-all", attendanceType === 'harian' ? 'ring-2 ring-primary/20' : 'ring-2 ring-orange-500/20')}>
+        <Card className={cn("overflow-hidden border-none shadow-xl", attendanceType === 'harian' ? 'ring-2 ring-primary/20' : 'ring-2 ring-orange-500/20')}>
           <div className={cn("h-2", attendanceType === 'harian' ? 'bg-primary' : 'bg-orange-500')}></div>
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><QrCode className="h-5 w-5" /> Kontrol Pemindaian</CardTitle>
@@ -204,7 +199,7 @@ export default function ScannerPage() {
                   <Select value={selectedExamId} onValueChange={setSelectedExamId}>
                     <SelectTrigger className="w-full h-11 bg-slate-50 border-none font-bold"><SelectValue placeholder="Pilih Ujian" /></SelectTrigger>
                     <SelectContent>
-                      {exams.map((e: any) => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}
+                      {exams?.map((e: any) => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -224,7 +219,7 @@ export default function ScannerPage() {
             </div>
 
             {lastScan && (
-              <div className={cn("p-4 rounded-2xl flex items-center gap-4 border-2 animate-in fade-in slide-in-from-bottom-4 duration-500", lastScan.status === 'valid' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : lastScan.status === 'duplicate' ? 'bg-orange-50 border-orange-100 text-orange-800' : 'bg-red-50 border-red-100 text-red-800')}>
+              <div className={cn("p-4 rounded-2xl flex items-center gap-4 border-2 animate-in fade-in slide-in-from-bottom-4", lastScan.status === 'valid' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : lastScan.status === 'duplicate' ? 'bg-orange-50 border-orange-100 text-orange-800' : 'bg-red-50 border-red-100 text-red-800')}>
                 <div className="w-14 h-18 relative rounded-xl overflow-hidden bg-white shadow-sm flex-shrink-0 border-2 border-white">
                    {lastScan.student?.photo_url ? <Image src={lastScan.student.photo_url} alt="F" fill className="object-cover" unoptimized /> : <div className="w-full h-full bg-slate-100" />}
                 </div>
@@ -249,10 +244,10 @@ export default function ScannerPage() {
         </Card>
 
         <div className="space-y-4">
-          <h3 className="font-black uppercase tracking-[0.2em] text-xs flex items-center gap-2 text-slate-500 px-2"><History className="h-4 w-4" /> Riwayat Real-time (Firestore)</h3>
+          <h3 className="font-black uppercase tracking-[0.2em] text-xs flex items-center gap-2 text-slate-500 px-2"><History className="h-4 w-4" /> Riwayat Terkini</h3>
           <div className="space-y-2">
-            {todayLogs.map((log: any) => {
-              const s = students.find((x: any) => x.id === log.student_id);
+            {todayLogs?.map((log: any) => {
+              const s = students?.find((x: any) => x.id === log.student_id);
               return (
                 <div key={log.id} className={cn("bg-white p-4 rounded-2xl border flex items-center justify-between shadow-sm", log.session_id === 'exam' ? 'border-l-4 border-l-orange-500' : 'border-l-4 border-l-primary')}>
                   <div className="flex items-center gap-3">
