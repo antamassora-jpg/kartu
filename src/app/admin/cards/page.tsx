@@ -1,7 +1,7 @@
+
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { getDB } from '@/app/lib/db';
+import { useState, useRef } from 'react';
 import { Student, SchoolSettings, CardTemplate } from '@/app/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StudentCardVisual } from '@/components/student-card-visual';
 import { 
   Printer, 
@@ -37,11 +37,11 @@ import {
 } from '@/components/ui/dialog';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
+import { collection, doc, query, orderBy } from 'firebase/firestore';
 
 export default function CardsPage() {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [settings, setSettings] = useState<SchoolSettings | null>(null);
-  const [activeTemplate, setActiveTemplate] = useState<CardTemplate | null>(null);
+  const db = useFirestore();
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const [selectedMajor, setSelectedMajor] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -55,14 +55,16 @@ export default function CardsPage() {
   const cardRefBack = useRef<HTMLDivElement>(null);
   const bulkContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const db = getDB();
-    setStudents(db.students);
-    setSettings(db.school_settings);
-    const template = db.templates.find(t => t.type === 'STUDENT_CARD' && t.is_active);
-    setActiveTemplate(template || null);
-    if (db.students.length > 0) setPreviewId(db.students[0].id);
-  }, []);
+  const studentsQuery = useMemoFirebase(() => db ? query(collection(db, 'students'), orderBy('name', 'asc')) : null, [db]);
+  const { data: studentsData, isLoading: loadingStudents } = useCollection<Student>(studentsQuery);
+  const students = studentsData || [];
+
+  const settingsRef = useMemoFirebase(() => db ? doc(db, 'school_settings', 'default') : null, [db]);
+  const { data: settings } = useDoc<SchoolSettings>(settingsRef);
+
+  const templatesQuery = useMemoFirebase(() => db ? collection(db, 'templates') : null, [db]);
+  const { data: templates } = useCollection<CardTemplate>(templatesQuery);
+  const activeTemplate = templates?.find(t => t.type === 'STUDENT_CARD' && t.is_active) || null;
 
   const classes = Array.from(new Set(students.map(s => s.class))).sort();
   const majors = Array.from(new Set(students.map(s => s.major))).sort();
@@ -76,7 +78,7 @@ export default function CardsPage() {
     return matchClass && matchMajor && matchSearch;
   });
 
-  const previewStudent = students.find(s => s.id === previewId);
+  const previewStudent = students.find(s => s.id === previewId) || (students.length > 0 ? students[0] : null);
 
   const toggleSelect = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -102,11 +104,7 @@ export default function CardsPage() {
       scale: 2,
       useCORS: true,
       logging: false,
-      backgroundColor: '#ffffff',
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: document.documentElement.offsetWidth,
-      windowHeight: document.documentElement.offsetHeight
+      backgroundColor: '#ffffff'
     });
   };
 
@@ -157,25 +155,26 @@ export default function CardsPage() {
         const canvasBack = await captureElement(back);
         pdf.addImage(canvasBack.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 85.6, 54);
         
-        await new Promise(resolve => setTimeout(resolve, 150));
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
       pdf.save(`Bulk_Kartu_Pelajar_${new Date().getTime()}.pdf`);
       toast({ title: "Berhasil", description: "Dokumen PDF massal telah diunduh." });
     } catch (error) {
-      console.error('Download Bulk Error:', error);
       toast({ variant: "destructive", title: "Gagal", description: "Terjadi kesalahan render massal." });
     } finally {
       setIsBulkDownloading(false);
     }
   };
 
-  const handlePrint = () => {
-    setIsPrintModalOpen(false);
-    setTimeout(() => {
-      window.print();
-    }, 500);
-  };
+  if (loadingStudents) {
+    return (
+      <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Memuat Template & Siswa...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -198,7 +197,7 @@ export default function CardsPage() {
       <div className="no-print flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Kartu Pelajar</h1>
-          <p className="text-muted-foreground">Generate dan cetak kartu pelajar siswa secara massal.</p>
+          <p className="text-muted-foreground">Generate dan cetak kartu pelajar siswa secara massal dari Cloud Firestore.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="gap-2 shadow-sm border-2" onClick={handleDownloadBulk} disabled={selectedIds.size === 0 || isBulkDownloading}>
@@ -222,7 +221,7 @@ export default function CardsPage() {
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input 
-                placeholder="Cari nama, NIS, atau NISN..." 
+                placeholder="Cari nama, NIS..." 
                 className="pl-9"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -293,13 +292,13 @@ export default function CardsPage() {
               <>
                 <div className="space-y-4 flex flex-col items-center">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Tampak Depan</span>
-                  <div ref={cardRefFront} className="shadow-2xl hover:scale-[1.02] transition-transform duration-500">
+                  <div ref={cardRefFront} className="shadow-2xl">
                     <StudentCardVisual student={previewStudent} settings={settings} side="front" template={activeTemplate} />
                   </div>
                 </div>
                 <div className="space-y-4 flex flex-col items-center">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Tampak Belakang</span>
-                  <div ref={cardRefBack} className="shadow-2xl hover:scale-[1.02] transition-transform duration-500">
+                  <div ref={cardRefBack} className="shadow-2xl">
                     <StudentCardVisual student={previewStudent} settings={settings} side="back" template={activeTemplate} />
                   </div>
                 </div>
@@ -331,13 +330,13 @@ export default function CardsPage() {
           <DialogHeader>
             <DialogTitle className="text-xl">Konfirmasi Cetak</DialogTitle>
             <DialogDescription>
-              Anda akan mencetak <strong>{selectedIds.size}</strong> kartu pelajar sekaligus. Pastikan kertas kartu sudah siap di printer.
+              Anda akan mencetak <strong>{selectedIds.size}</strong> kartu pelajar sekaligus.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
             <Button variant="ghost" onClick={() => setIsPrintModalOpen(false)}>Batal</Button>
-            <Button className="gap-2 px-8 shadow-lg shadow-primary/20" onClick={handlePrint}>
-              <Printer className="h-4 w-4" /> Mulai Cetak Massal
+            <Button className="gap-2 px-8 shadow-lg shadow-primary/20" onClick={() => { setIsPrintModalOpen(false); setTimeout(() => window.print(), 500); }}>
+              <Printer className="h-4 w-4" /> Mulai Cetak
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,31 +1,57 @@
+
 "use client";
 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getDB } from '@/app/lib/db';
 import { Student, SchoolSettings } from '@/app/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { XCircle, ShieldCheck } from 'lucide-react';
+import { XCircle, ShieldCheck, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { collection, query, where, getDocs, doc } from 'firebase/firestore';
 
 export default function VerifyPage() {
   const params = useParams();
+  const db = useFirestore();
   const [student, setStudent] = useState<Student | null>(null);
-  const [settings, setSettings] = useState<SchoolSettings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isMounted, setIsMounted] = useState(false);
+
+  const settingsRef = useMemoFirebase(() => db ? doc(db, 'school_settings', 'default') : null, [db]);
+  const { data: settings } = useDoc<SchoolSettings>(settingsRef);
 
   useEffect(() => {
-    const db = getDB();
-    const s = db.students.find(x => x.card_code === params.code || x.nis === params.code);
-    setStudent(s || null);
-    setSettings(db.school_settings);
-    setLoading(false);
-    setIsMounted(true);
-  }, [params.code]);
+    const fetchStudent = async () => {
+      if (!db || !params.code) return;
+      
+      const cleanCode = (params.code as string).replace('VERIFY-', '').trim();
+      
+      try {
+        const qCode = query(collection(db, 'students'), where('card_code', '==', cleanCode));
+        const qNis = query(collection(db, 'students'), where('nis', '==', cleanCode));
+        
+        const [snapCode, snapNis] = await Promise.all([getDocs(qCode), getDocs(qNis)]);
+        const found = snapCode.docs[0] || snapNis.docs[0];
+        
+        if (found) {
+          setStudent({ ...found.data() as Student, id: found.id });
+        }
+      } catch (err) {
+        console.error("Verification error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchStudent();
+  }, [db, params.code]);
 
-  if (loading) return null;
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-50">
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Memverifikasi Kartu...</p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#ECF0F8] p-4 flex items-center justify-center">
@@ -35,7 +61,7 @@ export default function VerifyPage() {
              <Image src="https://iili.io/KAqSZhb.png" alt="Logo" fill className="object-contain" />
           </div>
           <h1 className="text-xl font-bold text-primary text-center">Verifikasi Kartu Pelajar</h1>
-          <p className="text-xs text-muted-foreground uppercase tracking-widest">{settings?.school_name}</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-widest">{settings?.school_name || 'SMKN 2 Tana Toraja'}</p>
         </div>
 
         {student ? (
@@ -43,11 +69,15 @@ export default function VerifyPage() {
             <div className={`h-2 ${student.status === 'Aktif' ? 'bg-green-500' : 'bg-red-500'}`}></div>
             <CardContent className="pt-8 pb-8 flex flex-col items-center">
               <div className={`w-32 h-40 bg-muted rounded-xl relative overflow-hidden border-4 ${student.status === 'Aktif' ? 'border-green-100' : 'border-red-100'} shadow-inner mb-6`}>
-                {student.photo_url && <Image src={student.photo_url} alt={student.name} fill className="object-cover" />}
+                {student.photo_url ? (
+                  <Image src={student.photo_url} alt={student.name} fill className="object-cover" unoptimized />
+                ) : (
+                  <div className="w-full h-full bg-slate-200" />
+                )}
               </div>
 
               <div className="text-center space-y-1 mb-6">
-                 <h2 className="text-2xl font-bold text-primary leading-tight px-4">{student.name}</h2>
+                 <h2 className="text-2xl font-bold text-primary leading-tight px-4 uppercase">{student.name}</h2>
                  <p className="text-sm text-muted-foreground font-medium">{student.class} - {student.major}</p>
                  <div className="pt-2">
                     <Badge variant={student.status === 'Aktif' ? 'default' : 'destructive'} className="px-4 py-1 text-sm rounded-full">
@@ -79,13 +109,13 @@ export default function VerifyPage() {
              </div>
              <div>
                 <h2 className="text-xl font-bold text-destructive">Data Tidak Ditemukan</h2>
-                <p className="text-sm text-muted-foreground mt-2">Kode kartu tidak valid atau kartu telah dihapus dari sistem.</p>
+                <p className="text-sm text-muted-foreground mt-2">Kode kartu tidak valid atau kartu telah dihapus dari sistem Cloud.</p>
              </div>
           </Card>
         )}
 
         <p className="text-center mt-8 text-[10px] text-muted-foreground opacity-60">
-           &copy; {isMounted ? new Date().getFullYear() : '2024'} EduCard Sync. SMKN 2 Tana Toraja.
+           &copy; {new Date().getFullYear()} EduCard Sync. SMKN 2 Tana Toraja.
         </p>
       </div>
     </div>

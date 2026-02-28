@@ -1,33 +1,40 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
-import { getDB } from '@/app/lib/db';
+import { useMemo } from 'react';
 import { Student, AttendanceLog, ExamEvent } from '@/app/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Database, Users, Calendar, GraduationCap, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Database, Users, Calendar, GraduationCap, Clock, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, limit } from 'firebase/firestore';
 
 export default function LogDatabasePage() {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [logs, setLogs] = useState<AttendanceLog[]>([]);
-  const [exams, setExams] = useState<ExamEvent[]>([]);
-  const [isMounted, setIsMounted] = useState(false);
+  const db = useFirestore();
 
-  useEffect(() => {
-    const db = getDB();
-    setStudents(db.students);
-    setLogs(db.logs);
-    setExams(db.exams);
-    setIsMounted(true);
-  }, []);
+  const studentsQuery = useMemoFirebase(() => db ? collection(db, 'students') : null, [db]);
+  const { data: studentsData, isLoading: loadingStudents } = useCollection<Student>(studentsQuery);
+  const students = studentsData || [];
 
-  const dailyLogs = logs.filter(l => l.session_id !== 'exam');
-  const examLogs = logs.filter(l => l.session_id === 'exam');
+  const logsQuery = useMemoFirebase(() => db ? query(collection(db, 'attendance_logs'), orderBy('scanned_at', 'desc'), limit(100)) : null, [db]);
+  const { data: logsData, isLoading: loadingLogs } = useCollection<AttendanceLog>(logsQuery);
+  const logs = logsData || [];
 
-  if (!isMounted) return null;
+  const examsQuery = useMemoFirebase(() => db ? collection(db, 'exams') : null, [db]);
+  const { data: examsData } = useCollection<ExamEvent>(examsQuery);
+  const exams = examsData || [];
+
+  const dailyLogs = useMemo(() => logs.filter(l => l.session_id !== 'exam'), [logs]);
+  const examLogs = useMemo(() => logs.filter(l => l.session_id === 'exam'), [logs]);
+
+  if (loadingStudents || loadingLogs) return (
+    <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Menghubungkan ke Cloud Firestore...</p>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -36,7 +43,7 @@ export default function LogDatabasePage() {
           <h1 className="text-3xl font-bold font-headline text-primary flex items-center gap-3">
             <Database className="h-8 w-8" /> Log Database
           </h1>
-          <p className="text-muted-foreground">Monitoring aktivitas sistem dan integritas data kartu.</p>
+          <p className="text-muted-foreground">Monitoring aktivitas sistem dan integritas data kartu secara real-time.</p>
         </div>
       </div>
 
@@ -56,7 +63,7 @@ export default function LogDatabasePage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-muted-foreground uppercase">Log Harian</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase">Log Harian (100 Terakhir)</p>
                 <h3 className="text-2xl font-black text-emerald-600">{dailyLogs.length}</h3>
               </div>
               <Clock className="h-8 w-8 text-emerald-600 opacity-20" />
@@ -67,7 +74,7 @@ export default function LogDatabasePage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-muted-foreground uppercase">Log Ujian</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase">Log Ujian (100 Terakhir)</p>
                 <h3 className="text-2xl font-black text-orange-600">{examLogs.length}</h3>
               </div>
               <GraduationCap className="h-8 w-8 text-orange-600 opacity-20" />
@@ -156,7 +163,7 @@ export default function LogDatabasePage() {
                       <TableRow key={log.id}>
                         <TableCell className="text-[11px]">
                           <div className="font-bold">{log.date}</div>
-                          <div className="text-muted-foreground">{isMounted ? new Date(log.scanned_at).toLocaleTimeString() : '--:--'}</div>
+                          <div className="text-muted-foreground">{new Date(log.scanned_at).toLocaleTimeString()}</div>
                         </TableCell>
                         <TableCell>
                           <div className="font-bold">{s?.name || 'Unknown'}</div>
@@ -177,7 +184,7 @@ export default function LogDatabasePage() {
                             <span className="text-[10px] font-bold">{log.is_valid ? 'VALID' : 'INVALID'}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-xs text-muted-foreground uppercase">{log.scanned_by_user_id}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground truncate max-w-[100px]">{log.scanned_by_user_id}</TableCell>
                       </TableRow>
                     );
                   }) : (
@@ -205,7 +212,7 @@ export default function LogDatabasePage() {
                     <TableHead>Siswa</TableHead>
                     <TableHead>Nama Ujian</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Aksi</TableHead>
+                    <TableHead>Kode</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -216,7 +223,7 @@ export default function LogDatabasePage() {
                       <TableRow key={log.id}>
                         <TableCell className="text-[11px]">
                           <div className="font-bold">{log.date}</div>
-                          <div className="text-muted-foreground">{isMounted ? new Date(log.scanned_at).toLocaleTimeString() : '--:--'}</div>
+                          <div className="text-muted-foreground">{new Date(log.scanned_at).toLocaleTimeString()}</div>
                         </TableCell>
                         <TableCell>
                           <div className="font-bold">{s?.name || 'Unknown'}</div>

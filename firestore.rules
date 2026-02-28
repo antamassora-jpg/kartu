@@ -45,7 +45,7 @@ service cloud.firestore {
     }
 
     // Koleksi Utama: Siswa
-    // Izinkan 'get' dan 'list' secara publik agar fitur verifikasi di landing page dan manajemen admin berfungsi
+    // Izinkan 'get' dan 'list' secara publik agar fitur verifikasi dan manajemen admin berfungsi
     match /students/{studentId} {
       allow get, list: if true; 
       allow create, update, delete: if isAdmin();
@@ -75,6 +75,6 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Last updated: 2024-05-20 14:30 (Force redeploy to fix list permissions)
+    // Last updated: 2024-05-20 15:10 (Force redeploy to grant explicit list permissions)
   }
 }

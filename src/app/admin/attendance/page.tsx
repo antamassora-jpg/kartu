@@ -1,7 +1,7 @@
+
 "use client";
 
-import { useState, useEffect } from 'react';
-import { getDB } from '@/app/lib/db';
+import { useState, useMemo } from 'react';
 import { AttendanceLog, Student, ExamEvent } from '@/app/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,42 +12,46 @@ import {
   Bar, 
   XAxis, 
   YAxis, 
-  CartesianGrid, 
   Tooltip, 
   ResponsiveContainer 
 } from 'recharts';
-import { Sparkles, Download, FileText, Calendar, Filter, GraduationCap } from 'lucide-react';
+import { Sparkles, Calendar, Filter, GraduationCap, Loader2 } from 'lucide-react';
 import { analyzeAttendance } from '@/ai/flows/analyze-attendance-flow';
 import { toast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
 
 export default function AttendanceAdminPage() {
-  const [logs, setLogs] = useState<AttendanceLog[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [exams, setExams] = useState<ExamEvent[]>([]);
+  const db = useFirestore();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiResult, setAiResult] = useState<any>(null);
-  const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('harian');
   const [selectedExamFilter, setSelectedExamFilter] = useState<string>('all');
 
-  useEffect(() => {
-    const db = getDB();
-    setLogs(db.logs);
-    setStudents(db.students);
-    setExams(db.exams);
-    setIsMounted(true);
-  }, []);
+  const logsQuery = useMemoFirebase(() => db ? query(collection(db, 'attendance_logs'), orderBy('scanned_at', 'desc')) : null, [db]);
+  const { data: logsData, isLoading: loadingLogs } = useCollection<AttendanceLog>(logsQuery);
+  const logs = logsData || [];
 
-  const filteredLogs = logs.filter(log => {
-    if (activeTab === 'harian') {
-      return log.session_id !== 'exam';
-    } else {
-      if (selectedExamFilter === 'all') return log.session_id === 'exam';
-      return log.session_id === 'exam' && log.exam_id === selectedExamFilter;
-    }
-  });
+  const studentsQuery = useMemoFirebase(() => db ? collection(db, 'students') : null, [db]);
+  const { data: studentsData } = useCollection<Student>(studentsQuery);
+  const students = studentsData || [];
+
+  const examsQuery = useMemoFirebase(() => db ? collection(db, 'exams') : null, [db]);
+  const { data: examsData } = useCollection<ExamEvent>(examsQuery);
+  const exams = examsData || [];
+
+  const filteredLogs = useMemo(() => {
+    return logs.filter(log => {
+      if (activeTab === 'harian') {
+        return log.session_id !== 'exam';
+      } else {
+        if (selectedExamFilter === 'all') return log.session_id === 'exam';
+        return log.session_id === 'exam' && log.exam_id === selectedExamFilter;
+      }
+    });
+  }, [logs, activeTab, selectedExamFilter]);
 
   const handleAiAnalysis = async () => {
     if (filteredLogs.length === 0) {
@@ -86,12 +90,21 @@ export default function AttendanceAdminPage() {
     }
   };
 
+  if (loadingLogs) {
+    return (
+      <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Memuat Data Absensi...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary">Rekap Absensi</h1>
-          <p className="text-muted-foreground">Monitor kehadiran siswa harian dan event ujian.</p>
+          <p className="text-muted-foreground">Monitor kehadiran siswa harian dan event ujian secara real-time.</p>
         </div>
         <div className="flex gap-2">
           <Button className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/80" onClick={handleAiAnalysis} disabled={isAnalyzing}>
@@ -162,17 +175,17 @@ export default function AttendanceAdminPage() {
         </div>
 
         <TabsContent value="harian" className="mt-0">
-          <AttendanceTable logs={filteredLogs} students={students} exams={exams} isMounted={isMounted} />
+          <AttendanceTable logs={filteredLogs} students={students} exams={exams} />
         </TabsContent>
         <TabsContent value="ujian" className="mt-0">
-          <AttendanceTable logs={filteredLogs} students={students} exams={exams} isMounted={isMounted} />
+          <AttendanceTable logs={filteredLogs} students={students} exams={exams} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
-function AttendanceTable({ logs, students, exams, isMounted }: { logs: AttendanceLog[], students: Student[], exams: ExamEvent[], isMounted: boolean }) {
+function AttendanceTable({ logs, students, exams }: { logs: AttendanceLog[], students: Student[], exams: ExamEvent[] }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card className="lg:col-span-2">
@@ -190,7 +203,7 @@ function AttendanceTable({ logs, students, exams, isMounted }: { logs: Attendanc
               </TableRow>
             </TableHeader>
             <TableBody>
-              {logs.length > 0 ? logs.slice(0, 20).map(log => {
+              {logs.length > 0 ? logs.slice(0, 50).map(log => {
                 const s = students.find(x => x.id === log.student_id);
                 const isExam = log.session_id === 'exam';
                 const examName = exams.find(e => e.id === log.exam_id)?.name;
@@ -199,7 +212,7 @@ function AttendanceTable({ logs, students, exams, isMounted }: { logs: Attendanc
                   <TableRow key={log.id}>
                     <TableCell className="text-xs">
                       <div className="font-medium">{log.date}</div>
-                      <div className="text-muted-foreground">{isMounted ? new Date(log.scanned_at).toLocaleTimeString() : '--:--'}</div>
+                      <div className="text-muted-foreground">{new Date(log.scanned_at).toLocaleTimeString()}</div>
                     </TableCell>
                     <TableCell>
                       <div className="font-semibold">{s?.name || 'Siswa'}</div>
