@@ -136,10 +136,10 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="pt-6">
               <Tabs defaultValue="student" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 h-14 bg-slate-50 p-1 rounded-2xl mb-6">
-                  <TabsTrigger value="student" className="rounded-xl text-[10px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Pelajar</TabsTrigger>
-                  <TabsTrigger value="exam" className="rounded-xl text-[10px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Ujian</TabsTrigger>
-                  <TabsTrigger value="id" className="rounded-xl text-[10px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">ID Card</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 h-14 bg-slate-100/80 p-1 rounded-2xl mb-6">
+                  <TabsTrigger value="student" className="rounded-xl text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-white data-[state=active]:text-[#2E50B8] data-[state=active]:shadow-md">Pelajar</TabsTrigger>
+                  <TabsTrigger value="exam" className="rounded-xl text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-white data-[state=active]:text-[#2E50B8] data-[state=active]:shadow-md">Ujian</TabsTrigger>
+                  <TabsTrigger value="id" className="rounded-xl text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-white data-[state=active]:text-[#2E50B8] data-[state=active]:shadow-md">ID Card</TabsTrigger>
                 </TabsList>
                 <div className="space-y-2">
                   <Label className="text-[9px] font-black uppercase text-slate-300 tracking-[0.3em] ml-1 mb-2 block">Ketentuan Kartu {activeTab.toUpperCase()}</Label>
@@ -182,10 +182,10 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="pt-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 h-14 bg-slate-50 p-1 rounded-2xl mb-8">
-                  <TabsTrigger value="student" className="rounded-xl text-[10px] font-black uppercase tracking-widest">Pelajar</TabsTrigger>
-                  <TabsTrigger value="exam" className="rounded-xl text-[10px] font-black uppercase tracking-widest">Ujian</TabsTrigger>
-                  <TabsTrigger value="id" className="rounded-xl text-[10px] font-black uppercase tracking-widest">ID Card</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 h-14 bg-slate-100/80 p-1 rounded-2xl mb-8">
+                  <TabsTrigger value="student" className="rounded-xl text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-white data-[state=active]:text-[#2E50B8] data-[state=active]:shadow-md">Pelajar</TabsTrigger>
+                  <TabsTrigger value="exam" className="rounded-xl text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-white data-[state=active]:text-[#2E50B8] data-[state=active]:shadow-md">Ujian</TabsTrigger>
+                  <TabsTrigger value="id" className="rounded-xl text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-white data-[state=active]:text-[#2E50B8] data-[state=active]:shadow-md">ID Card</TabsTrigger>
                 </TabsList>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -231,10 +231,10 @@ export default function SettingsPage() {
             </CardHeader>
             <div className="px-6 pt-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 h-12 bg-slate-50 p-1 rounded-xl">
-                  <TabsTrigger value="student" className="rounded-lg text-[9px] font-black uppercase tracking-widest">Pelajar</TabsTrigger>
-                  <TabsTrigger value="exam" className="rounded-lg text-[9px] font-black uppercase tracking-widest">Ujian</TabsTrigger>
-                  <TabsTrigger value="id" className="rounded-lg text-[9px] font-black uppercase tracking-widest">ID Card</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 h-12 bg-slate-100/80 p-1 rounded-xl">
+                  <TabsTrigger value="student" className="rounded-lg text-[9px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-white data-[state=active]:text-[#2E50B8] data-[state=active]:shadow-sm">Pelajar</TabsTrigger>
+                  <TabsTrigger value="exam" className="rounded-lg text-[9px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-white data-[state=active]:text-[#2E50B8] data-[state=active]:shadow-sm">Ujian</TabsTrigger>
+                  <TabsTrigger value="id" className="rounded-lg text-[9px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-white data-[state=active]:text-[#2E50B8] data-[state=active]:shadow-sm">ID Card</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -243,7 +243,7 @@ export default function SettingsPage() {
               <AssetCard 
                 label="Logo Sekolah (Kiri)" 
                 value={activeTab === 'exam' ? localSettings.logo_left_exam : (activeTab === 'id' ? localSettings.logo_left_id : localSettings.logo_left)}
-                onChange={(val) => updateSetting(activeTab === 'exam' ? 'logo_left_exam' : (activeTab === 'id' ? 'logo_left_id' : localSettings.logo_left ? 'logo_left' : 'logo_left'), val)}
+                onChange={(val) => updateSetting(activeTab === 'exam' ? 'logo_left_exam' : (activeTab === 'id' ? 'logo_left_id' : 'logo_left'), val)}
                 front={localSettings[`${activeTab}_show_logo_front` as any]}
                 back={localSettings[`${activeTab}_show_logo_back` as any]}
                 onFrontToggle={(v) => updateSetting(`${activeTab}_show_logo_front` as any, v)}
