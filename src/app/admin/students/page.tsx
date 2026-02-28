@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useMemo } from 'react';
@@ -25,7 +24,9 @@ import {
   Calendar,
   Filter,
   User as UserIcon,
-  ChevronDown
+  ChevronDown,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -40,6 +41,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -57,7 +59,13 @@ export default function StudentsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingStudent, setEditStudent] = useState<Student | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
   
+  // States for Import
+  const [isImportPreviewOpen, setIsImportPreviewOpen] = useState(false);
+  const [importData, setImportData] = useState<Partial<Student>[]>([]);
+  const [isImporting, setIsImporting] = useState(false);
+
   const [newStudent, setNewStudent] = useState<Partial<Student>>({
     status: 'Aktif',
     valid_until: '2030-06-30',
@@ -152,6 +160,80 @@ export default function StudentsPage() {
     reader.readAsDataURL(file);
   };
 
+  // CSV Import Logic
+  const handleDownloadTemplate = () => {
+    const headers = "name;nis;nisn;class;major;school_year;status;valid_until";
+    const sample = "Andi Pratama;2021001;0051234567;XII;TEKNIK KOMPUTER & JARINGAN;2023/2024;Aktif;2030-06-30";
+    const csvContent = `${headers}\n${sample}`;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "template_import_siswa.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      const lines = text.split('\n');
+      const results: Partial<Student>[] = [];
+      
+      // Assume first line is header
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        const cols = line.split(';');
+        if (cols.length >= 2) {
+          results.push({
+            name: cols[0],
+            nis: cols[1],
+            nisn: cols[2] || '',
+            class: cols[3] || 'X',
+            major: cols[4] || 'UMUM',
+            school_year: cols[5] || '2024/2025',
+            status: (cols[6] as any) || 'Aktif',
+            valid_until: cols[7] || '2030-06-30',
+            card_code: `CC-${Math.random().toString(36).substr(2, 6).toUpperCase()}`
+          });
+        }
+      }
+      
+      setImportData(results);
+      setIsImportPreviewOpen(true);
+      if (csvInputRef.current) csvInputRef.current.value = '';
+    };
+    reader.readAsText(file);
+  };
+
+  const processImport = async () => {
+    if (!db || importData.length === 0) return;
+    setIsImporting(true);
+    let successCount = 0;
+
+    try {
+      for (const student of importData) {
+        await addDoc(collection(db, 'students'), student);
+        successCount++;
+      }
+      toast({ title: "Import Berhasil", description: `${successCount} data siswa telah ditambahkan.` });
+      setIsImportPreviewOpen(false);
+    } catch (err) {
+      toast({ variant: "destructive", title: "Import Gagal", description: "Terjadi kesalahan saat menyimpan data." });
+    } finally {
+      setIsImporting(false);
+      setImportData([]);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
@@ -170,12 +252,13 @@ export default function StudentsPage() {
           <p className="text-muted-foreground mt-1 font-medium">Kelola database master siswa dan verifikasi kartu.</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
-          <Button variant="outline" className="gap-2 bg-slate-50 border-slate-200 text-slate-600 font-bold rounded-xl h-11">
+          <Button variant="outline" className="gap-2 bg-slate-50 border-slate-200 text-slate-600 font-bold rounded-xl h-11" onClick={handleDownloadTemplate}>
             <FileSpreadsheet className="h-4 w-4" /> Format CSV (;)
           </Button>
-          <Button variant="outline" className="gap-2 bg-slate-50 border-slate-200 text-slate-600 font-bold rounded-xl h-11">
+          <Button variant="outline" className="gap-2 bg-slate-50 border-slate-200 text-slate-600 font-bold rounded-xl h-11" onClick={() => csvInputRef.current?.click()}>
             <Upload className="h-4 w-4" /> Import Data
           </Button>
+          <input type="file" ref={csvInputRef} className="hidden" accept=".csv" onChange={handleFileChange} />
           <Button className="gap-2 bg-[#2E50B8] hover:bg-[#1e3a8a] text-white font-bold rounded-xl h-11 px-6 shadow-lg shadow-blue-500/20" onClick={() => { setEditStudent(null); setNewStudent({ status: 'Aktif', valid_until: '2030-06-30' }); setIsAddOpen(true); }}>
             <Plus className="h-4 w-4" /> Siswa Baru
           </Button>
@@ -377,6 +460,59 @@ export default function StudentsPage() {
             <Button onClick={handleAdd} className="bg-[#2E50B8] hover:bg-[#1e3a8a] text-white font-black uppercase tracking-widest h-12 px-12 rounded-xl shadow-lg shadow-blue-500/20">
               SIMPAN DATA
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* IMPORT PREVIEW DIALOG */}
+      <Dialog open={isImportPreviewOpen} onOpenChange={setIsImportPreviewOpen}>
+        <DialogContent className="max-w-4xl rounded-[2rem] border-none shadow-2xl p-0 overflow-hidden">
+          <div className="bg-emerald-600 p-8 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
+                <Upload className="h-6 w-6" /> Pratinjau Import Data
+              </DialogTitle>
+              <DialogDescription className="text-white/70 font-medium">
+                Ditemukan {importData.length} data siswa. Silakan tinjau sebelum disimpan ke database.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          
+          <div className="p-0 max-h-[50vh] overflow-y-auto">
+            <Table>
+              <TableHeader className="bg-slate-50 sticky top-0 z-10">
+                <TableRow>
+                  <TableHead className="text-[10px] font-black uppercase">Nama</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase">NIS</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase">Kelas/Jurusan</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase">Thn Ajaran</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {importData.map((s, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell className="font-bold text-sm">{s.name}</TableCell>
+                    <TableCell className="text-xs font-mono">{s.nis}</TableCell>
+                    <TableCell className="text-xs">{s.class} - {s.major}</TableCell>
+                    <TableCell className="text-xs">{s.school_year}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <DialogFooter className="p-8 bg-slate-50 border-t flex justify-between items-center">
+            <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase">
+              <AlertCircle className="h-4 w-4" />
+              Pastikan format tanggal (YYYY-MM-DD) sudah benar.
+            </div>
+            <div className="flex gap-3">
+              <Button variant="ghost" onClick={() => setIsImportPreviewOpen(false)} disabled={isImporting} className="font-bold rounded-xl h-12 px-8">Batal</Button>
+              <Button onClick={processImport} disabled={isImporting} className="bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest h-12 px-12 rounded-xl shadow-lg shadow-emerald-500/20 gap-2">
+                {isImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                KONFIRMASI IMPORT ({importData.length})
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
