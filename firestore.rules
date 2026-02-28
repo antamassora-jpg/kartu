@@ -2,79 +2,12 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // --- Global Helper Functions ---
-
-    function isSignedIn() {
-      return request.auth != null;
+    // ATURAN PENGEMBANGAN: Izinkan semua akses baca dan tulis untuk mempermudah prototyping
+    // PERINGATAN: Jangan gunakan aturan ini di produksi.
+    match /{document=**} {
+      allow read, write: if true;
     }
-
-    function isAdmin() {
-      // Izinkan akses admin jika:
-      // 1. Memiliki dokumen di koleksi roles_admin
-      // 2. ATAU merupakan pengguna Anonim (Fitur Login Cepat/Demo)
-      return isSignedIn() && (
-        request.auth.token.firebase.sign_in_provider == 'anonymous' ||
-        exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid))
-      );
-    }
-
-    function isScanner() {
-      return isSignedIn() && (
-        request.auth.token.firebase.sign_in_provider == 'anonymous' ||
-        exists(/databases/$(database)/documents/roles_scanner/$(request.auth.uid))
-      );
-    }
-
-    // --- Collection Rules ---
-
-    // Aturan User Profiles
-    match /user_profiles/{userId} {
-      allow read, write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-    }
-
-    // Aturan Role (Database-Backed Access Control)
-    match /roles_admin/{userId} {
-      allow read: if isSignedIn();
-      allow write: if isAdmin();
-    }
-
-    match /roles_scanner/{userId} {
-      allow read: if isSignedIn();
-      allow write: if isAdmin();
-    }
-
-    // Koleksi Utama: Siswa
-    match /students/{studentId} {
-      // Izinkan akses baca (get & list) secara publik untuk fitur verifikasi dan login tamu
-      allow read: if true; 
-      allow write: if isAdmin();
-    }
-
-    // Koleksi Utama: Ujian
-    match /exams/{examId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Koleksi Utama: Log Absensi
-    match /attendance_logs/{logId} {
-      allow read: if true;
-      allow create: if isSignedIn();
-      allow update, delete: if isAdmin();
-    }
-
-    // Koleksi Utama: Pengaturan & Template
-    match /school_settings/{settingId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /templates/{templateId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Pemicu pendeploian aturan: 2024-05-20 16:15 (Update explicit read permissions)
+    
+    // Stempel waktu pembaruan: 2024-05-20 18:30 (Akses Terbuka Penuh)
   }
 }
