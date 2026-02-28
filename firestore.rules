@@ -10,8 +10,8 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      // Untuk kebutuhan prototipe dan demo "Login Cepat", 
-      // kita izinkan user anonim bertindak sebagai admin.
+      // Izinkan akses jika user memiliki role admin di DB 
+      // ATAU jika user menggunakan fitur "Login Cepat / Tamu" untuk prototipe.
       return isSignedIn() && (
         exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid)) ||
         request.auth.token.firebase.sign_in_provider == 'anonymous'
@@ -50,8 +50,9 @@ service cloud.firestore {
     }
 
     match /students/{studentId} {
-      // Izinkan publik membaca untuk verifikasi, dan admin untuk manajemen penuh
-      allow read: if true; 
+      // Izinkan baca untuk verifikasi publik (get) dan list untuk user login
+      allow get: if true;
+      allow list: if isSignedIn();
       allow write: if isAdmin();
     }
 
@@ -81,7 +82,7 @@ service cloud.firestore {
     }
 
     match /attendance_logs/{logId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow create: if isSignedIn();
       allow update, delete: if isAdmin();
     }
