@@ -135,6 +135,7 @@ export function IdCardVisual({
           )}
           <div className="flex-1 flex flex-col">
             <h2 className="font-black text-[10px] uppercase leading-tight tracking-tight">{settings.school_name}</h2>
+            <span className="text-[6px] opacity-80 leading-tight block mt-0.5">{settings.address}</span>
             <h2 className="font-bold text-[7px] uppercase opacity-70 mt-0.5 block">Digital Identity Card</h2>
           </div>
           {showLogoRight && settings.logo_right_id && (

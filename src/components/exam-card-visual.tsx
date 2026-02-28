@@ -135,7 +135,8 @@ export function ExamCardVisual({
         )}
         <div className="flex-1 flex flex-col text-white text-center">
           <span className="font-bold text-[9px] uppercase leading-tight tracking-tight">{settings.school_name}</span>
-          <span className="text-[10px] font-black uppercase tracking-widest block mt-0.5" style={{ color: current.footerBg }}>KARTU PESERTA UJIAN</span>
+          <span className="text-[6px] opacity-80 leading-tight block mt-0.5 truncate max-w-[180px] mx-auto">{settings.address}</span>
+          <span className="text-[8px] font-black uppercase tracking-widest block mt-0.5" style={{ color: current.footerBg }}>KARTU PESERTA UJIAN</span>
         </div>
         {showLogoRight && settings.logo_right_exam && (
           <div className="w-10 h-10 relative bg-white rounded-md p-1 shrink-0 ml-3">
