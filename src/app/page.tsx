@@ -91,26 +91,31 @@ export default function LandingPage() {
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
+    setIsMounted(true);
     const fetchSettings = async () => {
       if (!db) return;
-      const docRef = doc(db, 'school_settings', 'default');
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setSettings(docSnap.data() as SchoolSettings);
+      try {
+        const docRef = doc(db, 'school_settings', 'default');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setSettings(docSnap.data() as SchoolSettings);
+        }
+      } catch (err) {
+        console.error("Failed to fetch settings:", err);
       }
     };
     fetchSettings();
-    setIsMounted(true);
   }, [db]);
 
   const handleSearch = async (queryStr: string = searchQuery) => {
-    if (!queryStr.trim() || !db) return;
+    const q = (queryStr || '').trim();
+    if (!q || !db) return;
 
     setIsSearching(true);
     setHasSearched(false);
     setSearchResult(null);
     
-    const cleanQuery = queryStr.replace('VERIFY-', '').trim();
+    const cleanQuery = q.replace('VERIFY-', '').trim();
 
     try {
       const qNis = query(collection(db, 'students'), where('nis', '==', cleanQuery));
@@ -184,10 +189,15 @@ export default function LandingPage() {
   };
 
   const startScanner = async () => {
+    if (scannerRef.current) return;
     setIsScannerOpen(true);
     setHasCameraPermission(null);
     
+    // Give DOM time to render div
     setTimeout(async () => {
+      const element = document.getElementById("landing-reader");
+      if (!element) return;
+
       try {
         const html5QrCode = new Html5Qrcode("landing-reader");
         scannerRef.current = html5QrCode;
@@ -206,7 +216,7 @@ export default function LandingPage() {
         console.error("Scanner error:", err);
         setHasCameraPermission(false);
       }
-    }, 500);
+    }, 300);
   };
 
   const stopScanner = async () => {
@@ -218,6 +228,14 @@ export default function LandingPage() {
     }
     setIsScannerOpen(false);
   };
+
+  useEffect(() => {
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+      }
+    };
+  }, []);
 
   const handleDownloadCard = async (type: 'STUDENT' | 'EXAM' | 'ID') => {
     if (!searchResult || !settings || !downloadRef.current) return;
@@ -341,7 +359,7 @@ export default function LandingPage() {
                 </div>
                 
                 <p className="text-[9px] text-center text-muted-foreground font-medium italic">
-                  *Login Cepat digunakan untuk mencoba fitur aplikasi tanpa akun permanen.
+                  * Login Cepat digunakan untuk mencoba fitur aplikasi tanpa akun permanen.
                 </p>
               </div>
             </DialogContent>

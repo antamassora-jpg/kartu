@@ -65,22 +65,19 @@ export default function ScannerPage() {
   useEffect(() => {
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.stop().catch(console.error);
+        scannerRef.current.stop().catch(() => {});
       }
     };
   }, []);
 
   const startScanner = async () => {
+    if (scannerRef.current) return;
     if (attendanceType === 'ujian' && !selectedExamId) {
       toast({ variant: "destructive", title: "Pilih Ujian", description: "Silakan pilih event ujian terlebih dahulu." });
       return;
     }
 
     try {
-      if (scannerRef.current) {
-        await scannerRef.current.stop().catch(() => {});
-      }
-
       setIsScanning(true);
       setLastScan(null);
       
@@ -115,7 +112,9 @@ export default function ScannerPage() {
   };
 
   const handleProcessScan = async (decodedText: string) => {
-    const cleanCode = decodedText.replace('VERIFY-', '').trim();
+    const cleanCode = (decodedText || '').replace('VERIFY-', '').trim();
+    if (!cleanCode) return;
+
     const student = students.find((s: Student) => s.card_code === cleanCode || s.nis === cleanCode);
     
     if (!student) {
@@ -124,7 +123,7 @@ export default function ScannerPage() {
     }
 
     const sessionId = attendanceType === 'ujian' ? 'exam' : selectedSession;
-    const isDuplicate = todayLogs.some((l: AttendanceLog) => 
+    const isDuplicate = (todayLogs || []).some((l: AttendanceLog) => 
       l.student_id === student.id && 
       l.session_id === sessionId &&
       (attendanceType === 'ujian' ? l.exam_id === selectedExamId : true)
@@ -150,7 +149,9 @@ export default function ScannerPage() {
     };
 
     if (db) {
-      addDoc(collection(db, 'attendance_logs'), newLog);
+      addDoc(collection(db, 'attendance_logs'), newLog).catch(err => {
+        console.error("Failed to save log:", err);
+      });
     }
     
     setLastScan({ 
@@ -218,7 +219,7 @@ export default function ScannerPage() {
                   <Select value={selectedExamId} onValueChange={setSelectedExamId}>
                     <SelectTrigger className="w-full h-11 bg-slate-50 border-none font-bold"><SelectValue placeholder="Pilih Ujian" /></SelectTrigger>
                     <SelectContent>
-                      {exams.map((e: ExamEvent) => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}
+                      {(exams || []).map((e: ExamEvent) => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -265,13 +266,13 @@ export default function ScannerPage() {
         <div className="space-y-4">
           <h3 className="font-black uppercase tracking-[0.2em] text-xs flex items-center gap-2 text-slate-500 px-2"><History className="h-4 w-4" /> Riwayat Terkini</h3>
           <div className="space-y-2">
-            {todayLogs.map((log: AttendanceLog) => {
+            {(todayLogs || []).map((log: AttendanceLog) => {
               const s = students.find((x: Student) => x.id === log.student_id);
               return (
                 <div key={log.id} className={cn("bg-white p-4 rounded-2xl border flex items-center justify-between shadow-sm", log.session_id === 'exam' ? 'border-l-4 border-l-orange-500' : 'border-l-4 border-l-primary')}>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-slate-100 border-2 overflow-hidden relative">
-                       {s?.photo_url ? <Image src={s.photo_url} alt="X" fill className="object-cover" unoptimized /> : <div className="w-full h-full flex items-center justify-center font-bold text-xs">{s?.name.charAt(0)}</div>}
+                       {s?.photo_url ? <Image src={s.photo_url} alt="X" fill className="object-cover" unoptimized /> : <div className="w-full h-full flex items-center justify-center font-bold text-xs">{s?.name?.charAt(0) || 'S'}</div>}
                     </div>
                     <div>
                       <div className="text-sm font-black uppercase leading-none mb-1">{s?.name || 'Siswa'}</div>
