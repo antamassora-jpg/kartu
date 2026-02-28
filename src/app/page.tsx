@@ -25,7 +25,8 @@ import {
   Contact,
   Activity,
   UserCircle,
-  XCircle
+  XCircle,
+  Info
 } from 'lucide-react';
 import {
   Dialog,
@@ -118,7 +119,6 @@ export default function LandingPage() {
     const cleanQuery = q.replace('VERIFY-', '').trim();
 
     try {
-      // Mencari di 3 kolom sekaligus untuk fleksibilitas maksimal
       const qNis = query(collection(db, 'students'), where('nis', '==', cleanQuery));
       const qCode = query(collection(db, 'students'), where('card_code', '==', cleanQuery));
       const qNisn = query(collection(db, 'students'), where('nisn', '==', cleanQuery));
@@ -331,6 +331,24 @@ export default function LandingPage() {
                     {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin" /> : 'MASUK KE SISTEM'}
                   </Button>
                 </form>
+
+                <div className="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Info className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Demo Kredensial</span>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Administrator</p>
+                      <p className="text-[11px] font-mono text-slate-600">admin@sekolah.sch.id / admin123</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Petugas Scanner</p>
+                      <p className="text-[11px] font-mono text-slate-600">scanner@sekolah.sch.id / scanner123</p>
+                    </div>
+                  </div>
+                  <p className="mt-4 text-[8px] italic text-slate-400 leading-tight">* Pastikan Anda sudah mendaftarkan akun di atas pada Firebase Console Authentication sebelum mencoba login.</p>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
