@@ -1,0 +1,40 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Fungsi pembantu untuk cek status login
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Pengaturan Sekolah: Publik hanya bisa baca, Admin bisa tulis
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Siswa: Publik bisa baca untuk verifikasi, Admin bisa tulis
+    match /students/{studentId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Log Absensi: Petugas/Admin bisa buat dan baca
+    match /attendance_logs/{logId} {
+      allow read, create: if isAuthenticated();
+      allow update, delete: if isAuthenticated();
+    }
+
+    // Template: Publik bisa baca untuk pratinjau kartu, Admin bisa tulis
+    match /templates/{templateId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Event Ujian
+    match /exam_events/{examId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+  }
+}

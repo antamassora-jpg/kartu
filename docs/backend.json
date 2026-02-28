@@ -1,0 +1,74 @@
+
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "Data master identitas siswa.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "nis": { "type": "string" },
+        "nisn": { "type": "string" },
+        "name": { "type": "string" },
+        "class": { "type": "string" },
+        "major": { "type": "string" },
+        "school_year": { "type": "string" },
+        "photo_url": { "type": "string" },
+        "status": { "type": "string", "enum": ["Aktif", "Nonaktif", "Lulus", "Pindah"] },
+        "valid_until": { "type": "string" },
+        "card_code": { "type": "string" }
+      },
+      "required": ["nis", "name", "card_code"]
+    },
+    "AttendanceLog": {
+      "title": "Attendance Log",
+      "description": "Catatan kehadiran hasil pemindaian kartu.",
+      "type": "object",
+      "properties": {
+        "student_id": { "type": "string" },
+        "card_code": { "type": "string" },
+        "date": { "type": "string" },
+        "session_id": { "type": "string" },
+        "exam_id": { "type": "string" },
+        "scanned_at": { "type": "string" },
+        "scanned_by_user_id": { "type": "string" },
+        "is_valid": { "type": "boolean" }
+      }
+    },
+    "SchoolSettings": {
+      "title": "School Settings",
+      "description": "Konfigurasi global identitas sekolah dan aset kartu.",
+      "type": "object",
+      "properties": {
+        "school_name": { "type": "string" },
+        "address": { "type": "string" },
+        "principal_name": { "type": "string" }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/students/{studentId}": {
+      "schema": "#/backend/entities/Student",
+      "description": "Koleksi data master siswa."
+    },
+    "/attendance_logs/{logId}": {
+      "schema": "#/backend/entities/AttendanceLog",
+      "description": "Koleksi riwayat absensi real-time."
+    },
+    "/exam_events/{examId}": {
+      "schema": { "$ref": "#/backend/entities/ExamEvent" },
+      "description": "Daftar pelaksanaan ujian."
+    },
+    "/settings/school": {
+      "schema": "#/backend/entities/SchoolSettings",
+      "description": "Dokumen tunggal pengaturan sekolah."
+    },
+    "/templates/{templateId}": {
+      "schema": { "type": "object" },
+      "description": "Konfigurasi desain kartu."
+    }
+  }
+}
