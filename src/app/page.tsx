@@ -26,7 +26,8 @@ import {
   Activity,
   UserCircle,
   XCircle,
-  Info
+  Info,
+  UserPlus
 } from 'lucide-react';
 import {
   Dialog,
@@ -54,9 +55,10 @@ import { StudentCardVisual } from '@/components/student-card-visual';
 import { ExamCardVisual } from '@/components/exam-card-visual';
 import { IdCardVisual } from '@/components/id-card-visual';
 import { useAuth, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { Html5Qrcode } from 'html5-qrcode';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -79,6 +81,8 @@ export default function LandingPage() {
   const { data: examsData } = useCollection<ExamEvent>(examsQuery);
   const exams = examsData || [];
 
+  // Auth States
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -162,19 +166,34 @@ export default function LandingPage() {
     }
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
     setLoginError('');
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userRole', email.includes('admin') ? 'admin' : 'scanner');
-      toast({ title: "Akses Berhasil", description: "Selamat datang kembali." });
-      router.push('/mode-selection');
+      if (authMode === 'login') {
+        await signInWithEmailAndPassword(auth, email, password);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userRole', email.includes('admin') ? 'admin' : 'scanner');
+        toast({ title: "Akses Berhasil", description: "Selamat datang kembali." });
+        router.push('/mode-selection');
+      } else {
+        await createUserWithEmailAndPassword(auth, email, password);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userRole', email.includes('admin') ? 'admin' : 'scanner');
+        toast({ title: "Pendaftaran Berhasil", description: "Akun Anda telah didaftarkan dan dapat digunakan." });
+        router.push('/mode-selection');
+      }
     } catch (err: any) {
-      setLoginError('Kredensial salah. Pastikan email dan password yang Anda masukkan benar.');
+      console.error(err);
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setLoginError('Kredensial salah. Pastikan email dan password yang Anda masukkan benar.');
+      } else if (err.code === 'auth/email-already-in-use') {
+        setLoginError('Email ini sudah terdaftar. Silakan gunakan menu Masuk.');
+      } else {
+        setLoginError('Terjadi kendala keamanan: ' + err.message);
+      }
       setIsLoggingIn(false);
     }
   };
@@ -301,7 +320,7 @@ export default function LandingPage() {
               <span className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mt-1">SMKN 2 Tana Toraja</span>
             </div>
           </div>
-          <Dialog>
+          <Dialog onOpenChange={() => { setAuthMode('login'); setLoginError(''); }}>
             <DialogTrigger asChild>
               <Button size="lg" className="px-8 rounded-full shadow-xl shadow-primary/20 gap-2 font-black uppercase tracking-widest text-[10px] h-12">
                 <LogIn className="h-4 w-4" /> Portal Akses
@@ -311,43 +330,62 @@ export default function LandingPage() {
               <div className="bg-primary p-8 text-white text-center relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
                  <ShieldCheck className="h-10 w-10 text-white mx-auto mb-3 opacity-50" />
-                 <DialogTitle className="text-xl font-black uppercase tracking-tighter">Login Sistem</DialogTitle>
-                 <DialogDescription className="text-white/70 font-bold text-[10px] uppercase tracking-widest">Manajemen Keamanan Terpadu</DialogDescription>
+                 <DialogTitle className="text-xl font-black uppercase tracking-tighter">
+                   {authMode === 'login' ? 'Login Sistem' : 'Daftar Akun Baru'}
+                 </DialogTitle>
+                 <DialogDescription className="text-white/70 font-bold text-[10px] uppercase tracking-widest">
+                   {authMode === 'login' ? 'Manajemen Keamanan Terpadu' : 'Buat Akses Administrator Sekolah'}
+                 </DialogDescription>
               </div>
               <div className="p-8 space-y-6">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email Sekolah</Label>
-                      <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@sekolah.sch.id" required className="h-12 rounded-xl" />
+                <Tabs value={authMode} onValueChange={(v: any) => { setAuthMode(v); setLoginError(''); }} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 h-12 rounded-xl bg-slate-100 p-1 mb-6">
+                    <TabsTrigger value="login" className="rounded-lg gap-2 text-[10px] font-bold uppercase tracking-widest">
+                      <LogIn className="h-3.5 w-3.5" /> MASUK
+                    </TabsTrigger>
+                    <TabsTrigger value="register" className="rounded-lg gap-2 text-[10px] font-bold uppercase tracking-widest">
+                      <UserPlus className="h-3.5 w-3.5" /> DAFTAR
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <form onSubmit={handleAuth} className="space-y-4">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email Sekolah</Label>
+                        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@sekolah.sch.id" required className="h-12 rounded-xl" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Password</Label>
+                        <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required className="h-12 rounded-xl" />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Password</Label>
-                      <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required className="h-12 rounded-xl" />
-                    </div>
-                  </div>
-                  {loginError && <Alert variant="destructive" className="py-2 px-3 rounded-xl border-none bg-red-50 text-red-600"><AlertDescription className="text-[10px] font-bold leading-tight">{loginError}</AlertDescription></Alert>}
-                  <Button type="submit" className="w-full h-12 text-xs font-black uppercase tracking-widest shadow-lg rounded-xl" disabled={isLoggingIn}>
-                    {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin" /> : 'MASUK KE SISTEM'}
-                  </Button>
-                </form>
+                    {loginError && (
+                      <Alert variant="destructive" className="py-2 px-3 rounded-xl border-none bg-red-50 text-red-600">
+                        <AlertDescription className="text-[10px] font-bold leading-tight flex items-center gap-2">
+                          <XCircle className="h-3 w-3" /> {loginError}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    <Button type="submit" className="w-full h-12 text-xs font-black uppercase tracking-widest shadow-lg rounded-xl" disabled={isLoggingIn}>
+                      {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin" /> : (authMode === 'login' ? 'MASUK KE SISTEM' : 'BUAT AKUN SEKARANG')}
+                    </Button>
+                  </form>
+                </Tabs>
 
                 <div className="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200">
                   <div className="flex items-center gap-2 mb-3">
                     <Info className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Demo Kredensial</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Petunjuk Akses</span>
                   </div>
                   <div className="space-y-3">
+                    <p className="text-[9px] text-slate-500 leading-relaxed">
+                      Jika email Anda belum terdaftar di Firebase Console, silakan gunakan tab <strong>DAFTAR</strong> untuk membuat akun baru. Gunakan domain email yang mengandung kata <strong>"admin"</strong> untuk hak akses Dashboard Utama.
+                    </p>
                     <div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Administrator</p>
-                      <p className="text-[11px] font-mono text-slate-600">admin@sekolah.sch.id / admin123</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Petugas Scanner</p>
-                      <p className="text-[11px] font-mono text-slate-600">scanner@sekolah.sch.id / scanner123</p>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Contoh Akun Admin</p>
+                      <p className="text-[11px] font-mono text-slate-600">admin@sekolah.sch.id</p>
                     </div>
                   </div>
-                  <p className="mt-4 text-[8px] italic text-slate-400 leading-tight">* Pastikan Anda sudah mendaftarkan akun di atas pada Firebase Console Authentication sebelum mencoba login.</p>
                 </div>
               </div>
             </DialogContent>
