@@ -10,7 +10,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      // Akses diberikan jika:
+      // Izinkan akses admin jika:
       // 1. Memiliki dokumen di koleksi roles_admin
       // 2. ATAU merupakan pengguna Anonim (Fitur Login Cepat/Demo)
       return isSignedIn() && (
@@ -45,36 +45,36 @@ service cloud.firestore {
     }
 
     // Koleksi Utama: Siswa
-    // Izinkan 'get' dan 'list' secara publik agar fitur verifikasi dan manajemen admin berfungsi
     match /students/{studentId} {
-      allow get, list: if true; 
-      allow create, update, delete: if isAdmin();
+      // Izinkan akses baca (get & list) secara publik untuk fitur verifikasi dan login tamu
+      allow read: if true; 
+      allow write: if isAdmin();
     }
 
     // Koleksi Utama: Ujian
     match /exams/{examId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // Koleksi Utama: Log Absensi
     match /attendance_logs/{logId} {
-      allow get, list: if true;
+      allow read: if true;
       allow create: if isSignedIn();
       allow update, delete: if isAdmin();
     }
 
     // Koleksi Utama: Pengaturan & Template
     match /school_settings/{settingId} {
-      allow get, list: if true;
+      allow read: if true;
       allow write: if isAdmin();
     }
 
     match /templates/{templateId} {
-      allow get, list: if true;
+      allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Last updated: 2024-05-20 15:20 (Forcing rules redeploy to fix list permissions for anonymous users)
+    // Pemicu pendeploian aturan: 2024-05-20 16:15 (Update explicit read permissions)
   }
 }
