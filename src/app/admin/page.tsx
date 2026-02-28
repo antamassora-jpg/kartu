@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, CalendarCheck, CreditCard, Award, Loader2 } from 'lucide-react';
 import { 
@@ -46,47 +46,29 @@ export default function AdminDashboard() {
   const { data: examsData } = useCollection<ExamEvent>(examsQuery);
   const exams = examsData || [];
 
-  const [majorData, setMajorData] = useState<any[]>([]);
-  const [stats, setStats] = useState({
-    totalStudents: 0,
-    totalLogs: 0,
-    activeExams: 0,
-    activeCards: 0
-  });
+  // Derived stats calculated using useMemo to avoid state-update loops
+  const stats = useMemo(() => ({
+    totalStudents: students.length,
+    totalLogs: logs.length,
+    activeExams: exams.length,
+    activeCards: students.filter((s: Student) => s.status === 'Aktif').length
+  }), [students, logs, exams]);
 
-  useEffect(() => {
-    if (!students || students.length === 0) {
-      setStats({
-        totalStudents: 0,
-        totalLogs: logs.length,
-        activeExams: exams.length,
-        activeCards: 0
-      });
-      setMajorData([]);
-      return;
-    }
-
-    setStats({
-      totalStudents: students.length,
-      totalLogs: logs.length,
-      activeExams: exams.length,
-      activeCards: students.filter((s: Student) => s.status === 'Aktif').length
-    });
-
-    // Hitung distribusi jurusan secara dinamis
+  // Derived major distribution for the pie chart
+  const majorData = useMemo(() => {
+    if (students.length === 0) return [];
+    
     const counts = students.reduce((acc: Record<string, number>, s: Student) => {
       const major = s.major || 'Lainnya';
       acc[major] = (acc[major] || 0) + 1;
       return acc;
     }, {});
 
-    const pieData = Object.entries(counts).map(([name, value]) => ({
+    return Object.entries(counts).map(([name, value]) => ({
       name,
       value
     }));
-    
-    setMajorData(pieData);
-  }, [students, logs, exams]);
+  }, [students]);
 
   const barData = [
     { name: 'Sen', hadir: Math.round(stats.totalStudents * 0.9) || 0, absen: Math.round(stats.totalStudents * 0.1) || 0 },
