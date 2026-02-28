@@ -27,6 +27,12 @@ export default function ScannerPage() {
   const [selectedExamId, setSelectedExamId] = useState<string>('');
   const [isScanning, setIsScanning] = useState(false);
   const [lastScan, setLastScan] = useState<{ status: 'valid' | 'invalid' | 'duplicate', student?: Student, reason?: string } | null>(null);
+  const [todayStr, setTodayStr] = useState('');
+
+  useEffect(() => {
+    // Menghitung tanggal di sisi klien untuk mencegah hydration mismatch
+    setTodayStr(new Date().toISOString().split('T')[0]);
+  }, []);
   
   const studentsQuery = useMemoFirebase(() => db ? collection(db, 'students') : null, [db]);
   const { data: studentsData } = useCollection<Student>(studentsQuery);
@@ -36,9 +42,8 @@ export default function ScannerPage() {
   const { data: examsData } = useCollection<ExamEvent>(examsQuery);
   const exams = examsData || [];
   
-  const todayStr = new Date().toISOString().split('T')[0];
   const logsQuery = useMemoFirebase(() => 
-    db ? query(
+    (db && todayStr) ? query(
       collection(db, 'attendance_logs'),
       where('date', '==', todayStr),
       orderBy('scanned_at', 'desc'),
@@ -55,6 +60,15 @@ export default function ScannerPage() {
       setSelectedExamId(exams[0].id);
     }
   }, [exams, selectedExamId]);
+
+  // Membersihkan scanner saat komponen unmount
+  useEffect(() => {
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(console.error);
+      }
+    };
+  }, []);
 
   const startScanner = async () => {
     if (attendanceType === 'ujian' && !selectedExamId) {

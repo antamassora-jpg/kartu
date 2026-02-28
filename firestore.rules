@@ -44,7 +44,7 @@ service cloud.firestore {
     }
 
     match /students/{studentId} {
-      allow read: if isAdmin() || isScanner();
+      allow read: if true; // Diperlukan publik untuk fitur verifikasi kartu di beranda
       allow write: if isAdmin();
     }
 
@@ -60,17 +60,12 @@ service cloud.firestore {
     }
 
     match /templates/{templateId} {
-      allow read: if isAdmin() || isScanner();
+      allow read: if true; // Diperlukan publik untuk menampilkan visual kartu di beranda
       allow write: if isAdmin();
     }
 
     match /exams/{examId} {
-      allow read: if isAdmin() || isScanner();
-      allow write: if isAdmin();
-    }
-
-    match /exam_cards/{examCardId} {
-      allow read: if isAdmin() || isScanner();
+      allow read: if true; // Diperlukan publik untuk metadata kartu ujian di beranda
       allow write: if isAdmin();
     }
 
@@ -80,8 +75,7 @@ service cloud.firestore {
     }
 
     match /attendance_logs/{logId} {
-      allow get: if isAdmin() || (isSignedIn() && resource.data.scannedByUserId == request.auth.uid);
-      allow list: if isAdmin() || isScanner();
+      allow read: if true; // Diperlukan publik untuk menghitung statistik kehadiran di beranda
       allow create: if isSignedIn();
       allow update, delete: if isAdmin();
     }
