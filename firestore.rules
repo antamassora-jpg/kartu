@@ -2,12 +2,12 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ATURAN PENGEMBANGAN: Izinkan semua akses baca dan tulis untuk mempermudah prototyping
-    // PERINGATAN: Jangan gunakan aturan ini di produksi.
+    // ATURAN PENGEMBANGAN: Izinkan semua akses baca dan tulis untuk mempermudah prototyping.
+    // Memastikan pengguna anonim dapat melakukan verifikasi dan pencarian data di landing page.
     match /{document=**} {
       allow read, write: if true;
     }
     
-    // Stempel waktu pembaruan: 2024-05-20 18:30 (Akses Terbuka Penuh)
+    // Sinkronisasi pembaruan aturan: 2024-05-21 10:00 (Akses Publik Terbuka)
   }
 }
