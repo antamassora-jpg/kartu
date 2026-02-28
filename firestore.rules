@@ -7,7 +7,5 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if true;
     }
-    
-    // Sinkronisasi pembaruan aturan: 2024-05-21 10:00 (Akses Publik Terbuka)
   }
 }

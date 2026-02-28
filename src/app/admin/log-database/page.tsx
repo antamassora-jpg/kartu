@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
   Database, 
   Users, 
@@ -40,6 +41,7 @@ import { IdCardVisual } from '@/components/id-card-visual';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export default function LogDatabasePage() {
   const db = useFirestore();
