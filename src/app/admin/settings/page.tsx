@@ -12,11 +12,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from '@/components/ui/switch';
 import { 
   Save, 
-  ImageIcon, 
   FileText, 
+  Layout, 
+  ClipboardList,
   Link as LinkIcon,
   Loader2,
-  Layout
+  Image as ImageIcon
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -56,175 +57,229 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6 pb-20">
-      <div className="flex justify-between items-end">
+    <div className="space-y-8 pb-20 max-w-[1400px] mx-auto">
+      {/* HEADER SECTION */}
+      <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-black font-headline text-primary uppercase">Pengaturan Sekolah</h1>
-          <p className="text-muted-foreground font-medium">Kelola identitas, branding, dan tata letak kartu terintegrasi Firestore.</p>
+          <h1 className="text-4xl font-black font-headline text-[#2E50B8] tracking-tighter uppercase leading-none">Settings Center</h1>
+          <p className="text-muted-foreground mt-2 font-medium">Manajemen konten, aturan kartu, dan tata letak identitas.</p>
         </div>
-        <Button onClick={handleSave} disabled={isSaving} className="gap-2 shadow-xl px-8 h-12 rounded-xl font-bold">
-          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          SIMPAN PERUBAHAN
+        <Button onClick={handleSave} disabled={isSaving} className="bg-[#2E50B8] hover:bg-[#1e3a8a] gap-3 shadow-xl px-10 h-14 rounded-2xl font-black uppercase tracking-widest text-[10px]">
+          {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+          Simpan Perubahan
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* KOLOM KIRI: IDENTITAS & KETENTUAN */}
-        <div className="lg:col-span-2 space-y-8">
-          <Card className="rounded-2xl border-none shadow-sm ring-1 ring-slate-100 overflow-hidden">
-            <CardHeader className="bg-white border-b border-slate-50">
-              <CardTitle className="text-lg font-bold text-slate-800">Identitas & Legalitas</CardTitle>
-              <CardDescription>Informasi teks utama untuk kop dan pengesahan kartu.</CardDescription>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* LEFT COLUMN: IDENTITAS & KETENTUAN */}
+        <div className="lg:col-span-7 space-y-8">
+          
+          {/* 1. IDENTITAS & LEGALITAS */}
+          <Card className="rounded-[2rem] border-none shadow-sm ring-1 ring-slate-100 overflow-hidden bg-white">
+            <CardHeader className="bg-slate-50/30 border-b border-slate-50 pb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-lg"><FileText className="h-5 w-5 text-primary" /></div>
+                <div>
+                  <CardTitle className="text-xl font-black text-slate-800 uppercase tracking-tight">Identitas & Legalitas Sekolah</CardTitle>
+                  <CardDescription className="font-medium">Informasi utama institusi dan data Kepala Sekolah.</CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-6 pt-6">
+            <CardContent className="space-y-6 pt-8">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Nama Sekolah</Label>
+                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-1">Nama Institusi / Sekolah</Label>
                 <Input 
                   value={localSettings.school_name} 
                   onChange={e => updateSetting('school_name', e.target.value)} 
-                  className="h-12 rounded-xl bg-slate-50 border-slate-200 font-bold" 
+                  className="h-14 rounded-2xl bg-slate-50 border-none font-bold text-slate-700 focus-visible:ring-primary/20" 
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Alamat Lengkap</Label>
+                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-1">Alamat Operasional Lengkap</Label>
                 <Textarea 
                   value={localSettings.address} 
                   onChange={e => updateSetting('address', e.target.value)} 
-                  className="min-h-[80px] rounded-xl bg-slate-50 border-slate-200" 
+                  className="min-h-[100px] rounded-2xl bg-slate-50 border-none font-medium text-slate-600 focus-visible:ring-primary/20 leading-relaxed" 
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Nama Kepala Sekolah</Label>
+                  <Label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-1">Nama Kepala Sekolah</Label>
                   <Input 
                     value={localSettings.principal_name} 
                     onChange={e => updateSetting('principal_name', e.target.value)} 
-                    className="h-12 rounded-xl bg-slate-50 border-slate-200" 
+                    className="h-14 rounded-2xl bg-slate-50 border-none font-bold text-slate-700" 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">NIP</Label>
+                  <Label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-1">NIP Kepala Sekolah</Label>
                   <Input 
                     value={localSettings.principal_nip} 
                     onChange={e => updateSetting('principal_nip', e.target.value)} 
-                    className="h-12 rounded-xl bg-slate-50 border-slate-200" 
+                    className="h-14 rounded-2xl bg-slate-50 border-none font-bold text-slate-700" 
                   />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl border-none shadow-sm ring-1 ring-slate-100 overflow-hidden">
-            <CardHeader className="bg-white border-b border-slate-50">
-              <CardTitle className="text-lg font-bold text-slate-800">Aturan & Ketentuan Kartu</CardTitle>
-              <CardDescription>Teks tata tertib yang akan muncul di bagian belakang masing-masing kartu.</CardDescription>
+          {/* 2. ATURAN & TATA TERTIB */}
+          <Card className="rounded-[2rem] border-none shadow-sm ring-1 ring-slate-100 overflow-hidden bg-white">
+            <CardHeader className="bg-slate-50/30 border-b border-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-lg"><ClipboardList className="h-5 w-5 text-primary" /></div>
+                <div>
+                  <CardTitle className="text-xl font-black text-slate-800 uppercase tracking-tight">Aturan & Tata Tertib Kartu</CardTitle>
+                  <CardDescription className="font-medium">Teks yang akan ditampilkan pada sisi belakang masing-masing kartu.</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="pt-6">
               <Tabs defaultValue="student" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 h-12 bg-slate-100 p-1 rounded-xl mb-6">
-                  <TabsTrigger value="student" className="rounded-lg text-xs font-bold">PELAJAR</TabsTrigger>
-                  <TabsTrigger value="exam" className="rounded-lg text-xs font-bold">UJIAN</TabsTrigger>
-                  <TabsTrigger value="id" className="rounded-lg text-xs font-bold">ID CARD</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 h-14 bg-slate-50 p-1 rounded-2xl mb-6">
+                  <TabsTrigger value="student" className="rounded-xl text-[10px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Pelajar</TabsTrigger>
+                  <TabsTrigger value="exam" className="rounded-xl text-[10px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">Ujian</TabsTrigger>
+                  <TabsTrigger value="id" className="rounded-xl text-[10px] font-black uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">ID Card</TabsTrigger>
                 </TabsList>
-                <TabsContent value="student">
-                  <Textarea 
-                    value={localSettings.terms_student} 
-                    onChange={e => updateSetting('terms_student', e.target.value)} 
-                    className="min-h-[150px] rounded-xl bg-slate-50 border-slate-200 leading-relaxed"
-                  />
-                </TabsContent>
-                <TabsContent value="exam">
-                  <Textarea 
-                    value={localSettings.terms_exam} 
-                    onChange={e => updateSetting('terms_exam', e.target.value)} 
-                    className="min-h-[150px] rounded-xl bg-slate-50 border-slate-200 leading-relaxed"
-                  />
-                </TabsContent>
-                <TabsContent value="id">
-                  <Textarea 
-                    value={localSettings.terms_id} 
-                    onChange={e => updateSetting('terms_id', e.target.value)} 
-                    className="min-h-[150px] rounded-xl bg-slate-50 border-slate-200 leading-relaxed"
-                  />
-                </TabsContent>
+                <div className="space-y-2">
+                  <Label className="text-[9px] font-black uppercase text-slate-300 tracking-[0.3em] ml-1 mb-2 block">Ketentuan Kartu {activeTab.toUpperCase()}</Label>
+                  <TabsContent value="student" className="mt-0">
+                    <Textarea 
+                      value={localSettings.terms_student} 
+                      onChange={e => updateSetting('terms_student', e.target.value)} 
+                      className="min-h-[180px] rounded-[1.5rem] bg-slate-50 border-none leading-relaxed p-6"
+                    />
+                  </TabsContent>
+                  <TabsContent value="exam" className="mt-0">
+                    <Textarea 
+                      value={localSettings.terms_exam} 
+                      onChange={e => updateSetting('terms_exam', e.target.value)} 
+                      className="min-h-[180px] rounded-[1.5rem] bg-slate-50 border-none leading-relaxed p-6"
+                    />
+                  </TabsContent>
+                  <TabsContent value="id" className="mt-0">
+                    <Textarea 
+                      value={localSettings.terms_id} 
+                      onChange={e => updateSetting('terms_id', e.target.value)} 
+                      className="min-h-[180px] rounded-[1.5rem] bg-slate-50 border-none leading-relaxed p-6"
+                    />
+                  </TabsContent>
+                </div>
               </Tabs>
             </CardContent>
           </Card>
-        </div>
 
-        {/* KOLOM KANAN: ASET & VISIBILITAS */}
-        <div className="lg:col-span-1 space-y-8">
-          <Card className="rounded-2xl border-none shadow-sm ring-1 ring-slate-100 overflow-hidden">
-            <CardHeader className="bg-white border-b border-slate-50">
-              <CardTitle className="text-lg font-bold text-slate-800">Aset Visual & Layout</CardTitle>
-              <CardDescription>Atur logo dan visibilitas elemen kartu.</CardDescription>
-            </CardHeader>
-            <div className="px-1 border-b border-slate-100">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 h-12 bg-transparent p-0">
-                  <TabsTrigger value="student" className="text-[10px] font-black uppercase tracking-tighter">Pelajar</TabsTrigger>
-                  <TabsTrigger value="exam" className="text-[10px] font-black uppercase tracking-tighter">Ujian</TabsTrigger>
-                  <TabsTrigger value="id" className="text-[10px] font-black uppercase tracking-tighter">ID Card</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-            <CardContent className="p-6 space-y-8">
-              {/* ASSETS */}
-              <div className="space-y-6">
-                <AssetUrlInput 
-                  label="Logo Sekolah" 
-                  value={activeTab === 'exam' ? localSettings.logo_left_exam : (activeTab === 'id' ? localSettings.logo_left_id : localSettings.logo_left)}
-                  onChange={(val) => updateSetting(activeTab === 'exam' ? 'logo_left_exam' : (activeTab === 'id' ? 'logo_left_id' : 'logo_left'), val)}
-                />
-                <AssetUrlInput 
-                  label="Tanda Tangan" 
-                  value={activeTab === 'exam' ? localSettings.signature_exam : (activeTab === 'id' ? localSettings.signature_id : localSettings.signature_image)}
-                  onChange={(val) => updateSetting(activeTab === 'exam' ? 'signature_exam' : (activeTab === 'id' ? 'signature_id' : 'signature_image'), val)}
-                />
-                <AssetUrlInput 
-                  label="Stempel" 
-                  value={activeTab === 'exam' ? localSettings.stamp_exam : (activeTab === 'id' ? localSettings.stamp_id : localSettings.stamp_image)}
-                  onChange={(val) => updateSetting(activeTab === 'exam' ? 'stamp_exam' : (activeTab === 'id' ? 'stamp_id' : 'stamp_image'), val)}
-                />
+          {/* 3. TATA LETAK IDENTITAS */}
+          <Card className="rounded-[2rem] border-none shadow-sm ring-1 ring-slate-100 overflow-hidden bg-white">
+            <CardHeader className="bg-slate-50/30 border-b border-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-lg"><Layout className="h-5 w-5 text-primary" /></div>
+                <div>
+                  <CardTitle className="text-xl font-black text-slate-800 uppercase tracking-tight">Tata Letak Identitas Siswa</CardTitle>
+                  <CardDescription className="font-medium">Posisikan foto, data diri, dan barcode di sisi depan atau belakang.</CardDescription>
+                </div>
               </div>
-
-              <div className="h-px bg-slate-100" />
-
-              {/* VISIBILITY SWITCHES */}
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-4">Konfigurasi Tampilan</h4>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-3 h-14 bg-slate-50 p-1 rounded-2xl mb-8">
+                  <TabsTrigger value="student" className="rounded-xl text-[10px] font-black uppercase tracking-widest">Pelajar</TabsTrigger>
+                  <TabsTrigger value="exam" className="rounded-xl text-[10px] font-black uppercase tracking-widest">Ujian</TabsTrigger>
+                  <TabsTrigger value="id" className="rounded-xl text-[10px] font-black uppercase tracking-widest">ID Card</TabsTrigger>
+                </TabsList>
                 
-                <div className="grid grid-cols-1 gap-3">
-                  <VisibilityToggle 
-                    label="Tampilkan Foto" 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <LayoutSwitch 
+                    label="Foto Siswa" 
                     front={localSettings[`${activeTab}_show_photo_front` as any]} 
                     back={localSettings[`${activeTab}_show_photo_back` as any]} 
                     onFrontChange={(v) => updateSetting(`${activeTab}_show_photo_front` as any, v)}
                     onBackChange={(v) => updateSetting(`${activeTab}_show_photo_back` as any, v)}
                   />
-                  <VisibilityToggle 
-                    label="Tampilkan QR Code" 
+                  <LayoutSwitch 
+                    label="Data Identitas (Nama/NIS)" 
+                    front={localSettings[`${activeTab}_show_info_front` as any]} 
+                    back={localSettings[`${activeTab}_show_info_back` as any]} 
+                    onFrontChange={(v) => updateSetting(`${activeTab}_show_info_front` as any, v)}
+                    onBackChange={(v) => updateSetting(`${activeTab}_show_info_back` as any, v)}
+                  />
+                  <LayoutSwitch 
+                    label="Barcode / QR Code" 
                     front={localSettings[`${activeTab}_show_qr_front` as any]} 
                     back={localSettings[`${activeTab}_show_qr_back` as any]} 
                     onFrontChange={(v) => updateSetting(`${activeTab}_show_qr_front` as any, v)}
                     onBackChange={(v) => updateSetting(`${activeTab}_show_qr_back` as any, v)}
                   />
-                  <VisibilityToggle 
-                    label="Kop Sekolah" 
-                    front={localSettings[`${activeTab}_show_logo_front` as any]} 
-                    back={localSettings[`${activeTab}_show_logo_back` as any]} 
-                    onFrontChange={(v) => updateSetting(`${activeTab}_show_logo_front` as any, v)}
-                    onBackChange={(v) => updateSetting(`${activeTab}_show_logo_back` as any, v)}
-                  />
-                  <VisibilityToggle 
-                    label="Pengesahan (TTD/Stempel)" 
-                    front={localSettings[`${activeTab}_show_sig_front` as any]} 
-                    back={localSettings[`${activeTab}_show_sig_back` as any]} 
-                    onFrontChange={(v) => { updateSetting(`${activeTab}_show_sig_front` as any, v); updateSetting(`${activeTab}_show_stamp_front` as any, v); }}
-                    onBackChange={(v) => { updateSetting(`${activeTab}_show_sig_back` as any, v); updateSetting(`${activeTab}_show_stamp_back` as any, v); }}
+                  <LayoutSwitch 
+                    label="Masa Berlaku" 
+                    front={localSettings[`${activeTab}_show_valid_front` as any]} 
+                    back={localSettings[`${activeTab}_show_valid_back` as any]} 
+                    onFrontChange={(v) => updateSetting(`${activeTab}_show_valid_front` as any, v)}
+                    onBackChange={(v) => updateSetting(`${activeTab}_show_valid_back` as any, v)}
                   />
                 </div>
-              </div>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* RIGHT COLUMN: ASET INSTITUSI */}
+        <div className="lg:col-span-5">
+          <Card className="rounded-[2rem] border-none shadow-xl ring-1 ring-slate-100 overflow-hidden bg-white">
+            <CardHeader className="bg-[#F8FAFC] border-b border-slate-50 pb-6">
+              <CardTitle className="text-xl font-black text-slate-800 uppercase tracking-tight">Aset Institusi</CardTitle>
+            </CardHeader>
+            <div className="px-6 pt-6">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-3 h-12 bg-slate-50 p-1 rounded-xl">
+                  <TabsTrigger value="student" className="rounded-lg text-[9px] font-black uppercase tracking-widest">Pelajar</TabsTrigger>
+                  <TabsTrigger value="exam" className="rounded-lg text-[9px] font-black uppercase tracking-widest">Ujian</TabsTrigger>
+                  <TabsTrigger value="id" className="rounded-lg text-[9px] font-black uppercase tracking-widest">ID Card</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+            <CardContent className="p-6 space-y-10">
+              
+              <AssetCard 
+                label="Logo Sekolah (Kiri)" 
+                value={activeTab === 'exam' ? localSettings.logo_left_exam : (activeTab === 'id' ? localSettings.logo_left_id : localSettings.logo_left)}
+                onChange={(val) => updateSetting(activeTab === 'exam' ? 'logo_left_exam' : (activeTab === 'id' ? 'logo_left_id' : localSettings.logo_left ? 'logo_left' : 'logo_left'), val)}
+                front={localSettings[`${activeTab}_show_logo_front` as any]}
+                back={localSettings[`${activeTab}_show_logo_back` as any]}
+                onFrontToggle={(v) => updateSetting(`${activeTab}_show_logo_front` as any, v)}
+                onBackToggle={(v) => updateSetting(`${activeTab}_show_logo_back` as any, v)}
+              />
+
+              <AssetCard 
+                label="Logo Kanan (Tut Wuri)" 
+                value={activeTab === 'exam' ? localSettings.logo_right_exam : (activeTab === 'id' ? localSettings.logo_right_id : localSettings.logo_right)}
+                onChange={(val) => updateSetting(activeTab === 'exam' ? 'logo_right_exam' : (activeTab === 'id' ? 'logo_right_id' : 'logo_right'), val)}
+                front={localSettings[`${activeTab}_show_logo_right_front` as any]}
+                back={localSettings[`${activeTab}_show_logo_right_back` as any]}
+                onFrontToggle={(v) => updateSetting(`${activeTab}_show_logo_right_front` as any, v)}
+                onBackToggle={(v) => updateSetting(`${activeTab}_show_logo_right_back` as any, v)}
+              />
+
+              <AssetCard 
+                label="Tanda Tangan" 
+                value={activeTab === 'exam' ? localSettings.signature_exam : (activeTab === 'id' ? localSettings.signature_id : localSettings.signature_image)}
+                onChange={(val) => updateSetting(activeTab === 'exam' ? 'signature_exam' : (activeTab === 'id' ? 'signature_id' : 'signature_image'), val)}
+                front={localSettings[`${activeTab}_show_sig_front` as any]}
+                back={localSettings[`${activeTab}_show_sig_back` as any]}
+                onFrontToggle={(v) => updateSetting(`${activeTab}_show_sig_front` as any, v)}
+                onBackToggle={(v) => updateSetting(`${activeTab}_show_sig_back` as any, v)}
+              />
+
+              <AssetCard 
+                label="Stempel" 
+                value={activeTab === 'exam' ? localSettings.stamp_exam : (activeTab === 'id' ? localSettings.stamp_id : localSettings.stamp_image)}
+                onChange={(val) => updateSetting(activeTab === 'exam' ? 'stamp_exam' : (activeTab === 'id' ? 'stamp_id' : 'stamp_image'), val)}
+                front={localSettings[`${activeTab}_show_stamp_front` as any]}
+                back={localSettings[`${activeTab}_show_stamp_back` as any]}
+                onFrontToggle={(v) => updateSetting(`${activeTab}_show_stamp_front` as any, v)}
+                onBackToggle={(v) => updateSetting(`${activeTab}_show_stamp_back` as any, v)}
+              />
+
             </CardContent>
           </Card>
         </div>
@@ -233,29 +288,7 @@ export default function SettingsPage() {
   );
 }
 
-function AssetUrlInput({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) {
-  return (
-    <div className="space-y-3">
-      <Label className="text-[10px] font-black uppercase text-slate-600 tracking-widest">{label}</Label>
-      <div className="relative">
-        <LinkIcon className="h-3 w-3 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-        <Input 
-          value={value} 
-          onChange={(e) => onChange(e.target.value)} 
-          placeholder="https://..." 
-          className="pl-8 h-10 text-[10px] bg-slate-50 border-slate-200 rounded-xl" 
-        />
-      </div>
-      {value && (
-        <div className="mt-2 bg-white rounded-xl border p-2 flex justify-center shadow-inner overflow-hidden">
-          <img src={value} alt="Preview" className="max-h-16 object-contain" />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function VisibilityToggle({ 
+function LayoutSwitch({ 
   label, 
   front, 
   back, 
@@ -269,16 +302,79 @@ function VisibilityToggle({
   onBackChange: (v: boolean) => void
 }) {
   return (
-    <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100 flex flex-col gap-3">
-      <span className="text-[10px] font-bold text-slate-700 uppercase">{label}</span>
-      <div className="flex justify-between items-center px-1">
-        <div className="flex items-center gap-2">
-          <Switch checked={front} onCheckedChange={onFrontChange} size="sm" />
-          <span className="text-[9px] font-black uppercase text-slate-400">Depan</span>
+    <div className="p-6 rounded-[1.5rem] border border-slate-100 bg-white shadow-sm flex flex-col gap-4">
+      <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">{label}</span>
+      <div className="flex items-center gap-8">
+        <div className="flex items-center gap-3">
+          <span className="text-[9px] font-black uppercase text-slate-400 tracking-tighter">Depan</span>
+          <Switch checked={front} onCheckedChange={onFrontChange} className="data-[state=checked]:bg-primary" />
         </div>
-        <div className="flex items-center gap-2">
-          <Switch checked={back} onCheckedChange={onBackChange} size="sm" />
-          <span className="text-[9px] font-black uppercase text-slate-400">Belakang</span>
+        <div className="flex items-center gap-3">
+          <span className="text-[9px] font-black uppercase text-slate-400 tracking-tighter">Belakang</span>
+          <Switch checked={back} onCheckedChange={onBackChange} className="data-[state=checked]:bg-primary" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AssetCard({ 
+  label, 
+  value, 
+  onChange,
+  front,
+  back,
+  onFrontToggle,
+  onBackToggle
+}: { 
+  label: string, 
+  value: string, 
+  onChange: (v: string) => void,
+  front: boolean,
+  back: boolean,
+  onFrontToggle: (v: boolean) => void,
+  onBackToggle: (v: boolean) => void
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Label className="text-[10px] font-black uppercase text-slate-800 tracking-tight">{label}</Label>
+      </div>
+      
+      <div className="aspect-[4/3] bg-white rounded-[1.5rem] border-2 border-dashed border-slate-100 flex items-center justify-center p-6 shadow-inner overflow-hidden group transition-all hover:border-primary/20 relative">
+        {value ? (
+          <img src={value} alt={label} className="max-h-full max-w-full object-contain transition-transform group-hover:scale-105 duration-500" />
+        ) : (
+          <div className="flex flex-col items-center gap-2 opacity-20">
+            <ImageIcon className="h-10 w-10" />
+            <span className="text-[10px] font-black">BELUM ADA ASSET</span>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        <div className="relative group">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+            <LinkIcon className="h-3 w-3 text-slate-300 group-focus-within:text-primary" />
+            <span className="text-[8px] font-black text-slate-300 group-focus-within:text-primary uppercase tracking-tighter">Link URL Foto/Logo</span>
+          </div>
+          <Input 
+            value={value} 
+            onChange={(e) => onChange(e.target.value)} 
+            placeholder="" 
+            className="pl-28 h-12 text-[10px] bg-slate-50 border-none rounded-xl font-medium focus-visible:ring-primary/10" 
+          />
+        </div>
+
+        <div className="flex items-center gap-6 px-2">
+          <div className="flex items-center gap-2">
+            <span className="text-[8px] font-black uppercase text-slate-400">Depan</span>
+            <Switch checked={front} onCheckedChange={onFrontToggle} size="sm" className="scale-75 data-[state=checked]:bg-primary" />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[8px] font-black uppercase text-slate-400">Belakang</span>
+            <Switch checked={back} onCheckedChange={onBackToggle} size="sm" className="scale-75 data-[state=checked]:bg-primary" />
+          </div>
         </div>
       </div>
     </div>
