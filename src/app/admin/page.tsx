@@ -17,22 +17,30 @@ import {
   Cell,
   Legend
 } from 'recharts';
-import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function AdminDashboard() {
   const db = useFirestore();
   
-  // Real-time data from Firestore
-  const { data: students = [], loading: loadingStudents } = useCollection(
-    db ? collection(db, 'students') : null
+  // Memoize Firestore references to prevent infinite re-renders
+  const studentsQuery = useMemoFirebase(() => 
+    db ? collection(db, 'students') : null, 
+    [db]
   );
-  const { data: logs = [], loading: loadingLogs } = useCollection(
-    db ? collection(db, 'attendance_logs') : null
+  const { data: students = [], isLoading: loadingStudents } = useCollection(studentsQuery);
+
+  const logsQuery = useMemoFirebase(() => 
+    db ? collection(db, 'attendance_logs') : null, 
+    [db]
   );
-  const { data: exams = [] } = useCollection(
-    db ? collection(db, 'exam_events') : null
+  const { data: logs = [], isLoading: loadingLogs } = useCollection(logsQuery);
+
+  const examsQuery = useMemoFirebase(() => 
+    db ? collection(db, 'exam_events') : null, 
+    [db]
   );
+  const { data: exams = [] } = useCollection(examsQuery);
 
   const [majorData, setMajorData] = useState<any[]>([]);
   const [stats, setStats] = useState({
@@ -43,16 +51,25 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    if (!students) return;
+    if (!students || students.length === 0) {
+      setStats({
+        totalStudents: 0,
+        totalLogs: logs?.length || 0,
+        activeExams: exams?.length || 0,
+        activeCards: 0
+      });
+      setMajorData([]);
+      return;
+    }
 
     setStats({
       totalStudents: students.length,
-      totalLogs: logs.length,
-      activeExams: exams.length,
+      totalLogs: logs?.length || 0,
+      activeExams: exams?.length || 0,
       activeCards: students.filter((s: any) => s.status === 'Aktif').length
     });
 
-    // Hitung distribusi jurusan
+    // Hitung distribusi jurusan secara dinamis
     const counts = students.reduce((acc: Record<string, number>, s: any) => {
       const major = s.major || 'Lainnya';
       acc[major] = (acc[major] || 0) + 1;
