@@ -447,6 +447,17 @@ export default function StudentsPage() {
               <div className="space-y-3">
                 <Button variant="outline" size="sm" className="w-full rounded-xl font-bold border-slate-200" onClick={() => photoInputRef.current?.click()}>Unggah Gambar</Button>
                 
+                {newStudent.photo_url && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl font-bold text-[10px] uppercase"
+                    onClick={() => setNewStudent({...newStudent, photo_url: ''})}
+                  >
+                    <Trash2 className="h-3 w-3 mr-2" /> Hapus Foto
+                  </Button>
+                )}
+
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Atau Link URL Foto</Label>
                   <div className="relative group">
