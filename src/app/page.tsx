@@ -315,7 +315,9 @@ export default function LandingPage() {
             <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
               <div className="bg-primary p-8 text-white text-center relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                 <ShieldCheck className="h-10 w-10 text-white mx-auto mb-3 opacity-50" />
+                 <div className="w-16 h-16 bg-white rounded-2xl p-2 mx-auto mb-4 shadow-lg flex items-center justify-center relative">
+                    <Image src="https://iili.io/KAqSZhb.png" alt="Logo" fill className="object-contain p-2" unoptimized />
+                 </div>
                  <DialogTitle className="text-xl font-black uppercase tracking-tighter">Login Sistem</DialogTitle>
                  <DialogDescription className="text-white/70 font-bold text-[10px] uppercase tracking-widest">Manajemen Keamanan Terpadu</DialogDescription>
               </div>
