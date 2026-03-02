@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Student, SchoolSettings, ExamEvent, CardTemplate } from '@/app/lib/types';
@@ -80,26 +79,7 @@ export function ExamCardVisual({
     overflow: 'hidden'
   };
 
-  const watermarkSvg = wm.enabled ? `
-    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="12">
-      <text 
-        x="12.5" 
-        y="6" 
-        font-family="${current.fontFamily.split(',')[0]}" 
-        font-size="${wm.size}px" 
-        font-weight="900"
-        fill="black" 
-        fill-opacity="${wm.opacity}" 
-        text-anchor="middle" 
-        dominant-baseline="middle"
-        transform="rotate(${wm.angle}, 12.5, 6)"
-      >
-        ${wm.text}
-      </text>
-    </svg>
-  ` : '';
-
-  const watermarkDataUri = wm.enabled ? `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(watermarkSvg)}")` : 'none';
+  const watermarkDataUri = wm.enabled ? `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="25" height="12"><text x="12.5" y="6" font-family="${current.fontFamily}" font-size="${wm.size}px" font-weight="900" fill="black" fill-opacity="${wm.opacity}" text-anchor="middle" dominant-baseline="middle" transform="rotate(${wm.angle}, 12.5, 6)">${wm.text}</text></svg>`)}")` : 'none';
 
   const showLogoLeft = side === 'front' ? (settings?.exam_show_logo_front ?? true) : (settings?.exam_show_logo_back ?? true);
   const showLogoRight = side === 'front' ? (settings?.exam_show_logo_right_front ?? true) : (settings?.exam_show_logo_right_back ?? false);
@@ -114,173 +94,60 @@ export function ExamCardVisual({
 
   return (
     <div style={cardStyle} className="rounded-xl shadow-lg border text-[10px] select-none">
-      {wm.enabled && (
-        <div 
-          className="absolute inset-0 pointer-events-none z-0" 
-          style={{ backgroundImage: watermarkDataUri, backgroundRepeat: 'repeat' }}
-        ></div>
-      )}
-
-      {wm.imageEnabled && wm.imageUrl && (
-        <div 
-          className="absolute inset-0 pointer-events-none flex items-center justify-center z-0"
-          style={{ opacity: wm.imageOpacity }}
-        >
-          <div className="relative" style={{ width: wm.imageSize, height: wm.imageSize }}>
-            <Image src={wm.imageUrl} alt="Watermark Image" fill className="object-contain" priority unoptimized />
-          </div>
-        </div>
-      )}
+      {wm.enabled && <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: watermarkDataUri, backgroundRepeat: 'repeat' }}></div>}
+      {wm.imageEnabled && wm.imageUrl && <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-0" style={{ opacity: wm.imageOpacity }}><div className="relative" style={{ width: wm.imageSize, height: wm.imageSize }}><Image src={wm.imageUrl} alt="W" fill className="object-contain" priority unoptimized /></div></div>}
 
       <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 relative z-10 border-b">
-        {showLogoLeft && settings?.logo_left_exam && (
-          <div className="w-10 h-10 relative bg-white rounded-md p-1 shrink-0 mr-3">
-            <Image src={settings.logo_left_exam} alt="Logo" fill className="object-contain" priority unoptimized />
-          </div>
-        )}
+        {showLogoLeft && settings?.logo_left_exam && <div className="w-10 h-10 relative bg-white rounded-md p-1 shrink-0 mr-3"><Image src={settings.logo_left_exam} alt="L" fill className="object-contain" priority unoptimized /></div>}
         <div className="flex-1 flex flex-col text-white text-center">
-          <span className="font-bold text-[9px] uppercase leading-tight tracking-tight">{settings?.school_name || 'SMKN 2 TANA TORAJA'}</span>
+          <span className="font-bold text-[9px] uppercase leading-tight tracking-tight">{settings?.school_name}</span>
           <span className="text-[6px] opacity-80 leading-tight block mt-0.5 line-clamp-2 px-1">{settings?.address}</span>
         </div>
-        {showLogoRight && settings?.logo_right_exam && (
-          <div className="w-10 h-10 relative bg-white rounded-md p-1 shrink-0 ml-3">
-            <Image src={settings.logo_right_exam} alt="Logo R" fill className="object-contain" priority unoptimized />
-          </div>
-        )}
+        {showLogoRight && settings?.logo_right_exam && <div className="w-10 h-10 relative bg-white rounded-md p-1 shrink-0 ml-3"><Image src={settings.logo_right_exam} alt="R" fill className="object-contain" priority unoptimized /></div>}
       </div>
 
-      {side === 'front' && (
-        <div className="absolute top-[58px] left-0 right-0 text-center z-10">
-          <span className="text-[9px] font-black uppercase tracking-[0.2em] px-4 py-0.5 rounded-full border border-slate-100 bg-slate-50/50 inline-block shadow-sm" style={{ color: current.footerBg }}>
-            KARTU PESERTA UJIAN
-          </span>
-        </div>
-      )}
+      {side === 'front' && <div className="absolute top-[58px] left-0 right-0 text-center z-10"><span className="text-[9px] font-black uppercase tracking-[0.2em] px-4 py-0.5 rounded-full border border-slate-100 bg-slate-50/50 inline-block shadow-sm" style={{ color: current.footerBg }}>KARTU PESERTA UJIAN</span></div>}
 
       {showPhoto && (
-        <div 
-          className="absolute bg-slate-50 rounded-md overflow-hidden border border-slate-200 shadow-sm z-10"
-          style={{ left: els.photo.x, top: els.photo.y, width: els.photo.w, height: els.photo.h }}
-        >
-          {photoUrl ? (
-            <Image src={photoUrl} alt={student.name} fill className="object-cover" priority unoptimized />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-slate-200 text-[8px]">FOTO</div>
-          )}
+        <div className="absolute bg-slate-50 rounded-md overflow-hidden border border-slate-200 shadow-sm z-10" style={{ left: els.photo.x, top: els.photo.y, width: els.photo.w, height: els.photo.h }}>
+          {photoUrl ? <Image src={photoUrl} alt={student.name} fill className="object-cover" priority unoptimized /> : <div className="w-full h-full flex items-center justify-center bg-slate-200 text-[8px]">FOTO</div>}
         </div>
       )}
 
       {showQr && (
-        <div 
-          className="absolute bg-white p-1 rounded border shadow-sm z-10"
-          style={{ left: els.qr.x, top: els.qr.y, width: els.qr.w, height: els.qr.h }}
-        >
-          <Image 
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`}
-            alt="QR" fill className="object-contain" unoptimized
-          />
+        <div className="absolute bg-white p-1 rounded border shadow-sm z-10" style={{ left: els.qr.x, top: els.qr.y, width: els.qr.w, height: els.qr.h }}>
+          <Image src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFY-${student.card_code}`} alt="QR" fill className="object-contain" unoptimized />
         </div>
       )}
 
       {(showInfo || showValid) && (
-        <div 
-          className="absolute px-2 flex flex-col gap-1.5 z-10"
-          style={{ 
-            left: els.info.x, 
-            top: els.info.y + 5, 
-            width: `${els.info.width || 180}px`,
-            textAlign: els.info.align || 'left',
-            alignItems: els.info.align === 'center' ? 'center' : (els.info.align === 'right' ? 'flex-end' : 'flex-start')
-          }}
-        >
+        <div className="absolute px-2 flex flex-col gap-1.5 z-10" style={{ left: els.info.x, top: els.info.y + 5, width: `${els.info.width || 180}px`, textAlign: els.info.align || 'left', alignItems: els.info.align === 'center' ? 'center' : (els.info.align === 'right' ? 'flex-end' : 'flex-start') }}>
           {showInfo && (
             <>
-              <div className="w-full">
-                <span className="opacity-60 text-[6px] uppercase font-black block">Nama Peserta</span>
-                <span className="font-black uppercase leading-none block" style={{ fontSize: (els.info.fontSize || 10) + 1 }}>{student.name}</span>
-              </div>
-              <div className="w-full">
-                <span className="opacity-60 text-[6px] uppercase font-black block">NIS / NISN</span>
-                <span className="font-bold block leading-none" style={{ fontSize: els.info.fontSize || 10 }}>{student.nis} / {student.nisn || '-'}</span>
-              </div>
-              <div className="w-full">
-                <span className="opacity-60 text-[6px] uppercase font-black block">Event Ujian</span>
-                <span className="font-bold uppercase block leading-tight" style={{ fontSize: (els.info.fontSize || 10) - 1 }}>{exam?.name || 'UJIAN AKHIR SEKOLAH'}</span>
-              </div>
+              <div className="w-full"><span className="opacity-60 text-[6px] uppercase font-black block">Nama Peserta</span><span className="font-black uppercase leading-none block" style={{ fontSize: (els.info.fontSize || 10) + 1 }}>{student.name}</span></div>
+              <div className="w-full"><span className="opacity-60 text-[6px] uppercase font-black block">NIS / NISN</span><span className="font-bold block leading-none" style={{ fontSize: els.info.fontSize || 10 }}>{student.nis} / {student.nisn || '-'}</span></div>
+              <div className="w-full"><span className="opacity-60 text-[6px] uppercase font-black block">Event Ujian</span><span className="font-bold uppercase block leading-tight" style={{ fontSize: (els.info.fontSize || 10) - 1 }}>{exam?.name || 'UJIAN AKHIR SEKOLAH'}</span></div>
             </>
           )}
-          {showValid && (
-            <div className="mt-1 w-full">
-              <span className="opacity-60 text-[6px] uppercase font-black block">Masa Berlaku</span>
-              <span className="font-black block leading-none" style={{ fontSize: (els.info.fontSize || 10) - 1, color: current.footerBg }}>{student.valid_until}</span>
-            </div>
-          )}
+          {showValid && <div className="mt-1 w-full"><span className="opacity-60 text-[6px] uppercase font-black block">Masa Berlaku</span><span className="font-black block leading-none" style={{ fontSize: (els.info.fontSize || 10) - 1, color: current.footerBg }}>{student.valid_until}</span></div>}
         </div>
       )}
 
-      {side === 'back' && (
-        <div 
-          className="absolute text-center z-10"
-          style={{ 
-            left: els.terms?.x || 30, 
-            top: els.terms?.y || 60, 
-            width: `${els.terms?.width || 280}px` 
-          }}
-        >
-           <div className="flex items-center justify-center gap-3 mb-3 relative py-1">
-              <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-300 -z-10"></div>
-              <span className="text-[8px] font-black uppercase tracking-[0.2em] bg-white px-3 relative z-10 border border-slate-100 rounded-full">Tata Tertib Ujian</span>
-           </div>
-           <p className="text-[7.5px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-4">
-             {settings?.terms_exam || 'Peraturan Ujian default.'}
-           </p>
-        </div>
-      )}
+      {side === 'back' && <div className="absolute text-center z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}><div className="flex items-center justify-center gap-3 mb-3 relative py-1"><div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-300 -z-10"></div><span className="text-[8px] font-black uppercase tracking-[0.2em] bg-white px-3 relative z-10 border border-slate-100 rounded-full">Tata Tertib Ujian</span></div><p className="text-[7.5px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-4">{settings?.terms_exam}</p></div>}
 
       {showStamp && settings?.stamp_exam && (
-        <div 
-          className="absolute z-10"
-          style={{ 
-            left: els.stamp?.x || 220, 
-            top: els.stamp?.y || 160, 
-            width: '40px',
-            height: '40px',
-            transform: `scale(${els.stamp?.scale || 0.75})`,
-            transformOrigin: 'top left'
-          }}
-        >
-          <Image src={settings.stamp_exam} alt="Stamp" fill className="object-contain" unoptimized />
+        <div className="absolute z-10" style={{ left: els.stamp?.x || 220, top: els.stamp?.y || 160, width: '40px', height: '40px', transform: `scale(${els.stamp?.scale || 0.75})`, transformOrigin: 'top left' }}>
+          <Image src={settings.stamp_exam} alt="S" fill className="object-contain" unoptimized />
         </div>
       )}
 
       {showSig && (
         <>
-          <div 
-            className="absolute z-10"
-            style={{ 
-              left: els.signature?.x || 240, 
-              top: els.signature?.y || 150, 
-              transform: `scale(${els.signature?.scale || 0.75})`,
-              transformOrigin: 'top left'
-            }}
-          >
-            {settings?.signature_exam && (
-              <div className="w-14 h-7 relative">
-                <Image src={settings.signature_exam} alt="TTD" fill className="object-contain" unoptimized />
-              </div>
-            )}
+          <div className="absolute z-10" style={{ left: els.signature?.x || 240, top: els.signature?.y || 150, transform: `scale(${els.signature?.scale || 0.75})`, transformOrigin: 'top left' }}>
+            {settings?.signature_exam && <div className="w-14 h-7 relative"><Image src={settings.signature_exam} alt="T" fill className="object-contain" unoptimized /></div>}
           </div>
-
-          <div 
-            className="absolute z-10 text-center"
-            style={{ 
-              left: els.principalInfo?.x || 240, 
-              top: els.principalInfo?.y || 180,
-              width: '100px',
-              textAlign: 'center'
-            }}
-          >
-            <p className="font-bold border-t border-slate-300 leading-none pt-1" style={{ fontSize: els.principalInfo?.fontSize || 6 }}>{settings?.principal_name || 'Kepala Sekolah'}</p>
+          <div className="absolute z-10 text-center" style={{ left: els.principalInfo?.x || 240, top: els.principalInfo?.y || 180, width: '100px' }}>
+            <p className="font-bold border-t border-slate-300 leading-none pt-1" style={{ fontSize: els.principalInfo?.fontSize || 6 }}>{settings?.principal_name}</p>
             <p className="opacity-70 mt-0.5" style={{ fontSize: (els.principalInfo?.fontSize || 6) - 1 }}>NIP: {settings?.principal_nip}</p>
           </div>
         </>

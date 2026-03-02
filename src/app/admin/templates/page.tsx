@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -24,8 +23,7 @@ import {
   AlignLeft,
   AlignRight,
   Upload,
-  Edit2,
-  Signature
+  Edit2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { 
@@ -70,7 +68,6 @@ export default function TemplatesPage() {
   const [newTemplateName, setNewTemplateName] = useState('');
   const [newTemplateType, setNewTemplateType] = useState<TemplateType>('STUDENT_CARD');
 
-  // State for inline name editing
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [tempName, setTempName] = useState('');
   const [isUpdatingName, setIsUpdatingName] = useState(false);
@@ -329,7 +326,6 @@ export default function TemplatesPage() {
           )}
         </div>
 
-        {/* MODAL BUAT VARIAN */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogContent className="rounded-[2.5rem] max-w-md p-0 overflow-hidden border-none shadow-2xl">
             <div className="bg-[#2E50B8] p-8 text-white text-center">
@@ -363,7 +359,6 @@ export default function TemplatesPage() {
           </DialogContent>
         </Dialog>
 
-        {/* VISUAL EDITOR MODAL */}
         {isEditorOpen && editingTemplate && (
           <VisualEditorModal 
             isOpen={isEditorOpen} 
@@ -398,7 +393,6 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
   const isPortrait = template.type === 'ID_CARD';
   const dimensions = isPortrait ? { w: 276, h: 420 } : { w: 340, h: 215 };
 
-  // Hitung visibilitas elemen untuk editor hotspot
   const tKey = template.type === 'STUDENT_CARD' ? 'student' : (template.type === 'EXAM_CARD' ? 'exam' : 'id');
   const showPhoto = activeSide === 'front' ? (settings?.[`${tKey}_show_photo_front` as any] ?? true) : (settings?.[`${tKey}_show_photo_back` as any] ?? false);
   const showQr = activeSide === 'front' ? (settings?.[`${tKey}_show_qr_front` as any] ?? false) : (settings?.[`${tKey}_show_qr_back` as any] ?? true);
@@ -432,24 +426,13 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
       const base = {
         headerBg: isPortrait ? '#1B3C33' : '#2E50B8', bodyBg: '#ffffff', footerBg: isPortrait ? '#10B981' : '#4FBFDD', textColor: '#334155', bgImage: '', fontFamily: 'Inter',
         elements: defaultElements,
-        watermark: { 
-          enabled: false, 
-          text: 'SMKN 2 TANA TORAJA', 
-          opacity: 0.1, 
-          size: 10, 
-          angle: -30,
-          imageEnabled: false,
-          imageUrl: '',
-          imageOpacity: 0.1,
-          imageSize: 100
-        }
+        watermark: { enabled: false, text: 'SMKN 2 TANA TORAJA', opacity: 0.1, size: 10, angle: -30, imageEnabled: false, imageUrl: '', imageOpacity: 0.1, imageSize: 100 }
       };
       setConfig({
         front: { ...base, ...parsed.front, elements: { ...base.elements, ...parsed.front?.elements } },
         back: { ...base, ...parsed.back, elements: { ...base.elements, ...parsed.back?.elements } }
       });
-    } catch (e) {
-    }
+    } catch (e) {}
   }, [template, isPortrait]);
 
   if (!config) return null;
@@ -549,15 +532,12 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
         </div>
 
         <div className="flex flex-col lg:flex-row h-[75vh]">
-          {/* Sidebar Editor */}
           <div className="w-full lg:w-[400px] bg-slate-50/50 border-r p-8 overflow-y-auto space-y-10 custom-scrollbar">
-            {/* Side Tabs */}
             <div className="grid grid-cols-2 p-1 bg-white rounded-xl shadow-inner">
               <button onClick={() => setActiveSide('front')} className={cn("h-10 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all", activeSide === 'front' ? "bg-[#1e293b] text-white shadow-lg" : "text-slate-400 hover:text-slate-600")}>Tampak Depan</button>
               <button onClick={() => setActiveSide('back')} className={cn("h-10 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all", activeSide === 'back' ? "bg-[#1e293b] text-white shadow-lg" : "text-slate-400 hover:text-slate-600")}>Tampak Belakang</button>
             </div>
 
-            {/* Estetika */}
             <div className="space-y-6">
               <div className="flex items-center gap-2"><Palette className="h-4 w-4 text-[#2E50B8]" /><h4 className="text-[11px] font-black uppercase tracking-widest text-slate-800">Estetika & Visual</h4></div>
               <div className="space-y-2">
@@ -580,7 +560,6 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
               </div>
             </div>
 
-            {/* Watermark Section */}
             <div className="space-y-6 pt-4 border-t border-slate-100">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2"><Check className="h-4 w-4 text-[#2E50B8]" /><h4 className="text-[11px] font-black uppercase tracking-widest text-slate-800">Watermark Teks</h4></div>
@@ -597,7 +576,7 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
               )}
 
               <div className="flex items-center justify-between mt-4">
-                <div className="flex items-center gap-2"><ImageIcon className="h-4 w-4 text-[#2E50B8]" /><h4 className="text-[11px] font-black uppercase tracking-widest text-slate-800">Watermark Gambar (Logo)</h4></div>
+                <div className="flex items-center gap-2"><ImageIcon className="h-4 w-4 text-[#2E50B8]" /><h4 className="text-[11px] font-black uppercase tracking-widest text-slate-800">Watermark Gambar</h4></div>
                 <Switch checked={current.watermark.imageEnabled} onCheckedChange={(v) => updateConfig(activeSide, 'watermark', { ...current.watermark, imageEnabled: v })} />
               </div>
               {current.watermark.imageEnabled && (
@@ -616,7 +595,6 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
               )}
             </div>
 
-            {/* Dimensi & Ukuran Elemen */}
             <div className="space-y-6 pt-4 border-t border-slate-100">
               <div className="flex items-center gap-2"><Move className="h-4 w-4 text-[#2E50B8]" /><h4 className="text-[11px] font-black uppercase tracking-widest text-slate-800">Dimensi & Ukuran Elemen</h4></div>
               
@@ -641,7 +619,6 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
               </div>
             </div>
 
-            {/* Background Image */}
             <div className="space-y-6 pt-4 border-t border-slate-100 pb-10">
               <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-800">Background Sisi Ini</h4>
               <Button variant="outline" className="w-full h-14 rounded-2xl border-dashed border-2 text-slate-400 gap-2 font-black uppercase tracking-widest text-[10px]" onClick={() => bgInputRef.current?.click()}>
@@ -654,7 +631,6 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
             </div>
           </div>
 
-          {/* Interactive Preview Canvas */}
           <div className="flex-1 bg-slate-100/50 flex flex-col items-center justify-center p-12 relative overflow-hidden">
             <div className="absolute top-8 bg-white/80 backdrop-blur-md px-6 py-2 rounded-full shadow-sm border border-slate-200 flex items-center gap-3 z-20">
               <MousePointer2 className="h-4 w-4 text-primary animate-pulse" />
@@ -671,27 +647,17 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
               >
                 {renderPreview(template.type, student, settings, activeSide, { ...template, config_json: JSON.stringify(config) })}
                 
-                {/* Draggable Hotspots */}
                 {showPhoto && <EditorHotspot x={current.elements.photo.x} y={current.elements.photo.y} w={current.elements.photo.w} h={current.elements.photo.h} onDown={(e) => handlePointerDown(e, 'photo')} isActive={draggingElement === 'photo'} label="FOTO" />}
                 {showQr && <EditorHotspot x={current.elements.qr.x} y={current.elements.qr.y} w={current.elements.qr.w} h={current.elements.qr.h} onDown={(e) => handlePointerDown(e, 'qr')} isActive={draggingElement === 'qr'} label="QR" />}
                 {(showInfo || showValid) && <EditorHotspot x={current.elements.info.x} y={current.elements.info.y} w={current.elements.info.width} h={60} onDown={(e) => handlePointerDown(e, 'info')} isActive={draggingElement === 'info'} label="INFO SISWA" />}
                 
-                {/* Separated Legal Elements */}
                 {showSig && <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 150} w={60} h={30} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="GAMBAR TTD" />}
                 {showSig && <EditorHotspot x={current.elements.principalInfo?.x || 240} y={current.elements.principalInfo?.y || 180} w={100} h={25} onDown={(e) => handlePointerDown(e, 'principalInfo')} isActive={draggingElement === 'principalInfo'} label="NAMA & NIP" />}
                 
                 {showStamp && <EditorHotspot x={current.elements.stamp?.x || 220} y={current.elements.stamp?.y || 160} w={40} h={40} onDown={(e) => handlePointerDown(e, 'stamp')} isActive={draggingElement === 'stamp'} label="STEMPEL" />}
                 
                 {activeSide === 'back' && current.elements.terms && (
-                  <EditorHotspot 
-                    x={current.elements.terms.x} 
-                    y={current.elements.terms.y} 
-                    w={current.elements.terms.width} 
-                    h={100} 
-                    onDown={(e) => handlePointerDown(e, 'terms')} 
-                    isActive={draggingElement === 'terms'} 
-                    label="KETENTUAN" 
-                  />
+                  <EditorHotspot x={current.elements.terms.x} y={current.elements.terms.y} w={current.elements.terms.width} h={100} onDown={(e) => handlePointerDown(e, 'terms')} isActive={draggingElement === 'terms'} label="KETENTUAN" />
                 )}
               </div>
             </div>
@@ -763,15 +729,10 @@ function EditorHotspot({ x, y, w, h, onDown, isActive, label }: { x: number, y: 
 
 function renderPreview(type: TemplateType, student: Student, settings: SchoolSettings | null, side: 'front' | 'back', template: CardTemplate) {
   const activeSettings = settings || DEFAULT_SETTINGS;
-  
   switch(type) {
-    case 'STUDENT_CARD':
-      return <StudentCardVisual student={student} settings={activeSettings} side={side} template={template} />;
-    case 'EXAM_CARD':
-      return <ExamCardVisual student={student} settings={activeSettings} side={side} template={template} />;
-    case 'ID_CARD':
-      return <IdCardVisual student={student} settings={activeSettings} side={side} template={template} />;
-    default:
-      return null;
+    case 'STUDENT_CARD': return <StudentCardVisual student={student} settings={activeSettings} side={side} template={template} />;
+    case 'EXAM_CARD': return <ExamCardVisual student={student} settings={activeSettings} side={side} template={template} />;
+    case 'ID_CARD': return <IdCardVisual student={student} settings={activeSettings} side={side} template={template} />;
+    default: return null;
   }
 }
