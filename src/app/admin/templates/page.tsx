@@ -24,7 +24,8 @@ import {
   AlignLeft,
   AlignRight,
   Upload,
-  Edit2
+  Edit2,
+  Signature
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { 
@@ -105,14 +106,16 @@ export default function TemplatesPage() {
       photo: { x: 68, y: 100, w: 140, h: 180 },
       qr: { x: 110, y: 320, w: 56, h: 56 },
       info: { x: 20, y: 285, align: 'center', fontSize: 12, width: 236 },
-      signature: { x: 150, y: 380, scale: 0.8 },
+      signature: { x: 150, y: 360, scale: 0.8 },
+      principalInfo: { x: 150, y: 395, fontSize: 7 },
       stamp: { x: 130, y: 380, scale: 0.8 },
       terms: { x: 18, y: 120, width: 240 }
     } : {
       photo: { x: 15, y: 70, w: 60, h: 80 },
       qr: { x: 15, y: 155, w: 48, h: 48 },
       info: { x: 90, y: 70, align: 'left', fontSize: 10, width: 180 },
-      signature: { x: 240, y: 160, scale: 0.75 },
+      signature: { x: 240, y: 150, scale: 0.75 },
+      principalInfo: { x: 240, y: 180, fontSize: 6 },
       stamp: { x: 220, y: 160, scale: 0.75 },
       terms: { x: 30, y: 60, width: 280 }
     };
@@ -411,14 +414,16 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
         photo: { x: 68, y: 100, w: 140, h: 180 },
         qr: { x: 110, y: 320, w: 56, h: 56 },
         info: { x: 20, y: 285, align: 'center', fontSize: 12, width: 236 },
-        signature: { x: 150, y: 380, scale: 0.8 },
+        signature: { x: 150, y: 360, scale: 0.8 },
+        principalInfo: { x: 150, y: 395, fontSize: 7 },
         stamp: { x: 130, y: 380, scale: 0.8 },
         terms: { x: 18, y: 120, width: 240 }
       } : { 
         photo: { x: 15, y: 70, w: 60, h: 80 }, 
         qr: { x: 15, y: 155, w: 48, h: 48 }, 
         info: { x: 90, y: 70, align: 'left', fontSize: 10, width: 180 }, 
-        signature: { x: 240, y: 160, scale: 0.75 },
+        signature: { x: 240, y: 150, scale: 0.75 },
+        principalInfo: { x: 240, y: 180, fontSize: 6 },
         stamp: { x: 220, y: 160, scale: 0.75 },
         terms: { x: 30, y: 60, width: 280 }
       };
@@ -665,11 +670,15 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
               >
                 {renderPreview(template.type, student, settings, activeSide, { ...template, config_json: JSON.stringify(config) })}
                 
-                {/* Draggable Hotspots - Hanya tampil jika elemen diaktifkan di Settings */}
+                {/* Draggable Hotspots */}
                 {showPhoto && <EditorHotspot x={current.elements.photo.x} y={current.elements.photo.y} w={current.elements.photo.w} h={current.elements.photo.h} onDown={(e) => handlePointerDown(e, 'photo')} isActive={draggingElement === 'photo'} label="FOTO" />}
                 {showQr && <EditorHotspot x={current.elements.qr.x} y={current.elements.qr.y} w={current.elements.qr.w} h={current.elements.qr.h} onDown={(e) => handlePointerDown(e, 'qr')} isActive={draggingElement === 'qr'} label="QR" />}
                 {showInfo && <EditorHotspot x={current.elements.info.x} y={current.elements.info.y} w={current.elements.info.width} h={60} onDown={(e) => handlePointerDown(e, 'info')} isActive={draggingElement === 'info'} label="INFO SISWA" />}
-                {showSig && <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 160} w={80} h={40} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="TTD & NAMA" />}
+                
+                {/* Separated Legal Elements */}
+                {showSig && <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 150} w={60} h={30} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="GAMBAR TTD" />}
+                {showSig && <EditorHotspot x={current.elements.principalInfo?.x || 240} y={current.elements.principalInfo?.y || 180} w={100} h={25} onDown={(e) => handlePointerDown(e, 'principalInfo')} isActive={draggingElement === 'principalInfo'} label="NAMA & NIP" />}
+                
                 {showStamp && <EditorHotspot x={current.elements.stamp?.x || 220} y={current.elements.stamp?.y || 160} w={40} h={40} onDown={(e) => handlePointerDown(e, 'stamp')} isActive={draggingElement === 'stamp'} label="STEMPEL" />}
                 
                 {activeSide === 'back' && current.elements.terms && (

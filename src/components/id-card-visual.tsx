@@ -8,7 +8,8 @@ const DEFAULT_ELEMENTS = {
   photo: { x: 68, y: 100, w: 140, h: 180 },
   qr: { x: 110, y: 320, w: 56, h: 56 },
   info: { x: 20, y: 285, align: 'center', fontSize: 12, width: 236 },
-  signature: { x: 150, y: 380, scale: 0.8 },
+  signature: { x: 150, y: 360, scale: 0.8 },
+  principalInfo: { x: 150, y: 395, fontSize: 7 },
   stamp: { x: 130, y: 380, scale: 0.8 },
   terms: { x: 18, y: 120, width: 240 }
 };
@@ -213,25 +214,36 @@ export function IdCardVisual({
       )}
 
       {showSig && (
-        <div 
-          className="absolute z-10"
-          style={{ 
-            left: els.signature?.x || 150, 
-            top: els.signature?.y || 380,
-            transform: `scale(${els.signature?.scale || 0.8})`,
-            transformOrigin: 'top left'
-          }}
-        >
-          <div className="text-left">
+        <>
+          <div 
+            className="absolute z-10"
+            style={{ 
+              left: els.signature?.x || 150, 
+              top: els.signature?.y || 360,
+              transform: `scale(${els.signature?.scale || 0.8})`,
+              transformOrigin: 'top left'
+            }}
+          >
             {settings?.signature_id && (
-              <div className="w-16 h-8 relative mb-1">
+              <div className="w-16 h-8 relative">
                 <Image src={settings.signature_id} alt="Sig" fill className="object-contain" unoptimized />
               </div>
             )}
-            <p className="text-[7px] font-bold uppercase opacity-80 leading-none border-t border-slate-300 pt-1">{settings?.principal_name || 'Kepala Sekolah'}</p>
-            <p className="text-[5px] opacity-60">NIP: {settings?.principal_nip}</p>
           </div>
-        </div>
+
+          <div 
+            className="absolute z-10 text-left"
+            style={{ 
+              left: els.principalInfo?.x || 150, 
+              top: els.principalInfo?.y || 395,
+              width: '120px',
+              textAlign: 'left'
+            }}
+          >
+            <p className="font-bold uppercase opacity-80 leading-none border-t border-slate-300 pt-1" style={{ fontSize: els.principalInfo?.fontSize || 7 }}>{settings?.principal_name || 'Kepala Sekolah'}</p>
+            <p className="opacity-60" style={{ fontSize: (els.principalInfo?.fontSize || 7) - 2 }}>NIP: {settings?.principal_nip}</p>
+          </div>
+        </>
       )}
 
       {side === 'back' && (

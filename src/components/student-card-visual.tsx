@@ -8,7 +8,8 @@ const DEFAULT_ELEMENTS = {
   photo: { x: 15, y: 70, w: 60, h: 80 },
   qr: { x: 15, y: 155, w: 48, h: 48 },
   info: { x: 90, y: 70, align: 'left', fontSize: 10, width: 180 },
-  signature: { x: 240, y: 160, scale: 0.75 },
+  signature: { x: 240, y: 150, scale: 0.75 },
+  principalInfo: { x: 240, y: 180, fontSize: 6 },
   stamp: { x: 220, y: 160, scale: 0.75 },
   terms: { x: 30, y: 60, width: 280 }
 };
@@ -247,25 +248,38 @@ export function StudentCardVisual({
       )}
 
       {showSig && (
-        <div 
-          className="absolute z-10"
-          style={{ 
-            left: els.signature?.x || 240, 
-            top: els.signature?.y || 160, 
-            transform: `scale(${els.signature?.scale || 0.75})`,
-            transformOrigin: 'top left'
-          }}
-        >
-          <div className="text-center">
+        <>
+          {/* Gambar Tanda Tangan */}
+          <div 
+            className="absolute z-10"
+            style={{ 
+              left: els.signature?.x || 240, 
+              top: els.signature?.y || 150, 
+              transform: `scale(${els.signature?.scale || 0.75})`,
+              transformOrigin: 'top left'
+            }}
+          >
             {settings?.signature_image && (
-              <div className="w-14 h-7 relative mb-1">
+              <div className="w-14 h-7 relative">
                 <Image src={settings.signature_image} alt="TTD" fill className="object-contain" unoptimized />
               </div>
             )}
-            <p className="text-[6px] font-bold border-t border-slate-300 leading-none pt-1">{settings?.principal_name || 'Kepala Sekolah'}</p>
-            <p className="text-[5px] opacity-70 mt-0.5">NIP: {settings?.principal_nip}</p>
           </div>
-        </div>
+
+          {/* Teks Nama & NIP */}
+          <div 
+            className="absolute z-10 text-center"
+            style={{ 
+              left: els.principalInfo?.x || 240, 
+              top: els.principalInfo?.y || 180,
+              width: '100px',
+              textAlign: 'center'
+            }}
+          >
+            <p className="font-bold border-t border-slate-300 leading-none pt-1" style={{ fontSize: els.principalInfo?.fontSize || 6 }}>{settings?.principal_name || 'Kepala Sekolah'}</p>
+            <p className="opacity-70 mt-0.5" style={{ fontSize: (els.principalInfo?.fontSize || 6) - 1 }}>NIP: {settings?.principal_nip}</p>
+          </div>
+        </>
       )}
 
       <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1.5 z-10"></div>
