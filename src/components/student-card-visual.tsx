@@ -246,25 +246,27 @@ export function StudentCardVisual({
         </div>
       )}
 
-      <div 
-        className="absolute z-10"
-        style={{ 
-          left: els.signature?.x || 240, 
-          top: els.signature?.y || 160, 
-          transform: `scale(${els.signature?.scale || 0.75})`,
-          transformOrigin: 'top left'
-        }}
-      >
-        <div className="text-center">
-          {showSig && settings?.signature_image && (
-            <div className="w-14 h-7 relative mb-1">
-              <Image src={settings.signature_image} alt="TTD" fill className="object-contain" unoptimized />
-            </div>
-          )}
-          <p className="text-[6px] font-bold border-t border-slate-300 leading-none pt-1">{settings?.principal_name || 'Kepala Sekolah'}</p>
-          <p className="text-[5px] opacity-70 mt-0.5">NIP: {settings?.principal_nip}</p>
+      {showSig && (
+        <div 
+          className="absolute z-10"
+          style={{ 
+            left: els.signature?.x || 240, 
+            top: els.signature?.y || 160, 
+            transform: `scale(${els.signature?.scale || 0.75})`,
+            transformOrigin: 'top left'
+          }}
+        >
+          <div className="text-center">
+            {settings?.signature_image && (
+              <div className="w-14 h-7 relative mb-1">
+                <Image src={settings.signature_image} alt="TTD" fill className="object-contain" unoptimized />
+              </div>
+            )}
+            <p className="text-[6px] font-bold border-t border-slate-300 leading-none pt-1">{settings?.principal_name || 'Kepala Sekolah'}</p>
+            <p className="text-[5px] opacity-70 mt-0.5">NIP: {settings?.principal_nip}</p>
+          </div>
         </div>
-      </div>
+      )}
 
       <div style={{ backgroundColor: current.footerBg }} className="absolute bottom-0 left-0 right-0 h-1.5 z-10"></div>
     </div>

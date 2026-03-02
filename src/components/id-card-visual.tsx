@@ -212,25 +212,27 @@ export function IdCardVisual({
         </div>
       )}
 
-      <div 
-        className="absolute z-10"
-        style={{ 
-          left: els.signature?.x || 150, 
-          top: els.signature?.y || 380,
-          transform: `scale(${els.signature?.scale || 0.8})`,
-          transformOrigin: 'top left'
-        }}
-      >
-        <div className="text-left">
-          {showSig && settings?.signature_id && (
-            <div className="w-16 h-8 relative mb-1">
-              <Image src={settings.signature_id} alt="Sig" fill className="object-contain" unoptimized />
-            </div>
-          )}
-          <p className="text-[7px] font-bold uppercase opacity-80 leading-none border-t border-slate-300 pt-1">{settings?.principal_name || 'Kepala Sekolah'}</p>
-          <p className="text-[5px] opacity-60">NIP: {settings?.principal_nip}</p>
+      {showSig && (
+        <div 
+          className="absolute z-10"
+          style={{ 
+            left: els.signature?.x || 150, 
+            top: els.signature?.y || 380,
+            transform: `scale(${els.signature?.scale || 0.8})`,
+            transformOrigin: 'top left'
+          }}
+        >
+          <div className="text-left">
+            {settings?.signature_id && (
+              <div className="w-16 h-8 relative mb-1">
+                <Image src={settings.signature_id} alt="Sig" fill className="object-contain" unoptimized />
+              </div>
+            )}
+            <p className="text-[7px] font-bold uppercase opacity-80 leading-none border-t border-slate-300 pt-1">{settings?.principal_name || 'Kepala Sekolah'}</p>
+            <p className="text-[5px] opacity-60">NIP: {settings?.principal_nip}</p>
+          </div>
         </div>
-      </div>
+      )}
 
       {side === 'back' && (
         <div 

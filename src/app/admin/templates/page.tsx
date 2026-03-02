@@ -364,7 +364,7 @@ export default function TemplatesPage() {
         {isEditorOpen && editingTemplate && (
           <VisualEditorModal 
             isOpen={isEditorOpen} 
-            onClose={() => { setIsEditorOpen(false); setEditingTemplate(null); }} 
+            onOpenChange={setIsEditorOpen}
             template={editingTemplate} 
             student={dummyStudent}
             settings={activeSettings}
@@ -376,9 +376,9 @@ export default function TemplatesPage() {
   );
 }
 
-function VisualEditorModal({ isOpen, onClose, template, student, settings, db }: { 
+function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, db }: { 
   isOpen: boolean, 
-  onClose: () => void, 
+  onOpenChange: (open: boolean) => void, 
   template: CardTemplate,
   student: Student,
   settings: SchoolSettings | null,
@@ -394,6 +394,14 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
 
   const isPortrait = template.type === 'ID_CARD';
   const dimensions = isPortrait ? { w: 276, h: 420 } : { w: 340, h: 215 };
+
+  // Hitung visibilitas elemen untuk editor hotspot
+  const tKey = template.type === 'STUDENT_CARD' ? 'student' : (template.type === 'EXAM_CARD' ? 'exam' : 'id');
+  const showPhoto = activeSide === 'front' ? (settings?.[`${tKey}_show_photo_front` as any] ?? true) : (settings?.[`${tKey}_show_photo_back` as any] ?? false);
+  const showQr = activeSide === 'front' ? (settings?.[`${tKey}_show_qr_front` as any] ?? false) : (settings?.[`${tKey}_show_qr_back` as any] ?? true);
+  const showInfo = activeSide === 'front' ? (settings?.[`${tKey}_show_info_front` as any] ?? true) : (settings?.[`${tKey}_show_info_back` as any] ?? false);
+  const showSig = activeSide === 'front' ? (settings?.[`${tKey}_show_sig_front` as any] ?? false) : (settings?.[`${tKey}_show_sig_back` as any] ?? true);
+  const showStamp = activeSide === 'front' ? (settings?.[`${tKey}_show_stamp_front` as any] ?? false) : (settings?.[`${tKey}_show_stamp_back` as any] ?? true);
 
   useEffect(() => {
     try {
@@ -467,7 +475,7 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
         config_json: JSON.stringify(config)
       });
       toast({ title: "Desain Tersimpan", description: "Tata letak kartu telah diperbarui." });
-      onClose();
+      onOpenChange(false);
     } catch (err) {
       toast({ variant: "destructive", title: "Gagal Simpan" });
     } finally {
@@ -516,7 +524,7 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
   const current = config[activeSide];
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[1200px] p-0 rounded-[2.5rem] overflow-hidden border-none shadow-2xl bg-white">
         <DialogHeader className="sr-only">
           <DialogTitle>Visual Editor & Layout Hub</DialogTitle>
@@ -530,7 +538,7 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="bg-white/5 border-white/10 text-white gap-2 h-10 rounded-full text-[10px] font-bold uppercase tracking-widest"><RotateCcw className="h-3 w-3" /> Reset Layout</Button>
-            <Button variant="ghost" onClick={onClose} className="text-white h-10 w-10 p-0 rounded-full hover:bg-white/10"><X className="h-5 w-5" /></Button>
+            <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-white h-10 w-10 p-0 rounded-full hover:bg-white/10"><X className="h-5 w-5" /></Button>
           </div>
         </div>
 
@@ -657,12 +665,12 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
               >
                 {renderPreview(template.type, student, settings, activeSide, { ...template, config_json: JSON.stringify(config) })}
                 
-                {/* Draggable Hotspots */}
-                <EditorHotspot x={current.elements.photo.x} y={current.elements.photo.y} w={current.elements.photo.w} h={current.elements.photo.h} onDown={(e) => handlePointerDown(e, 'photo')} isActive={draggingElement === 'photo'} label="FOTO" />
-                <EditorHotspot x={current.elements.qr.x} y={current.elements.qr.y} w={current.elements.qr.w} h={current.elements.qr.h} onDown={(e) => handlePointerDown(e, 'qr')} isActive={draggingElement === 'qr'} label="QR" />
-                <EditorHotspot x={current.elements.info.x} y={current.elements.info.y} w={current.elements.info.width} h={60} onDown={(e) => handlePointerDown(e, 'info')} isActive={draggingElement === 'info'} label="INFO SISWA" />
-                <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 160} w={80} h={40} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="TTD & NAMA" />
-                <EditorHotspot x={current.elements.stamp?.x || 220} y={current.elements.stamp?.y || 160} w={40} h={40} onDown={(e) => handlePointerDown(e, 'stamp')} isActive={draggingElement === 'stamp'} label="STEMPEL" />
+                {/* Draggable Hotspots - Hanya tampil jika elemen diaktifkan di Settings */}
+                {showPhoto && <EditorHotspot x={current.elements.photo.x} y={current.elements.photo.y} w={current.elements.photo.w} h={current.elements.photo.h} onDown={(e) => handlePointerDown(e, 'photo')} isActive={draggingElement === 'photo'} label="FOTO" />}
+                {showQr && <EditorHotspot x={current.elements.qr.x} y={current.elements.qr.y} w={current.elements.qr.w} h={current.elements.qr.h} onDown={(e) => handlePointerDown(e, 'qr')} isActive={draggingElement === 'qr'} label="QR" />}
+                {showInfo && <EditorHotspot x={current.elements.info.x} y={current.elements.info.y} w={current.elements.info.width} h={60} onDown={(e) => handlePointerDown(e, 'info')} isActive={draggingElement === 'info'} label="INFO SISWA" />}
+                {showSig && <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 160} w={80} h={40} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="TTD & NAMA" />}
+                {showStamp && <EditorHotspot x={current.elements.stamp?.x || 220} y={current.elements.stamp?.y || 160} w={40} h={40} onDown={(e) => handlePointerDown(e, 'stamp')} isActive={draggingElement === 'stamp'} label="STEMPEL" />}
                 
                 {activeSide === 'back' && current.elements.terms && (
                   <EditorHotspot 
@@ -689,7 +697,7 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
         </div>
 
         <DialogFooter className="p-6 bg-slate-50 border-t flex items-center justify-between">
-          <Button variant="ghost" onClick={onClose} className="text-[10px] font-black uppercase tracking-widest text-slate-400">Batal</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[10px] font-black uppercase tracking-widest text-slate-400">Batal</Button>
           <Button onClick={handleSave} disabled={isSaving} className="bg-[#2E50B8] hover:bg-[#1e3a8a] text-white px-10 h-12 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-blue-500/20 gap-3">
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} SIMPAN DESAIN
           </Button>
