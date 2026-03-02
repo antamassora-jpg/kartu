@@ -182,7 +182,7 @@ export function ExamCardVisual({
         </div>
       )}
 
-      {showInfo && (
+      {(showInfo || showValid) && (
         <div 
           className="absolute px-2 flex flex-col gap-1.5 z-10"
           style={{ 
@@ -193,18 +193,22 @@ export function ExamCardVisual({
             alignItems: els.info.align === 'center' ? 'center' : (els.info.align === 'right' ? 'flex-end' : 'flex-start')
           }}
         >
-          <div className="w-full">
-            <span className="opacity-60 text-[6px] uppercase font-black block">Nama Peserta</span>
-            <span className="font-black uppercase leading-none block" style={{ fontSize: (els.info.fontSize || 10) + 1 }}>{student.name}</span>
-          </div>
-          <div className="w-full">
-            <span className="opacity-60 text-[6px] uppercase font-black block">NIS / NISN</span>
-            <span className="font-bold block leading-none" style={{ fontSize: els.info.fontSize || 10 }}>{student.nis} / {student.nisn || '-'}</span>
-          </div>
-          <div className="w-full">
-            <span className="opacity-60 text-[6px] uppercase font-black block">Event Ujian</span>
-            <span className="font-bold uppercase block leading-tight" style={{ fontSize: (els.info.fontSize || 10) - 1 }}>{exam?.name || 'UJIAN AKHIR SEKOLAH'}</span>
-          </div>
+          {showInfo && (
+            <>
+              <div className="w-full">
+                <span className="opacity-60 text-[6px] uppercase font-black block">Nama Peserta</span>
+                <span className="font-black uppercase leading-none block" style={{ fontSize: (els.info.fontSize || 10) + 1 }}>{student.name}</span>
+              </div>
+              <div className="w-full">
+                <span className="opacity-60 text-[6px] uppercase font-black block">NIS / NISN</span>
+                <span className="font-bold block leading-none" style={{ fontSize: els.info.fontSize || 10 }}>{student.nis} / {student.nisn || '-'}</span>
+              </div>
+              <div className="w-full">
+                <span className="opacity-60 text-[6px] uppercase font-black block">Event Ujian</span>
+                <span className="font-bold uppercase block leading-tight" style={{ fontSize: (els.info.fontSize || 10) - 1 }}>{exam?.name || 'UJIAN AKHIR SEKOLAH'}</span>
+              </div>
+            </>
+          )}
           {showValid && (
             <div className="mt-1 w-full">
               <span className="opacity-60 text-[6px] uppercase font-black block">Masa Berlaku</span>

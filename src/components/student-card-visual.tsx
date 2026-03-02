@@ -180,7 +180,7 @@ export function StudentCardVisual({
         </div>
       )}
 
-      {showInfo && (
+      {(showInfo || showValid) && (
         <div 
           className="absolute px-2 flex flex-col gap-1.5 z-10"
           style={{ 
@@ -191,18 +191,22 @@ export function StudentCardVisual({
             alignItems: els.info.align === 'center' ? 'center' : (els.info.align === 'right' ? 'flex-end' : 'flex-start')
           }}
         >
-          <div className="w-full">
-            <span className="opacity-60 text-[6px] uppercase font-black block">Nama Lengkap</span>
-            <span className="font-black uppercase leading-none block" style={{ fontSize: (els.info.fontSize || 10) + 1 }}>{student.name}</span>
-          </div>
-          <div className="w-full">
-            <span className="opacity-60 text-[6px] uppercase font-black block">NIS / NISN</span>
-            <span className="font-bold block leading-none" style={{ fontSize: els.info.fontSize || 10 }}>{student.nis} / {student.nisn || '-'}</span>
-          </div>
-          <div className="w-full">
-            <span className="opacity-60 text-[6px] uppercase font-black block">Kelas & Jurusan</span>
-            <span className="font-bold uppercase block leading-tight" style={{ fontSize: (els.info.fontSize || 10) - 1 }}>{student.class} - {student.major}</span>
-          </div>
+          {showInfo && (
+            <>
+              <div className="w-full">
+                <span className="opacity-60 text-[6px] uppercase font-black block">Nama Lengkap</span>
+                <span className="font-black uppercase leading-none block" style={{ fontSize: (els.info.fontSize || 10) + 1 }}>{student.name}</span>
+              </div>
+              <div className="w-full">
+                <span className="opacity-60 text-[6px] uppercase font-black block">NIS / NISN</span>
+                <span className="font-bold block leading-none" style={{ fontSize: els.info.fontSize || 10 }}>{student.nis} / {student.nisn || '-'}</span>
+              </div>
+              <div className="w-full">
+                <span className="opacity-60 text-[6px] uppercase font-black block">Kelas & Jurusan</span>
+                <span className="font-bold uppercase block leading-tight" style={{ fontSize: (els.info.fontSize || 10) - 1 }}>{student.class} - {student.major}</span>
+              </div>
+            </>
+          )}
           {showValid && (
             <div className="mt-1 w-full">
               <span className="opacity-60 text-[6px] uppercase font-black block">Masa Berlaku</span>
@@ -249,7 +253,6 @@ export function StudentCardVisual({
 
       {showSig && (
         <>
-          {/* Gambar Tanda Tangan */}
           <div 
             className="absolute z-10"
             style={{ 
@@ -266,7 +269,6 @@ export function StudentCardVisual({
             )}
           </div>
 
-          {/* Teks Nama & NIP */}
           <div 
             className="absolute z-10 text-center"
             style={{ 

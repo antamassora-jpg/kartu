@@ -403,6 +403,7 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
   const showPhoto = activeSide === 'front' ? (settings?.[`${tKey}_show_photo_front` as any] ?? true) : (settings?.[`${tKey}_show_photo_back` as any] ?? false);
   const showQr = activeSide === 'front' ? (settings?.[`${tKey}_show_qr_front` as any] ?? false) : (settings?.[`${tKey}_show_qr_back` as any] ?? true);
   const showInfo = activeSide === 'front' ? (settings?.[`${tKey}_show_info_front` as any] ?? true) : (settings?.[`${tKey}_show_info_back` as any] ?? false);
+  const showValid = activeSide === 'front' ? (settings?.[`${tKey}_show_valid_front` as any] ?? true) : (settings?.[`${tKey}_show_valid_back` as any] ?? false);
   const showSig = activeSide === 'front' ? (settings?.[`${tKey}_show_sig_front` as any] ?? false) : (settings?.[`${tKey}_show_sig_back` as any] ?? true);
   const showStamp = activeSide === 'front' ? (settings?.[`${tKey}_show_stamp_front` as any] ?? false) : (settings?.[`${tKey}_show_stamp_back` as any] ?? true);
 
@@ -673,7 +674,7 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
                 {/* Draggable Hotspots */}
                 {showPhoto && <EditorHotspot x={current.elements.photo.x} y={current.elements.photo.y} w={current.elements.photo.w} h={current.elements.photo.h} onDown={(e) => handlePointerDown(e, 'photo')} isActive={draggingElement === 'photo'} label="FOTO" />}
                 {showQr && <EditorHotspot x={current.elements.qr.x} y={current.elements.qr.y} w={current.elements.qr.w} h={current.elements.qr.h} onDown={(e) => handlePointerDown(e, 'qr')} isActive={draggingElement === 'qr'} label="QR" />}
-                {showInfo && <EditorHotspot x={current.elements.info.x} y={current.elements.info.y} w={current.elements.info.width} h={60} onDown={(e) => handlePointerDown(e, 'info')} isActive={draggingElement === 'info'} label="INFO SISWA" />}
+                {(showInfo || showValid) && <EditorHotspot x={current.elements.info.x} y={current.elements.info.y} w={current.elements.info.width} h={60} onDown={(e) => handlePointerDown(e, 'info')} isActive={draggingElement === 'info'} label="INFO SISWA" />}
                 
                 {/* Separated Legal Elements */}
                 {showSig && <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 150} w={60} h={30} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="GAMBAR TTD" />}

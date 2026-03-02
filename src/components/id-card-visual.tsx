@@ -175,7 +175,7 @@ export function IdCardVisual({
         </div>
       )}
 
-      {showInfo && (
+      {(showInfo || showValid) && (
         <div 
           className="absolute px-4 flex flex-col gap-1 z-10"
           style={{ 
@@ -186,14 +186,20 @@ export function IdCardVisual({
             alignItems: els.info.align === 'center' ? 'center' : (els.info.align === 'right' ? 'flex-end' : 'flex-start')
           }}
         >
-          <h1 className="font-black uppercase tracking-tight leading-none mb-1" style={{ fontSize: (els.info.fontSize || 12) + 2 }}>{student.name}</h1>
-          <div className="inline-block px-3 py-1 rounded-full font-bold text-white uppercase tracking-wider shadow-sm mb-1" style={{ backgroundColor: current.headerBg, fontSize: (els.info.fontSize || 12) - 3 }}>
-            {student.major}
-          </div>
-          <div className="flex flex-col gap-0.5 opacity-70 font-bold uppercase tracking-widest" style={{ fontSize: (els.info.fontSize || 12) - 4 }}>
-             <span>{student.nis} / {student.nisn || '-'}</span>
-             {showValid && <span>Berlaku: {student.valid_until}</span>}
-          </div>
+          {showInfo && (
+            <>
+              <h1 className="font-black uppercase tracking-tight leading-none mb-1" style={{ fontSize: (els.info.fontSize || 12) + 2 }}>{student.name}</h1>
+              <div className="inline-block px-3 py-1 rounded-full font-bold text-white uppercase tracking-wider shadow-sm mb-1" style={{ backgroundColor: current.headerBg, fontSize: (els.info.fontSize || 12) - 3 }}>
+                {student.major}
+              </div>
+              <div className="flex flex-col gap-0.5 opacity-70 font-bold uppercase tracking-widest" style={{ fontSize: (els.info.fontSize || 12) - 4 }}>
+                 <span>{student.nis} / {student.nisn || '-'}</span>
+              </div>
+            </>
+          )}
+          {showValid && (
+            <span className="opacity-70 font-bold uppercase tracking-widest mt-0.5" style={{ fontSize: (els.info.fontSize || 12) - 4 }}>Berlaku: {student.valid_until}</span>
+          )}
         </div>
       )}
 
