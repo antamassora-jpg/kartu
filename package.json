@@ -1,7 +1,7 @@
-
 {
-  "name": "nextn",
-  "version": "0.1.0",
+  "name": "educard-sync-toraja",
+  "version": "1.0.0",
+  "description": "Sistem Manajemen Kartu Digital & Absensi Terintegrasi Cloud Firestore - SMKN 2 Tana Toraja",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
