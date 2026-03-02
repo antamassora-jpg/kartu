@@ -1,6 +1,6 @@
 {
-  "name": "educard-sync-toraja",
-  "version": "1.1.0",
+  "name": "kartu-educard-sync",
+  "version": "1.2.0",
   "description": "Sistem Manajemen Identitas Digital & Absensi Cloud Firestore - SMKN 2 Tana Toraja",
   "private": true,
   "scripts": {

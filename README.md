@@ -2,6 +2,9 @@
 
 Sistem manajemen identitas digital modern yang mengintegrasikan pembuatan kartu pelajar, kartu ujian, dan ID card umum dengan sistem absensi real-time berbasis Cloud Firestore.
 
+## Repositori Resmi
+`https://github.com/antamassora-jpg/kartu.git`
+
 ## Fitur Utama
 
 - **Visual Card Editor**: Kustomisasi tata letak kartu (Drag & Drop) secara langsung dengan pengaturan warna dan tipografi.
@@ -19,7 +22,10 @@ Sistem manajemen identitas digital modern yang mengintegrasikan pembuatan kartu 
 
 ## Cara Menjalankan Lokal
 
-1. Clone repositori ini.
+1. Clone repositori ini:
+   ```bash
+   git clone https://github.com/antamassora-jpg/kartu.git
+   ```
 2. Jalankan `npm install`.
 3. Konfigurasi Firebase di `src/firebase/config.ts`.
 4. Jalankan `npm run dev`.
