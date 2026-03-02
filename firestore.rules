@@ -1,8 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ATURAN PENGEMBANGAN: Izinkan semua akses baca dan tulis untuk mempermudah prototyping.
-    // Memastikan pengguna dapat melakukan verifikasi, pencarian data, dan melihat log absensi tanpa kendala izin.
+    // IZINKAN SEMUA AKSES UNTUK PROTOTYPING
+    // Memastikan integrasi scanner, portal verifikasi, dan manajemen admin berjalan tanpa kendala izin.
     match /{document=**} {
       allow read, write: if true;
     }
