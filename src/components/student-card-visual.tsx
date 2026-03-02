@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Student, SchoolSettings, CardTemplate } from '@/app/lib/types';

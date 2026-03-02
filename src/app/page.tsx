@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,19 +12,15 @@ import {
   LogIn, 
   ShieldCheck, 
   Loader2, 
-  CheckCircle2, 
   Users, 
   CreditCard, 
   CalendarCheck, 
   QrCode, 
-  Camera, 
   X,
   Award,
   Contact,
   Activity,
-  UserCircle,
-  XCircle,
-  Info
+  XCircle
 } from 'lucide-react';
 import {
   Dialog,
@@ -274,7 +269,6 @@ export default function LandingPage() {
   const activeIdTemplate = templates.find(t => t.type === 'ID_CARD' && t.is_active);
   const latestExam = exams.length > 0 ? exams[0] : undefined;
 
-  // Dummy comparison data for the chart
   const statsData = [
     { name: 'Sen', harian: 92, ujian: 85 },
     { name: 'Sel', harian: 95, ujian: 88 },
