@@ -4,19 +4,18 @@ Sistem manajemen identitas digital modern yang mengintegrasikan pembuatan kartu 
 
 ## Fitur Utama
 
-- **Visual Card Editor**: Kustomisasi tata letak kartu (Drag & Drop) secara langsung.
-- **Automated Attendance**: Sinkronisasi absensi harian dan ujian via Role Scanner.
-- **Identity Tracer**: Verifikasi keabsahan kartu melalui QR Code unik.
-- **Bulk PDF Generator**: Cetak dan unduh ratusan kartu secara massal dengan satu klik.
-- **Real-time Statistics**: Monitoring kehadiran harian dan ujian melalui diagram interaktif.
+- **Visual Card Editor**: Kustomisasi tata letak kartu (Drag & Drop) secara langsung dengan pengaturan warna dan tipografi.
+- **Automated Attendance**: Sinkronisasi absensi harian dan ujian via Role Scanner berbasis QR Code.
+- **Identity Tracer**: Verifikasi keabsahan kartu melalui portal publik dengan pencarian NIS/NISN.
+- **Bulk PDF Generator**: Cetak dan unduh ratusan kartu secara massal dengan format standar ID Card.
+- **Real-time Statistics**: Monitoring kehadiran harian dan ujian melalui diagram interaktif dua kategori.
 
 ## Teknologi
 
 - **Framework**: Next.js 15 (App Router)
-- **Database**: Firebase Cloud Firestore
-- **Auth**: Firebase Authentication
+- **Database & Auth**: Firebase Cloud Firestore & Firebase Authentication
 - **Styling**: Tailwind CSS & Shadcn UI
-- **Graphics**: Html2Canvas & jsPDF
+- **Grafis**: Html2Canvas & jsPDF untuk rendering kartu ke PDF
 
 ## Cara Menjalankan Lokal
 
@@ -26,4 +25,4 @@ Sistem manajemen identitas digital modern yang mengintegrasikan pembuatan kartu 
 4. Jalankan `npm run dev`.
 
 ---
-© 2026 SMKN 2 Tana Toraja.
+© 2026 SMKN 2 Tana Toraja. Dikembangkan untuk efisiensi administrasi sekolah digital.
