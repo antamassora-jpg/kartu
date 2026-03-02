@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Student, SchoolSettings, CardTemplate } from '@/app/lib/types';
@@ -97,7 +98,6 @@ export function StudentCardVisual({
 
   const watermarkDataUri = wm.enabled ? `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(watermarkSvg)}")` : 'none';
 
-  // Safe defaults for visibility flags
   const showLogoLeft = side === 'front' ? (settings?.student_show_logo_front ?? true) : (settings?.student_show_logo_back ?? true);
   const showLogoRight = side === 'front' ? (settings?.student_show_logo_right_front ?? true) : (settings?.student_show_logo_right_back ?? false);
   const showSig = side === 'front' ? (settings?.student_show_sig_front ?? false) : (settings?.student_show_sig_back ?? true);

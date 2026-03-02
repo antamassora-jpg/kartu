@@ -46,7 +46,7 @@ export function ExamCardVisual({
     },
     back: { 
       headerBg: '#1e293b', bodyBg: '#ffffff', footerBg: '#f97316', textColor: '#334155', bgImage: '', fontFamily: 'Inter, sans-serif', 
-      elements: { ...DEFAULT_ELEMENTS, photo: { ...DEFAULT_ELEMENTS.photo, x: 15 }, info: { ...DEFAULT_ELEMENTS.info, x: 90 }, qr: { ...DEFAULT_ELEMENTS.qr, x: 275 } },
+      elements: { ...DEFAULT_ELEMENTS },
       watermark: { ...DEFAULT_WATERMARK }
     }
   };
@@ -100,7 +100,6 @@ export function ExamCardVisual({
 
   const watermarkDataUri = wm.enabled ? `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(watermarkSvg)}")` : 'none';
 
-  // Safe defaults for visibility flags
   const showLogoLeft = side === 'front' ? (settings?.exam_show_logo_front ?? true) : (settings?.exam_show_logo_back ?? true);
   const showLogoRight = side === 'front' ? (settings?.exam_show_logo_right_front ?? true) : (settings?.exam_show_logo_right_back ?? false);
   const showSig = side === 'front' ? (settings?.exam_show_sig_front ?? false) : (settings?.exam_show_sig_back ?? true);

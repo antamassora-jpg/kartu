@@ -98,7 +98,6 @@ export function IdCardVisual({
 
   const watermarkDataUri = wm.enabled ? `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(watermarkSvg)}")` : 'none';
 
-  // Safe defaults for visibility flags
   const showLogo = side === 'front' ? (settings?.id_show_logo_front ?? true) : (settings?.id_show_logo_back ?? true);
   const showLogoRight = side === 'front' ? (settings?.id_show_logo_right_front ?? false) : (settings?.id_show_logo_right_back ?? false);
   const showSig = side === 'front' ? (settings?.id_show_sig_front ?? false) : (settings?.id_show_sig_back ?? true);
@@ -130,7 +129,6 @@ export function IdCardVisual({
         </div>
       )}
 
-      {/* Header */}
       <div style={{ backgroundColor: current.headerBg }} className="relative z-20 pt-8 pb-5 px-6 flex flex-col items-center shadow-lg border-b border-white/10">
         <div className="flex items-center w-full text-white">
           {showLogo && settings?.logo_left_id && (
@@ -151,7 +149,6 @@ export function IdCardVisual({
         </div>
       </div>
 
-      {/* Photo */}
       {showPhoto && (
         <div 
           className="absolute rounded-2xl border-4 border-white shadow-2xl overflow-hidden bg-slate-100 z-10"
@@ -165,7 +162,6 @@ export function IdCardVisual({
         </div>
       )}
 
-      {/* QR Code */}
       {showQr && (
         <div 
           className="absolute bg-white p-1.5 rounded-xl border shadow-sm z-10"
@@ -178,7 +174,6 @@ export function IdCardVisual({
         </div>
       )}
 
-      {/* Info */}
       {showInfo && (
         <div 
           className="absolute px-4 flex flex-col gap-1 z-10"

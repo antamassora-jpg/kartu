@@ -100,7 +100,6 @@ export default function TemplatesPage() {
   const handleAddTemplate = async () => {
     if (!newTemplateName.trim() || !db) return;
     
-    // Set specific default elements based on orientation
     const isPortrait = newTemplateType === 'ID_CARD';
     const elements = isPortrait ? {
       photo: { x: 68, y: 100, w: 140, h: 180 },
@@ -393,7 +392,6 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
   const bgInputRef = useRef<HTMLInputElement>(null);
   const wmLogoInputRef = useRef<HTMLInputElement>(null);
 
-  // Define canvas size based on card type
   const isPortrait = template.type === 'ID_CARD';
   const dimensions = isPortrait ? { w: 276, h: 420 } : { w: 340, h: 215 };
 
@@ -401,7 +399,6 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
     try {
       const parsed = JSON.parse(template.config_json || '{}');
       
-      // Default elements based on card type if not present in config
       const defaultElements = isPortrait ? {
         photo: { x: 68, y: 100, w: 140, h: 180 },
         qr: { x: 110, y: 320, w: 56, h: 56 },
@@ -438,7 +435,6 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
         back: { ...base, ...parsed.back, elements: { ...base.elements, ...parsed.back?.elements } }
       });
     } catch (e) {
-      // Error recovery
     }
   }, [template, isPortrait]);
 
@@ -506,7 +502,6 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
     const x = Math.round(e.clientX - rect.left);
     const y = Math.round(e.clientY - rect.top);
     
-    // Bounds using dynamic dimensions
     const boundedX = Math.max(0, Math.min(x, dimensions.w));
     const boundedY = Math.max(0, Math.min(y, dimensions.h));
 
@@ -666,7 +661,7 @@ function VisualEditorModal({ isOpen, onClose, template, student, settings, db }:
                 <EditorHotspot x={current.elements.photo.x} y={current.elements.photo.y} w={current.elements.photo.w} h={current.elements.photo.h} onDown={(e) => handlePointerDown(e, 'photo')} isActive={draggingElement === 'photo'} label="FOTO" />
                 <EditorHotspot x={current.elements.qr.x} y={current.elements.qr.y} w={current.elements.qr.w} h={current.elements.qr.h} onDown={(e) => handlePointerDown(e, 'qr')} isActive={draggingElement === 'qr'} label="QR" />
                 <EditorHotspot x={current.elements.info.x} y={current.elements.info.y} w={current.elements.info.width} h={60} onDown={(e) => handlePointerDown(e, 'info')} isActive={draggingElement === 'info'} label="INFO SISWA" />
-                <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 160} w={60} h={30} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="TTD" />
+                <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 160} w={80} h={40} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="TTD & NAMA" />
                 <EditorHotspot x={current.elements.stamp?.x || 220} y={current.elements.stamp?.y || 160} w={40} h={40} onDown={(e) => handlePointerDown(e, 'stamp')} isActive={draggingElement === 'stamp'} label="STEMPEL" />
                 
                 {activeSide === 'back' && current.elements.terms && (
