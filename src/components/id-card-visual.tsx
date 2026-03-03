@@ -10,7 +10,9 @@ const DEFAULT_ELEMENTS = {
   signature: { x: 150, y: 360, scale: 0.8 },
   principalInfo: { x: 150, y: 395, fontSize: 7 },
   stamp: { x: 130, y: 380, scale: 0.8 },
-  terms: { x: 18, y: 120, width: 240 }
+  terms: { x: 18, y: 120, width: 240 },
+  title: { x: 0, y: 60 },
+  termsTitle: { x: 0, y: 100 }
 };
 
 const DEFAULT_WATERMARK = {
@@ -82,7 +84,6 @@ export function IdCardVisual({
   const showLogo = side === 'front' ? (settings?.id_show_logo_front ?? true) : (settings?.id_show_logo_back ?? true);
   const showLogoRight = side === 'front' ? (settings?.id_show_logo_right_front ?? false) : (settings?.id_show_logo_right_back ?? false);
   
-  // Kontrol legalitas
   const showLegalGroup = side === 'front' ? settings?.id_show_sig_front : settings?.id_show_sig_back;
   const showStamp = side === 'front' ? settings?.id_show_stamp_front : settings?.id_show_stamp_back;
   
@@ -154,15 +155,16 @@ export function IdCardVisual({
       )}
 
       {side === 'back' && (
-        <div className="absolute z-10" style={{ left: els.terms?.x || 18, top: els.terms?.y || 120, width: `${els.terms?.width || 240}px` }}>
-          <div className="relative w-full flex flex-col items-center mb-4">
-            <div className="w-full h-[1px] bg-slate-200 absolute top-1/2 -z-10"></div>
-            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-md">
+        <>
+          <div className="absolute left-0 w-full z-10 pointer-events-none flex justify-center" style={{ top: els.termsTitle?.y || 100 }}>
+            <div className="inline-block bg-white border border-slate-100 px-6 py-1 rounded-full shadow-md text-center">
               <span className="text-[8px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.headerBg }}>KETENTUAN ID CARD</span>
             </div>
           </div>
-          <p className="text-[8px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-6">{settings?.terms_id}</p>
-        </div>
+          <div className="absolute z-10" style={{ left: els.terms?.x || 18, top: els.terms?.y || 120, width: `${els.terms?.width || 240}px` }}>
+            <p className="text-[8px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-6">{settings?.terms_id}</p>
+          </div>
+        </>
       )}
 
       <div style={{ backgroundColor: current.headerBg }} className="absolute bottom-0 left-0 right-0 h-2 z-10"></div>

@@ -10,7 +10,9 @@ const DEFAULT_ELEMENTS = {
   signature: { x: 240, y: 150, scale: 0.75 },
   principalInfo: { x: 240, y: 180, fontSize: 6 },
   stamp: { x: 220, y: 160, scale: 0.75 },
-  terms: { x: 30, y: 60, width: 280 }
+  terms: { x: 30, y: 60, width: 280 },
+  title: { x: 0, y: 58 },
+  termsTitle: { x: 0, y: 58 }
 };
 
 const DEFAULT_WATERMARK = {
@@ -82,7 +84,6 @@ export function StudentCardVisual({
   const showLogoLeft = side === 'front' ? (settings?.student_show_logo_front ?? true) : (settings?.student_show_logo_back ?? true);
   const showLogoRight = side === 'front' ? (settings?.student_show_logo_right_front ?? true) : (settings?.student_show_logo_right_back ?? false);
   
-  // Tanda tangan, nama pejabat, dan stempel dikontrol oleh switch "Tanda Tangan" di settings
   const showLegalGroup = side === 'front' ? settings?.student_show_sig_front : settings?.student_show_sig_back;
   const showStamp = side === 'front' ? settings?.student_show_stamp_front : settings?.student_show_stamp_back;
   
@@ -108,11 +109,9 @@ export function StudentCardVisual({
       </div>
 
       {side === 'front' && (
-        <div className="absolute top-[58px] left-0 w-full z-10 pointer-events-none">
-          <div className="w-full text-center">
-            <div className="inline-block bg-white border border-slate-100 px-8 py-1 rounded-full shadow-md">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.headerBg }}>KARTU PELAJAR</span>
-            </div>
+        <div className="absolute left-0 w-full z-10 pointer-events-none flex justify-center" style={{ top: els.title?.y || 58 }}>
+          <div className="inline-block bg-white border border-slate-100 px-8 py-1 rounded-full shadow-md text-center">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.headerBg }}>KARTU PELAJAR</span>
           </div>
         </div>
       )}
@@ -148,15 +147,16 @@ export function StudentCardVisual({
       )}
 
       {side === 'back' && (
-        <div className="absolute z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}>
-          <div className="relative w-full flex flex-col items-center mb-4">
-            <div className="w-full h-[1px] bg-slate-200 absolute top-1/2 -z-10"></div>
-            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-md">
+        <>
+          <div className="absolute left-0 w-full z-10 pointer-events-none flex justify-center" style={{ top: els.termsTitle?.y || 58 }}>
+            <div className="inline-block bg-white border border-slate-100 px-6 py-1 rounded-full shadow-md text-center">
               <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.headerBg }}>KETENTUAN PENGGUNA</span>
             </div>
           </div>
-          <p className="text-[8px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-6 mt-2">{settings?.terms_student}</p>
-        </div>
+          <div className="absolute z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}>
+            <p className="text-[8px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-6 mt-2">{settings?.terms_student}</p>
+          </div>
+        </>
       )}
 
       {showStamp && settings?.stamp_image && (

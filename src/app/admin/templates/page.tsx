@@ -106,7 +106,9 @@ export default function TemplatesPage() {
       signature: { x: 150, y: 360, scale: 0.8 },
       principalInfo: { x: 150, y: 395, fontSize: 7 },
       stamp: { x: 130, y: 380, scale: 0.8 },
-      terms: { x: 18, y: 120, width: 240 }
+      terms: { x: 18, y: 120, width: 240 },
+      title: { x: 0, y: 60 },
+      termsTitle: { x: 0, y: 100 }
     } : {
       photo: { x: 15, y: 70, w: 60, h: 80 },
       qr: { x: 15, y: 155, w: 48, h: 48 },
@@ -114,7 +116,9 @@ export default function TemplatesPage() {
       signature: { x: 240, y: 150, scale: 0.75 },
       principalInfo: { x: 240, y: 180, fontSize: 6 },
       stamp: { x: 220, y: 160, scale: 0.75 },
-      terms: { x: 30, y: 60, width: 280 }
+      terms: { x: 30, y: 60, width: 280 },
+      title: { x: 0, y: 58 },
+      termsTitle: { x: 0, y: 58 }
     };
 
     const newTemplate = {
@@ -395,10 +399,7 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
 
   const tKey = template.type === 'STUDENT_CARD' ? 'student' : (template.type === 'EXAM_CARD' ? 'exam' : 'id');
   
-  // Periksa apakah elemen legalitas harus ditampilkan di sisi aktif
   const showLegalGroup = activeSide === 'front' ? settings?.[`${tKey}_show_sig_front` as any] : settings?.[`${tKey}_show_sig_back` as any];
-  
-  // Periksa apakah data identitas atau masa berlaku diaktifkan (untuk memunculkan hotspot info)
   const showInfo = activeSide === 'front' ? settings?.[`${tKey}_show_info_front` as any] : settings?.[`${tKey}_show_info_back` as any];
   const showValid = activeSide === 'front' ? settings?.[`${tKey}_show_valid_front` as any] : settings?.[`${tKey}_show_valid_back` as any];
   const showPhoto = activeSide === 'front' ? settings?.[`${tKey}_show_photo_front` as any] : settings?.[`${tKey}_show_photo_back` as any];
@@ -417,7 +418,9 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
         signature: { x: 150, y: 360, scale: 0.8 },
         principalInfo: { x: 150, y: 395, fontSize: 7 },
         stamp: { x: 130, y: 380, scale: 0.8 },
-        terms: { x: 18, y: 120, width: 240 }
+        terms: { x: 18, y: 120, width: 240 },
+        title: { x: 0, y: 60 },
+        termsTitle: { x: 0, y: 100 }
       } : { 
         photo: { x: 15, y: 70, w: 60, h: 80 }, 
         qr: { x: 15, y: 155, w: 48, h: 48 }, 
@@ -425,7 +428,9 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
         signature: { x: 240, y: 150, scale: 0.75 },
         principalInfo: { x: 240, y: 180, fontSize: 6 },
         stamp: { x: 220, y: 160, scale: 0.75 },
-        terms: { x: 30, y: 60, width: 280 }
+        terms: { x: 30, y: 60, width: 280 },
+        title: { x: 0, y: 58 },
+        termsTitle: { x: 0, y: 58 }
       };
 
       const base = {
@@ -433,6 +438,7 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
         elements: defaultElements,
         watermark: { enabled: false, text: 'SMKN 2 TANA TORAJA', opacity: 0.1, size: 10, angle: -30, imageEnabled: false, imageUrl: '', imageOpacity: 0.1, imageSize: 100 }
       };
+      
       setConfig({
         front: { ...base, ...parsed.front, elements: { ...base.elements, ...parsed.front?.elements } },
         back: { ...base, ...parsed.back, elements: { ...base.elements, ...parsed.back?.elements } }
@@ -654,6 +660,8 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
               >
                 {renderPreview(template.type, student, settings, activeSide, { ...template, config_json: JSON.stringify(config) })}
                 
+                {activeSide === 'front' && <EditorHotspot x={current.elements.title?.x || 0} y={current.elements.title?.y || 58} w={dimensions.w} h={30} onDown={(e) => handlePointerDown(e, 'title')} isActive={draggingElement === 'title'} label="JUDUL KARTU" />}
+                
                 {showPhoto && <EditorHotspot x={current.elements.photo.x} y={current.elements.photo.y} w={current.elements.photo.w} h={current.elements.photo.h} onDown={(e) => handlePointerDown(e, 'photo')} isActive={draggingElement === 'photo'} label="FOTO" />}
                 {showQr && <EditorHotspot x={current.elements.qr.x} y={current.elements.qr.y} w={current.elements.qr.w} h={current.elements.qr.h} onDown={(e) => handlePointerDown(e, 'qr')} isActive={draggingElement === 'qr'} label="QR" />}
                 {(showInfo || showValid) && <EditorHotspot x={current.elements.info.x} y={current.elements.info.y} w={current.elements.info.width} h={60} onDown={(e) => handlePointerDown(e, 'info')} isActive={draggingElement === 'info'} label="INFO SISWA" />}
@@ -667,8 +675,11 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
                 
                 {showStamp && <EditorHotspot x={current.elements.stamp?.x || 220} y={current.elements.stamp?.y || 160} w={40} h={40} onDown={(e) => handlePointerDown(e, 'stamp')} isActive={draggingElement === 'stamp'} label="STEMPEL" />}
                 
-                {activeSide === 'back' && current.elements.terms && (
-                  <EditorHotspot x={current.elements.terms.x} y={current.elements.terms.y} w={current.elements.terms.width} h={100} onDown={(e) => handlePointerDown(e, 'terms')} isActive={draggingElement === 'terms'} label="KETENTUAN" />
+                {activeSide === 'back' && (
+                  <>
+                    <EditorHotspot x={current.elements.termsTitle?.x || 0} y={current.elements.termsTitle?.y || 58} w={dimensions.w} h={30} onDown={(e) => handlePointerDown(e, 'termsTitle')} isActive={draggingElement === 'termsTitle'} label="JUDUL KETENTUAN" />
+                    {current.elements.terms && <EditorHotspot x={current.elements.terms.x} y={current.elements.terms.y} w={current.elements.terms.width} h={100} onDown={(e) => handlePointerDown(e, 'terms')} isActive={draggingElement === 'terms'} label="TEKS KETENTUAN" />}
+                  </>
                 )}
               </div>
             </div>
@@ -677,7 +688,7 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center shrink-0"><Type className="h-5 w-5 text-primary" /></div>
                <div className="space-y-1">
                  <h5 className="text-xs font-black uppercase tracking-tight text-slate-800">Kustomisasi Tata Letak</h5>
-                 <p className="text-[10px] text-slate-500 leading-relaxed">Geser elemen langsung pada kartu untuk menentukan posisi terbaik. Gunakan slider di panel kiri untuk mengubah ukuran foto, barcode, teks, dan skala legalitas secara presisi.</p>
+                 <p className="text-[10px] text-slate-500 leading-relaxed">Geser elemen langsung pada kartu untuk menentukan posisi terbaik. Seluruh elemen termasuk judul kini dapat Anda atur secara bebas.</p>
                </div>
             </div>
           </div>
