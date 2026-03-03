@@ -109,9 +109,9 @@ export function StudentCardVisual({
       </div>
 
       {side === 'front' && (
-        <div className="absolute left-0 w-full z-10 pointer-events-none flex justify-center" style={{ top: els.title?.y || 58 }}>
-          <div className="inline-block bg-white border border-slate-100 px-8 py-1 rounded-full shadow-md text-center">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.headerBg }}>KARTU PELAJAR</span>
+        <div className="absolute z-10 pointer-events-none" style={{ left: els.title?.x || 0, top: els.title?.y || 58, width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <div className="bg-white border border-slate-100 rounded-full shadow-md text-center inline-flex items-center justify-center" style={{ padding: '4px 32px', minHeight: '24px' }}>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg, lineHeight: '1.2' }}>KARTU PELAJAR</span>
           </div>
         </div>
       )}
@@ -148,9 +148,9 @@ export function StudentCardVisual({
 
       {side === 'back' && (
         <>
-          <div className="absolute left-0 w-full z-10 pointer-events-none flex justify-center" style={{ top: els.termsTitle?.y || 58 }}>
-            <div className="inline-block bg-white border border-slate-100 px-6 py-1 rounded-full shadow-md text-center">
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.headerBg }}>KETENTUAN PENGGUNA</span>
+          <div className="absolute z-10 pointer-events-none" style={{ left: els.termsTitle?.x || 0, top: els.termsTitle?.y || 58, width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <div className="bg-white border border-slate-100 rounded-full shadow-md text-center inline-flex items-center justify-center" style={{ padding: '4px 24px', minHeight: '22px' }}>
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg, lineHeight: '1.2' }}>KETENTUAN PENGGUNA</span>
             </div>
           </div>
           <div className="absolute z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}>
