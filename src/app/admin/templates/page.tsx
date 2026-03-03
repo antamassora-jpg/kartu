@@ -362,7 +362,7 @@ export default function TemplatesPage() {
         {isEditorOpen && editingTemplate && (
           <VisualEditorModal 
             isOpen={isEditorOpen} 
-            onOpenChange={onOpenChange}
+            onOpenChange={setIsEditorOpen}
             template={editingTemplate} 
             student={dummyStudent}
             settings={activeSettings}
@@ -402,6 +402,7 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
   const showStamp = activeSide === 'front' ? (settings?.[`${tKey}_show_stamp_front` as any] ?? false) : (settings?.[`${tKey}_show_stamp_back` as any] ?? true);
 
   useEffect(() => {
+    if (!template) return;
     try {
       const parsed = JSON.parse(template.config_json || '{}');
       
@@ -432,7 +433,9 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
         front: { ...base, ...parsed.front, elements: { ...base.elements, ...parsed.front?.elements } },
         back: { ...base, ...parsed.back, elements: { ...base.elements, ...parsed.back?.elements } }
       });
-    } catch (e) {}
+    } catch (e) {
+      console.error("Failed to parse config", e);
+    }
   }, [template, isPortrait]);
 
   if (!config) return null;
