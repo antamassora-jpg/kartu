@@ -111,10 +111,8 @@ export function ExamCardVisual({
       </div>
 
       {side === 'front' && (
-        <div className="absolute z-10 pointer-events-none" style={{ left: els.title?.x || 0, top: els.title?.y || 58, width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <div className="bg-white border border-slate-100 rounded-full shadow-md text-center inline-flex items-center justify-center" style={{ padding: '4px 32px', minHeight: '24px' }}>
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.footerBg, lineHeight: '1.2' }}>KARTU PESERTA UJIAN</span>
-          </div>
+        <div className="absolute z-10 pointer-events-none text-center flex justify-center" style={{ left: els.title?.x || 0, top: els.title?.y || 58, width: '100%' }}>
+          <span className="text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.footerBg }}>KARTU PESERTA UJIAN</span>
         </div>
       )}
 
@@ -150,10 +148,8 @@ export function ExamCardVisual({
 
       {side === 'back' && (
         <>
-          <div className="absolute z-10 pointer-events-none" style={{ left: els.termsTitle?.x || 0, top: els.termsTitle?.y || 58, width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <div className="bg-white border border-slate-100 rounded-full shadow-md text-center inline-flex items-center justify-center" style={{ padding: '4px 24px', minHeight: '22px' }}>
-              <span className="text-[8px] font-black uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg, lineHeight: '1.2' }}>TATA TERTIB UJIAN</span>
-            </div>
+          <div className="absolute z-10 pointer-events-none text-center flex justify-center" style={{ left: els.termsTitle?.x || 0, top: els.termsTitle?.y || 58, width: '100%' }}>
+            <span className="text-[8px] font-black uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg }}>TATA TERTIB UJIAN</span>
           </div>
           <div className="absolute z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}>
             <p className="text-[7.5px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-6 mt-2">{settings?.terms_exam}</p>
