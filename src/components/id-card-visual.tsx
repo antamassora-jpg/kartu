@@ -152,9 +152,9 @@ export function IdCardVisual({
 
       {side === 'back' && (
         <div className="absolute z-10" style={{ left: els.terms?.x || 18, top: els.terms?.y || 120, width: `${els.terms?.width || 240}px` }}>
-          <div className="flex items-center justify-center gap-3 mb-4 relative py-1">
+          <div className="relative w-full h-6 flex items-center justify-center mb-4">
             <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-200 -z-10"></div>
-            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-sm relative z-10">
+            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-sm relative z-10 inline-block">
               <span className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: current.headerBg }}>KETENTUAN ID CARD</span>
             </div>
           </div>

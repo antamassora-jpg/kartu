@@ -107,8 +107,8 @@ export function ExamCardVisual({
       </div>
 
       {side === 'front' && (
-        <div className="absolute top-[58px] left-0 right-0 flex justify-center z-10">
-          <div className="bg-white border border-slate-100 px-8 py-1 rounded-full shadow-sm flex items-center justify-center">
+        <div className="absolute top-[58px] left-0 w-full text-center z-10">
+          <div className="inline-block bg-white border border-slate-100 px-8 py-1 rounded-full shadow-sm">
             <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none" style={{ color: current.footerBg }}>KARTU PESERTA UJIAN</span>
           </div>
         </div>
@@ -146,9 +146,9 @@ export function ExamCardVisual({
 
       {side === 'back' && (
         <div className="absolute z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}>
-          <div className="flex items-center justify-center gap-3 mb-4 relative py-1 h-6">
-            <div className="absolute left-0 right-0 top-[11px] h-[1px] bg-slate-200 -z-10"></div>
-            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-sm relative z-10">
+          <div className="relative w-full h-6 flex items-center justify-center mb-4">
+            <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-200 -z-10"></div>
+            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-sm relative z-10 inline-block">
               <span className="text-[8px] font-black uppercase tracking-[0.2em] leading-none" style={{ color: current.headerBg }}>TATA TERTIB UJIAN</span>
             </div>
           </div>
