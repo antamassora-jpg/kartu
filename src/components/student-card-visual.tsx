@@ -81,12 +81,15 @@ export function StudentCardVisual({
 
   const showLogoLeft = side === 'front' ? (settings?.student_show_logo_front ?? true) : (settings?.student_show_logo_back ?? true);
   const showLogoRight = side === 'front' ? (settings?.student_show_logo_right_front ?? true) : (settings?.student_show_logo_right_back ?? false);
-  const showSig = side === 'front' ? (settings?.student_show_sig_front ?? false) : (settings?.student_show_sig_back ?? true);
-  const showStamp = side === 'front' ? (settings?.student_show_stamp_front ?? false) : (settings?.student_show_stamp_back ?? true);
-  const showPhoto = side === 'front' ? (settings?.student_show_photo_front ?? true) : (settings?.student_show_photo_back ?? false);
-  const showInfo = side === 'front' ? (settings?.student_show_info_front ?? true) : (settings?.student_show_info_back ?? false);
-  const showQr = side === 'front' ? (settings?.student_show_qr_front ?? false) : (settings?.student_show_qr_back ?? true);
-  const showValid = side === 'front' ? (settings?.student_show_valid_front ?? true) : (settings?.student_show_valid_back ?? false);
+  
+  // Tanda tangan, nama pejabat, dan stempel dikontrol oleh switch "Tanda Tangan" di settings
+  const showLegalGroup = side === 'front' ? settings?.student_show_sig_front : settings?.student_show_sig_back;
+  const showStamp = side === 'front' ? settings?.student_show_stamp_front : settings?.student_show_stamp_back;
+  
+  const showPhoto = side === 'front' ? settings?.student_show_photo_front : settings?.student_show_photo_back;
+  const showInfo = side === 'front' ? settings?.student_show_info_front : settings?.student_show_info_back;
+  const showQr = side === 'front' ? settings?.student_show_qr_front : settings?.student_show_qr_back;
+  const showValid = side === 'front' ? settings?.student_show_valid_front : settings?.student_show_valid_back;
 
   const photoUrl = student.photo_url || (student as any).photoUrl;
 
@@ -105,9 +108,11 @@ export function StudentCardVisual({
       </div>
 
       {side === 'front' && (
-        <div className="absolute top-[58px] left-0 w-full text-center z-10">
-          <div className="inline-block bg-white border border-slate-100 px-8 py-1 rounded-full shadow-sm">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none" style={{ color: current.headerBg }}>KARTU PELAJAR</span>
+        <div className="absolute top-[58px] left-0 w-full z-10 pointer-events-none">
+          <div className="w-full text-center">
+            <div className="inline-block bg-white border border-slate-100 px-8 py-1 rounded-full shadow-md">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.headerBg }}>KARTU PELAJAR</span>
+            </div>
           </div>
         </div>
       )}
@@ -144,10 +149,10 @@ export function StudentCardVisual({
 
       {side === 'back' && (
         <div className="absolute z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}>
-          <div className="relative w-full h-6 flex items-center justify-center mb-4">
-            <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-200 -z-10"></div>
-            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-sm relative z-10 inline-block">
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none" style={{ color: current.headerBg }}>KETENTUAN PENGGUNA</span>
+          <div className="relative w-full flex flex-col items-center mb-4">
+            <div className="w-full h-[1px] bg-slate-200 absolute top-1/2 -z-10"></div>
+            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-md">
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.headerBg }}>KETENTUAN PENGGUNA</span>
             </div>
           </div>
           <p className="text-[8px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-6 mt-2">{settings?.terms_student}</p>
@@ -160,7 +165,7 @@ export function StudentCardVisual({
         </div>
       )}
 
-      {showSig && (
+      {showLegalGroup && (
         <>
           <div className="absolute z-10" style={{ left: els.signature?.x || 240, top: els.signature?.y || 150, transform: `scale(${els.signature?.scale || 0.75})`, transformOrigin: 'top left' }}>
             {settings?.signature_image && <div className="w-14 h-7 relative"><Image src={settings.signature_image} alt="T" fill className="object-contain" unoptimized /></div>}

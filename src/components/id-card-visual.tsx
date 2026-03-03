@@ -81,12 +81,15 @@ export function IdCardVisual({
 
   const showLogo = side === 'front' ? (settings?.id_show_logo_front ?? true) : (settings?.id_show_logo_back ?? true);
   const showLogoRight = side === 'front' ? (settings?.id_show_logo_right_front ?? false) : (settings?.id_show_logo_right_back ?? false);
-  const showSig = side === 'front' ? (settings?.id_show_sig_front ?? false) : (settings?.id_show_sig_back ?? true);
-  const showStamp = side === 'front' ? (settings?.id_show_stamp_front ?? false) : (settings?.id_show_stamp_back ?? true);
-  const showPhoto = side === 'front' ? (settings?.id_show_photo_front ?? true) : (settings?.id_show_photo_back ?? false);
-  const showInfo = side === 'front' ? (settings?.id_show_info_front ?? true) : (settings?.id_show_info_back ?? false);
-  const showQr = side === 'front' ? (settings?.id_show_qr_front ?? false) : (settings?.id_show_qr_back ?? true);
-  const showValid = side === 'front' ? (settings?.id_show_valid_front ?? true) : (settings?.id_show_valid_back ?? false);
+  
+  // Kontrol legalitas
+  const showLegalGroup = side === 'front' ? settings?.id_show_sig_front : settings?.id_show_sig_back;
+  const showStamp = side === 'front' ? settings?.id_show_stamp_front : settings?.id_show_stamp_back;
+  
+  const showPhoto = side === 'front' ? settings?.id_show_photo_front : settings?.id_show_photo_back;
+  const showInfo = side === 'front' ? settings?.id_show_info_front : settings?.id_show_info_back;
+  const showQr = side === 'front' ? settings?.id_show_qr_front : settings?.id_show_qr_back;
+  const showValid = side === 'front' ? settings?.id_show_valid_front : settings?.id_show_valid_back;
 
   const photoUrl = student.photo_url || (student as any).photoUrl;
 
@@ -138,7 +141,7 @@ export function IdCardVisual({
         </div>
       )}
 
-      {showSig && (
+      {showLegalGroup && (
         <>
           <div className="absolute z-10" style={{ left: els.signature?.x || 150, top: els.signature?.y || 360, transform: `scale(${els.signature?.scale || 0.8})`, transformOrigin: 'top left' }}>
             {settings?.signature_id && <div className="w-16 h-8 relative"><Image src={settings.signature_id} alt="T" fill className="object-contain" unoptimized /></div>}
@@ -152,10 +155,10 @@ export function IdCardVisual({
 
       {side === 'back' && (
         <div className="absolute z-10" style={{ left: els.terms?.x || 18, top: els.terms?.y || 120, width: `${els.terms?.width || 240}px` }}>
-          <div className="relative w-full h-6 flex items-center justify-center mb-4">
-            <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-200 -z-10"></div>
-            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-sm relative z-10 inline-block">
-              <span className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: current.headerBg }}>KETENTUAN ID CARD</span>
+          <div className="relative w-full flex flex-col items-center mb-4">
+            <div className="w-full h-[1px] bg-slate-200 absolute top-1/2 -z-10"></div>
+            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-md">
+              <span className="text-[8px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.headerBg }}>KETENTUAN ID CARD</span>
             </div>
           </div>
           <p className="text-[8px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-6">{settings?.terms_id}</p>

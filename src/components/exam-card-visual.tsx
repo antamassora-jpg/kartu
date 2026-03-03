@@ -83,12 +83,15 @@ export function ExamCardVisual({
 
   const showLogoLeft = side === 'front' ? (settings?.exam_show_logo_front ?? true) : (settings?.exam_show_logo_back ?? true);
   const showLogoRight = side === 'front' ? (settings?.exam_show_logo_right_front ?? true) : (settings?.exam_show_logo_right_back ?? false);
-  const showSig = side === 'front' ? (settings?.exam_show_sig_front ?? false) : (settings?.exam_show_sig_back ?? true);
-  const showStamp = side === 'front' ? (settings?.exam_show_stamp_front ?? false) : (settings?.exam_show_stamp_back ?? true);
-  const showPhoto = side === 'front' ? (settings?.exam_show_photo_front ?? true) : (settings?.exam_show_photo_back ?? false);
-  const showInfo = side === 'front' ? (settings?.exam_show_info_front ?? true) : (settings?.exam_show_info_back ?? false);
-  const showQr = side === 'front' ? (settings?.exam_show_qr_front ?? false) : (settings?.exam_show_qr_back ?? true);
-  const showValid = side === 'front' ? (settings?.exam_show_valid_front ?? true) : (settings?.exam_show_valid_back ?? false);
+  
+  // Kontrol legalitas
+  const showLegalGroup = side === 'front' ? settings?.exam_show_sig_front : settings?.exam_show_sig_back;
+  const showStamp = side === 'front' ? settings?.exam_show_stamp_front : settings?.exam_show_stamp_back;
+  
+  const showPhoto = side === 'front' ? settings?.exam_show_photo_front : settings?.exam_show_photo_back;
+  const showInfo = side === 'front' ? settings?.exam_show_info_front : settings?.exam_show_info_back;
+  const showQr = side === 'front' ? settings?.exam_show_qr_front : settings?.exam_show_qr_back;
+  const showValid = side === 'front' ? settings?.exam_show_valid_front : settings?.exam_show_valid_back;
 
   const photoUrl = student.photo_url || (student as any).photoUrl;
 
@@ -107,9 +110,11 @@ export function ExamCardVisual({
       </div>
 
       {side === 'front' && (
-        <div className="absolute top-[58px] left-0 w-full text-center z-10">
-          <div className="inline-block bg-white border border-slate-100 px-8 py-1 rounded-full shadow-sm">
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none" style={{ color: current.footerBg }}>KARTU PESERTA UJIAN</span>
+        <div className="absolute top-[58px] left-0 w-full z-10 pointer-events-none">
+          <div className="w-full text-center">
+            <div className="inline-block bg-white border border-slate-100 px-8 py-1 rounded-full shadow-md">
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.footerBg }}>KARTU PESERTA UJIAN</span>
+            </div>
           </div>
         </div>
       )}
@@ -146,10 +151,10 @@ export function ExamCardVisual({
 
       {side === 'back' && (
         <div className="absolute z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}>
-          <div className="relative w-full h-6 flex items-center justify-center mb-4">
-            <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-200 -z-10"></div>
-            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-sm relative z-10 inline-block">
-              <span className="text-[8px] font-black uppercase tracking-[0.2em] leading-none" style={{ color: current.headerBg }}>TATA TERTIB UJIAN</span>
+          <div className="relative w-full flex flex-col items-center mb-4">
+            <div className="w-full h-[1px] bg-slate-200 absolute top-1/2 -z-10"></div>
+            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-md">
+              <span className="text-[8px] font-black uppercase tracking-[0.2em] leading-none block whitespace-nowrap" style={{ color: current.headerBg }}>TATA TERTIB UJIAN</span>
             </div>
           </div>
           <p className="text-[7.5px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-6 mt-2">{settings?.terms_exam}</p>
@@ -162,7 +167,7 @@ export function ExamCardVisual({
         </div>
       )}
 
-      {showSig && (
+      {showLegalGroup && (
         <>
           <div className="absolute z-10" style={{ left: els.signature?.x || 240, top: els.signature?.y || 150, transform: `scale(${els.signature?.scale || 0.75})`, transformOrigin: 'top left' }}>
             {settings?.signature_exam && <div className="w-14 h-7 relative"><Image src={settings.signature_exam} alt="T" fill className="object-contain" unoptimized /></div>}

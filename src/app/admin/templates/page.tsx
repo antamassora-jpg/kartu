@@ -394,12 +394,16 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
   const dimensions = isPortrait ? { w: 276, h: 420 } : { w: 340, h: 215 };
 
   const tKey = template.type === 'STUDENT_CARD' ? 'student' : (template.type === 'EXAM_CARD' ? 'exam' : 'id');
-  const showPhoto = activeSide === 'front' ? (settings?.[`${tKey}_show_photo_front` as any] ?? true) : (settings?.[`${tKey}_show_photo_back` as any] ?? false);
-  const showQr = activeSide === 'front' ? (settings?.[`${tKey}_show_qr_front` as any] ?? false) : (settings?.[`${tKey}_show_qr_back` as any] ?? true);
-  const showInfo = activeSide === 'front' ? (settings?.[`${tKey}_show_info_front` as any] ?? true) : (settings?.[`${tKey}_show_info_back` as any] ?? false);
-  const showValid = activeSide === 'front' ? (settings?.[`${tKey}_show_valid_front` as any] ?? true) : (settings?.[`${tKey}_show_valid_back` as any] ?? false);
-  const showSig = activeSide === 'front' ? (settings?.[`${tKey}_show_sig_front` as any] ?? false) : (settings?.[`${tKey}_show_sig_back` as any] ?? true);
-  const showStamp = activeSide === 'front' ? (settings?.[`${tKey}_show_stamp_front` as any] ?? false) : (settings?.[`${tKey}_show_stamp_back` as any] ?? true);
+  
+  // Periksa apakah elemen legalitas harus ditampilkan di sisi aktif
+  const showLegalGroup = activeSide === 'front' ? settings?.[`${tKey}_show_sig_front` as any] : settings?.[`${tKey}_show_sig_back` as any];
+  
+  // Periksa apakah data identitas atau masa berlaku diaktifkan (untuk memunculkan hotspot info)
+  const showInfo = activeSide === 'front' ? settings?.[`${tKey}_show_info_front` as any] : settings?.[`${tKey}_show_info_back` as any];
+  const showValid = activeSide === 'front' ? settings?.[`${tKey}_show_valid_front` as any] : settings?.[`${tKey}_show_valid_back` as any];
+  const showPhoto = activeSide === 'front' ? settings?.[`${tKey}_show_photo_front` as any] : settings?.[`${tKey}_show_photo_back` as any];
+  const showQr = activeSide === 'front' ? settings?.[`${tKey}_show_qr_front` as any] : settings?.[`${tKey}_show_qr_back` as any];
+  const showStamp = activeSide === 'front' ? settings?.[`${tKey}_show_stamp_front` as any] : settings?.[`${tKey}_show_stamp_back` as any];
 
   useEffect(() => {
     if (!template) return;
@@ -654,8 +658,12 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
                 {showQr && <EditorHotspot x={current.elements.qr.x} y={current.elements.qr.y} w={current.elements.qr.w} h={current.elements.qr.h} onDown={(e) => handlePointerDown(e, 'qr')} isActive={draggingElement === 'qr'} label="QR" />}
                 {(showInfo || showValid) && <EditorHotspot x={current.elements.info.x} y={current.elements.info.y} w={current.elements.info.width} h={60} onDown={(e) => handlePointerDown(e, 'info')} isActive={draggingElement === 'info'} label="INFO SISWA" />}
                 
-                {showSig && <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 150} w={60} h={30} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="GAMBAR TTD" />}
-                {showSig && <EditorHotspot x={current.elements.principalInfo?.x || 240} y={current.elements.principalInfo?.y || 180} w={100} h={25} onDown={(e) => handlePointerDown(e, 'principalInfo')} isActive={draggingElement === 'principalInfo'} label="NAMA & NIP" />}
+                {showLegalGroup && (
+                  <>
+                    <EditorHotspot x={current.elements.signature?.x || 240} y={current.elements.signature?.y || 150} w={60} h={30} onDown={(e) => handlePointerDown(e, 'signature')} isActive={draggingElement === 'signature'} label="GAMBAR TTD" />
+                    <EditorHotspot x={current.elements.principalInfo?.x || 240} y={current.elements.principalInfo?.y || 180} w={100} h={25} onDown={(e) => handlePointerDown(e, 'principalInfo')} isActive={draggingElement === 'principalInfo'} label="NAMA & NIP" />
+                  </>
+                )}
                 
                 {showStamp && <EditorHotspot x={current.elements.stamp?.x || 220} y={current.elements.stamp?.y || 160} w={40} h={40} onDown={(e) => handlePointerDown(e, 'stamp')} isActive={draggingElement === 'stamp'} label="STEMPEL" />}
                 
