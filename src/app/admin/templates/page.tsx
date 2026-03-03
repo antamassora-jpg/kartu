@@ -362,7 +362,7 @@ export default function TemplatesPage() {
         {isEditorOpen && editingTemplate && (
           <VisualEditorModal 
             isOpen={isEditorOpen} 
-            onOpenChange={setIsEditorOpen}
+            onOpenChange={onOpenChange}
             template={editingTemplate} 
             student={dummyStudent}
             settings={activeSettings}
@@ -437,6 +437,8 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
 
   if (!config) return null;
 
+  const current = config[activeSide];
+
   const updateConfig = (side: 'front' | 'back', field: string, value: any) => {
     setConfig((prev: any) => ({
       ...prev,
@@ -509,8 +511,6 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
   const handlePointerUp = (e: React.PointerEvent) => {
     setDraggingElement(null);
   };
-
-  const current = config[activeSide];
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

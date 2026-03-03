@@ -160,7 +160,14 @@ export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | 
   const memoized = useMemo(factory, deps);
   
   if(typeof memoized !== 'object' || memoized === null) return memoized;
-  (memoized as MemoFirebase<T>).__memo = true;
+  
+  // Use try-catch to handle frozen objects in development
+  try {
+    (memoized as MemoFirebase<T>).__memo = true;
+  } catch (e) {
+    // If object is frozen, we wrap it
+    return Object.assign(Object.create(Object.getPrototypeOf(memoized)), memoized, { __memo: true });
+  }
   
   return memoized;
 }
