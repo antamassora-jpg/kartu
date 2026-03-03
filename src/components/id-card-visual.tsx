@@ -99,12 +99,12 @@ export function IdCardVisual({
       {wm.enabled && <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: watermarkDataUri, backgroundRepeat: 'repeat' }}></div>}
       {wm.imageEnabled && wm.imageUrl && <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-0" style={{ opacity: wm.imageOpacity }}><div className="relative" style={{ width: wm.imageSize, height: wm.imageSize }}><Image src={wm.imageUrl} alt="W" fill className="object-contain" priority unoptimized /></div></div>}
 
-      <div style={{ backgroundColor: current.headerBg }} className="relative z-20 pt-8 pb-5 px-6 flex flex-col items-center shadow-lg border-b border-white/10">
+      <div style={{ backgroundColor: current.headerBg }} className="relative z-20 pt-8 pb-5 px-6 flex flex-col items-center shadow-lg border-b border-white/10 min-h-[6rem] h-auto">
         <div className="flex items-center w-full text-white">
           {showLogo && settings?.logo_left_id && <div className="w-10 h-10 relative bg-white rounded-xl p-1.5 shrink-0 mr-3"><Image src={settings.logo_left_id} alt="L" fill className="object-contain" priority unoptimized /></div>}
           <div className="flex-1 flex flex-col">
             <h2 className="font-black text-[10px] uppercase leading-tight tracking-tight">{settings?.school_name}</h2>
-            <span className="text-[6px] opacity-80 leading-tight block mt-0.5">{settings?.address}</span>
+            <span className="text-[6px] opacity-95 leading-tight block mt-0.5">{settings?.address}</span>
             <h2 className="font-bold text-[7px] uppercase opacity-70 mt-0.5 block">Digital Identity Card</h2>
           </div>
           {showLogoRight && settings?.logo_right_id && <div className="w-10 h-10 relative bg-white rounded-xl p-1.5 shrink-0 ml-2"><Image src={settings.logo_right_id} alt="R" fill className="object-contain" priority unoptimized /></div>}

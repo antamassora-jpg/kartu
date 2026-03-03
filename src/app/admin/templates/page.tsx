@@ -677,7 +677,7 @@ function VisualEditorModal({ isOpen, onOpenChange, template, student, settings, 
                 
                 {activeSide === 'back' && (
                   <>
-                    <EditorHotspot x={current.elements.termsTitle?.x || 0} y={current.elements.termsTitle?.y || 58} w={dimensions.w} h={30} onDown={(e) => handlePointerDown(e, 'termsTitle')} isActive={draggingElement === 'termsTitle'} label="JUDUL KETENTUAN" />
+                    <EditorHotspot x={current.elements.termsTitle?.x || 0} y={current.elements.termsTitle?.y || 100} w={dimensions.w} h={30} onDown={(e) => handlePointerDown(e, 'termsTitle')} isActive={draggingElement === 'termsTitle'} label="JUDUL KETENTUAN" />
                     {current.elements.terms && <EditorHotspot x={current.elements.terms.x} y={current.elements.terms.y} w={current.elements.terms.width} h={100} onDown={(e) => handlePointerDown(e, 'terms')} isActive={draggingElement === 'terms'} label="TEKS KETENTUAN" />}
                   </>
                 )}

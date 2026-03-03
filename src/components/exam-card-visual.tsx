@@ -101,11 +101,11 @@ export function ExamCardVisual({
       {wm.enabled && <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: watermarkDataUri, backgroundRepeat: 'repeat' }}></div>}
       {wm.imageEnabled && wm.imageUrl && <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-0" style={{ opacity: wm.imageOpacity }}><div className="relative" style={{ width: wm.imageSize, height: wm.imageSize }}><Image src={wm.imageUrl} alt="W" fill className="object-contain" priority unoptimized /></div></div>}
 
-      <div style={{ backgroundColor: current.headerBg }} className="h-14 flex items-center px-4 relative z-10 border-b">
+      <div style={{ backgroundColor: current.headerBg }} className="min-h-[3.5rem] h-auto flex items-center px-4 py-2 relative z-10 border-b">
         {showLogoLeft && settings?.logo_left_exam && <div className="w-10 h-10 relative bg-white rounded-md p-1 shrink-0 mr-3"><Image src={settings.logo_left_exam} alt="L" fill className="object-contain" priority unoptimized /></div>}
         <div className="flex-1 flex flex-col text-white text-center">
           <span className="font-bold text-[9px] uppercase leading-tight tracking-tight">{settings?.school_name}</span>
-          <span className="text-[6px] opacity-80 leading-tight block mt-0.5 line-clamp-2 px-1">{settings?.address}</span>
+          <span className="text-[6px] opacity-95 leading-tight block mt-0.5 px-1">{settings?.address}</span>
         </div>
         {showLogoRight && settings?.logo_right_exam && <div className="w-10 h-10 relative bg-white rounded-md p-1 shrink-0 ml-3"><Image src={settings.logo_right_exam} alt="R" fill className="object-contain" priority unoptimized /></div>}
       </div>
@@ -148,7 +148,7 @@ export function ExamCardVisual({
 
       {side === 'back' && (
         <>
-          <div className="absolute z-10 pointer-events-none text-center flex justify-center" style={{ left: els.termsTitle?.x || 0, top: els.termsTitle?.y || 58, width: '100%' }}>
+          <div className="absolute z-10 pointer-events-none text-center flex justify-center" style={{ left: els.termsTitle?.x || 0, top: els.termsTitle?.y || 100, width: '100%' }}>
             <span className="text-[8px] font-black uppercase tracking-[0.2em] whitespace-nowrap" style={{ color: current.headerBg }}>TATA TERTIB UJIAN</span>
           </div>
           <div className="absolute z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}>
