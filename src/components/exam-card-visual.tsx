@@ -12,7 +12,7 @@ const DEFAULT_ELEMENTS = {
   stamp: { x: 220, y: 160, scale: 0.75 },
   terms: { x: 30, y: 60, width: 280 },
   title: { x: 0, y: 58 },
-  termsTitle: { x: 0, y: 58 }
+  termsTitle: { x: 0, y: 100 }
 };
 
 const DEFAULT_WATERMARK = {

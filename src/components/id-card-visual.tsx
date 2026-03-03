@@ -144,7 +144,7 @@ export function IdCardVisual({
 
       {showLegalGroup && (
         <>
-          <div className="absolute z-10" style={{ left: els.signature?.x || 150, top: els.signature?.y || 360, transform: `scale(${els.signature?.scale || 0.8})`, transformOrigin: 'top left' }}>
+          <div className="absolute z-10" style={{ left: els.signature?.x || 150, top: his.signature?.y || 360, transform: `scale(${els.signature?.scale || 0.8})`, transformOrigin: 'top left' }}>
             {settings?.signature_id && <div className="w-16 h-8 relative"><Image src={settings.signature_id} alt="T" fill className="object-contain" unoptimized /></div>}
           </div>
           <div className="absolute z-10 text-left" style={{ left: els.principalInfo?.x || 150, top: els.principalInfo?.y || 395, width: '120px' }}>
