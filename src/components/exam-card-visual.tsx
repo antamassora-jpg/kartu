@@ -106,11 +106,17 @@ export function ExamCardVisual({
         {showLogoRight && settings?.logo_right_exam && <div className="w-10 h-10 relative bg-white rounded-md p-1 shrink-0 ml-3"><Image src={settings.logo_right_exam} alt="R" fill className="object-contain" priority unoptimized /></div>}
       </div>
 
-      {side === 'front' && <div className="absolute top-[58px] left-0 right-0 text-center z-10"><span className="text-[9px] font-black uppercase tracking-[0.2em] px-4 py-0.5 rounded-full border border-slate-100 bg-slate-50/50 inline-block shadow-sm" style={{ color: current.footerBg }}>KARTU PESERTA UJIAN</span></div>}
+      {side === 'front' && (
+        <div className="absolute top-[58px] left-0 right-0 flex justify-center z-10">
+          <div className="bg-white border border-slate-100 px-8 py-1 rounded-full shadow-sm flex items-center justify-center">
+            <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: current.footerBg }}>KARTU PESERTA UJIAN</span>
+          </div>
+        </div>
+      )}
 
       {showPhoto && (
         <div className="absolute bg-slate-50 rounded-md overflow-hidden border border-slate-200 shadow-sm z-10" style={{ left: els.photo.x, top: els.photo.y, width: els.photo.w, height: els.photo.h }}>
-          {photoUrl ? <Image src={photoUrl} alt={student.name} fill className="object-cover" priority unoptimized /> : <div className="w-full h-full flex items-center justify-center bg-slate-200 text-[8px]">FOTO</div>}
+          {photoUrl ? <Image src={photoUrl} alt={student.name} fill className="object-cover" priority unoptimized /> : <div className="w-full h-full flex items-center justify-center bg-slate-200 text-[8px] font-black uppercase">FOTO</div>}
         </div>
       )}
 
@@ -121,7 +127,7 @@ export function ExamCardVisual({
       )}
 
       {(showInfo || showValid) && (
-        <div className="absolute px-2 flex flex-col gap-1.5 z-10" style={{ left: els.info.x, top: els.info.y + 5, width: `${els.info.width || 180}px`, textAlign: els.info.align || 'left', alignItems: els.info.align === 'center' ? 'center' : (els.info.align === 'right' ? 'flex-end' : 'flex-start') }}>
+        <div className="absolute px-2 flex flex-col gap-1.5 z-10" style={{ left: els.info.x, top: els.info.y, width: `${els.info.width || 180}px`, textAlign: els.info.align || 'left', alignItems: els.info.align === 'center' ? 'center' : (els.info.align === 'right' ? 'flex-end' : 'flex-start') }}>
           {showInfo && (
             <>
               <div className="w-full"><span className="opacity-60 text-[6px] uppercase font-black block">Nama Peserta</span><span className="font-black uppercase leading-none block" style={{ fontSize: (els.info.fontSize || 10) + 1 }}>{student.name}</span></div>
@@ -129,11 +135,26 @@ export function ExamCardVisual({
               <div className="w-full"><span className="opacity-60 text-[6px] uppercase font-black block">Event Ujian</span><span className="font-bold uppercase block leading-tight" style={{ fontSize: (els.info.fontSize || 10) - 1 }}>{exam?.name || 'UJIAN AKHIR SEKOLAH'}</span></div>
             </>
           )}
-          {showValid && <div className="mt-1 w-full"><span className="opacity-60 text-[6px] uppercase font-black block">Masa Berlaku</span><span className="font-black block leading-none" style={{ fontSize: (els.info.fontSize || 10) - 1, color: current.footerBg }}>{student.valid_until}</span></div>}
+          {showValid && (
+            <div className="mt-1 w-full">
+              <span className="opacity-60 text-[6px] uppercase font-black block">Masa Berlaku</span>
+              <span className="font-black block leading-none" style={{ fontSize: (els.info.fontSize || 10) - 1, color: current.footerBg }}>{student.valid_until}</span>
+            </div>
+          )}
         </div>
       )}
 
-      {side === 'back' && <div className="absolute text-center z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}><div className="flex items-center justify-center gap-3 mb-3 relative py-1"><div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-300 -z-10"></div><span className="text-[8px] font-black uppercase tracking-[0.2em] bg-white px-3 relative z-10 border border-slate-100 rounded-full">Tata Tertib Ujian</span></div><p className="text-[7.5px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-4">{settings?.terms_exam}</p></div>}
+      {side === 'back' && (
+        <div className="absolute z-10" style={{ left: els.terms?.x || 30, top: els.terms?.y || 60, width: `${els.terms?.width || 280}px` }}>
+          <div className="flex items-center justify-center gap-3 mb-4 relative py-1">
+            <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-200 -z-10"></div>
+            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-sm relative z-10">
+              <span className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: current.headerBg }}>TATA TERTIB UJIAN</span>
+            </div>
+          </div>
+          <p className="text-[7.5px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-6">{settings?.terms_exam}</p>
+        </div>
+      )}
 
       {showStamp && settings?.stamp_exam && (
         <div className="absolute z-10" style={{ left: els.stamp?.x || 220, top: els.stamp?.y || 160, width: '40px', height: '40px', transform: `scale(${els.stamp?.scale || 0.75})`, transformOrigin: 'top left' }}>

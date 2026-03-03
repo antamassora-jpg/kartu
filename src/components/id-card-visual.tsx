@@ -109,7 +109,7 @@ export function IdCardVisual({
 
       {showPhoto && (
         <div className="absolute rounded-2xl border-4 border-white shadow-2xl overflow-hidden bg-slate-100 z-10" style={{ left: els.photo.x, top: els.photo.y, width: els.photo.w, height: els.photo.h }}>
-          {photoUrl ? <Image src={photoUrl} alt={student.name} fill className="object-cover object-top" priority unoptimized /> : <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-300 uppercase font-bold">FOTO</div>}
+          {photoUrl ? <Image src={photoUrl} alt={student.name} fill className="object-cover object-top" priority unoptimized /> : <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-300 uppercase font-black">FOTO</div>}
         </div>
       )}
 
@@ -150,7 +150,17 @@ export function IdCardVisual({
         </>
       )}
 
-      {side === 'back' && <div className="absolute text-center z-10" style={{ left: els.terms?.x || 18, top: els.terms?.y || 120, width: `${els.terms?.width || 240}px` }}><div className="flex items-center justify-center gap-3 mb-4 relative py-1"><div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-300 -z-10"></div><span className="text-[8px] font-black uppercase tracking-[0.2em] bg-white px-3 relative z-10 border border-slate-100 rounded-full">Ketentuan ID Card</span></div><p className="text-[8px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-4">{settings?.terms_id}</p></div>}
+      {side === 'back' && (
+        <div className="absolute z-10" style={{ left: els.terms?.x || 18, top: els.terms?.y || 120, width: `${els.terms?.width || 240}px` }}>
+          <div className="flex items-center justify-center gap-3 mb-4 relative py-1">
+            <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-slate-200 -z-10"></div>
+            <div className="bg-white border border-slate-100 px-6 py-1 rounded-full shadow-sm relative z-10">
+              <span className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: current.headerBg }}>KETENTUAN ID CARD</span>
+            </div>
+          </div>
+          <p className="text-[8px] italic text-slate-500 leading-relaxed whitespace-pre-line text-left px-6">{settings?.terms_id}</p>
+        </div>
+      )}
 
       <div style={{ backgroundColor: current.headerBg }} className="absolute bottom-0 left-0 right-0 h-2 z-10"></div>
     </div>
